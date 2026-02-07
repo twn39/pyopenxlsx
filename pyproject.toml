@@ -45,7 +45,7 @@ cmake.version = ">=3.15"
 wheel.packages = ["src/pyopenxlsx"]
 
 [tool.cibuildwheel]
-build-frontend = "uv"
+build-frontend = "build[uv]"
 test-extras = ["test"]
 test-command = "pytest {project}/tests -k \"not benchmark\""
 build-verbosity = "1"
