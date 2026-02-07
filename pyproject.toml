@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyopenxlsx"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python bindings for OpenXLSX using pybind11"
 readme = "README.md"
 authors = [{name = "curry tang", email = "twn39@163.com"}]
@@ -54,7 +54,7 @@ build-verbosity = "1"
 skip = ["cp39-*", "cp310-*"]
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y zlib-devel"
+before-all = "(command -v yum && yum install -y zlib-devel) || (command -v apk && apk add zlib-dev) || (command -v apt-get && apt-get update && apt-get install -y zlib1g-dev)"
 
 [tool.cibuildwheel.macos]
 # For macOS, we might need to ensure certain environment variables are set
