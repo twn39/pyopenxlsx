@@ -538,6 +538,32 @@ def is_date_format(format_code: int | str) -> bool:
 
 ---
 
+
+## Performance
+
+`pyopenxlsx` is built for speed. By leveraging the C++ OpenXLSX engine and providing optimized bulk operations, it significantly outperforms pure-Python alternatives.
+
+### Benchmarks (pyopenxlsx vs openpyxl)
+
+| Scenario | pyopenxlsx | openpyxl | Speedup |
+| :--- | :--- | :--- | :--- |
+| **Read** (20,000 cells) | **~7ms** | ~155ms | **21x** |
+| **Write** (1,000 cells) | **~6ms** | ~9ms | **1.5x** |
+| **Write** (50,000 cells) | **~200ms** | ~318ms | **1.6x** |
+| **Bulk Write** (50,000 cells) | **~77ms** | N/A | **4.1x** |
+| **Iteration** (20,000 cells) | **~86ms** | ~157ms | **1.8x** |
+
+> [!NOTE]
+> Benchmarks were performed on a local development machine using `pytest-benchmark`. Results may vary based on environment and data complexity. Bulk write uses `ws.write_range()` with NumPy arrays.
+
+### Why is it faster?
+1. **C++ Foundation**: Core operations happen in highly optimized C++.
+2. **Reduced Object Overhead**: `pyopenxlsx` minimizes the creation of many Python `Cell` objects during bulk operations.
+3. **Efficient Memory Mapping**: Leverages the memory-efficient design of OpenXLSX.
+4. **Asynchronous I/O**: Key operations are available as non-blocking coroutines to maximize throughput in concurrent applications.
+
+---
+
 ## Development
 
 ### Run Tests
