@@ -1,4 +1,5 @@
 import pytest
+from pyopenxlsx import Protection
 import datetime
 import openpyxl
 from pyopenxlsx import Workbook as PyWorkbook, Font, Fill, Border, Side, Alignment, XLPatternType, XLLineStyle, XLAlignmentStyle
@@ -32,12 +33,6 @@ def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
     ws["D1"].value = True
     ws["D2"].value = False
 
-    # 5. Dates / Datetimes
-    # Note: openpyxl expects dates to be stored as numbers with a specific style, 
-    # OR standard date format if no style. 
-    # Just writing value usually results in Serial Date in Excel.
-    # OpenPyXL reads these as numbers unless num_fmt is set.
-    # pyopenxlsx might not auto-set num_fmt yet?
     dt = datetime.datetime(2023, 10, 27, 14, 30, 0)
     d = datetime.date(2023, 12, 25)
     
@@ -61,11 +56,7 @@ def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
     # 1. Strings
     assert ws_xl["A1"].value == "Hello World"
     assert ws_xl["A2"].value == "你好世界"
-    # openpyxl might read empty string as None if cell is empty, but if explicitly set to "", it might be "" or None depending on implementation.
-    # Let's check what it actually is.
-    # If pyopenxlsx wrote an empty string element, openpyxl usually sees implicit None or empty string.
-    # We will adjust expectation if needed.
-    assert ws_xl["A3"].value in ("", None) 
+    assert ws_xl["A3"].value in ("", None)
 
     # 2. Integers
     assert ws_xl["B1"].value == 42
@@ -326,5 +317,93 @@ def test_write_openpyxl_read_pyopenxlsx_formulas(tmp_path):
     # OpenXLSX usually returns the formula string.
     assert "SUM(A1:A2)" in str(f1).upper()
     assert "MAX(A1:A2)" in str(f2).upper()
+    
+    wb.close()
+
+
+def test_write_pyopenxlsx_read_openpyxl_protection(tmp_path):
+    """
+    Test Case 1e: Write protection with pyopenxlsx, Read with openpyxl.
+    """
+    filename = tmp_path / "compat_protection.xlsx"
+    wb = PyWorkbook()
+    ws = wb.active
+    ws.title = "Protection"
+
+    # 1. Sheet Protection
+    ws.protect(password="secret")
+
+    # 2. Locked/Unlocked Cells
+    # By default in Excel, all cells are locked, but locking only takes effect when sheet is protected.
+    
+    # Unlock A1
+    ws["A1"].value = "Unlocked"
+    unlocked_idx = wb.add_style(protection=Protection(locked=False))
+    ws["A1"].style_index = unlocked_idx
+
+    # Lock B1 (explicitly or default)
+    ws["B1"].value = "Locked"
+    locked_idx = wb.add_style(protection=Protection(locked=True))
+    ws["B1"].style_index = locked_idx
+    
+    # Hidden C1
+    ws["C1"].value = "HiddenFormula"
+    # Hidden means formula is hidden
+    hidden_idx = wb.add_style(protection=Protection(hidden=True))
+    ws["C1"].style_index = hidden_idx
+
+    wb.save(str(filename))
+
+    # --- Verification with openpyxl ---
+    wb_xl = openpyxl.load_workbook(filename)
+    ws_xl = wb_xl["Protection"]
+
+    # Verify Sheet Protection
+    assert ws_xl.protection.sheet is True
+    # openpyxl might not be able to verify password correctness directly without hashcheck,
+    # but it should show it's password protected if the hash is there.
+    assert ws_xl.protection.password is not None # openpyxl stores hash or password string if set
+
+    # Verify Cell Locking
+    # Note: openpyxl cell.protection returns a Protection object style
+    assert ws_xl["A1"].protection.locked is False
+    assert ws_xl["B1"].protection.locked is True # Default is True usually, or explicitly set
+    assert ws_xl["C1"].protection.hidden is True
+    
+    wb_xl.close()
+
+
+def test_write_openpyxl_read_pyopenxlsx_protection(tmp_path):
+    """
+    Test Case 2c: Write protection with openpyxl, Read with pyopenxlsx.
+    """
+    filename = tmp_path / "reverse_compat_protection.xlsx"
+    
+    wb_xl = openpyxl.Workbook()
+    ws_xl = wb_xl.active
+    ws_xl.title = "ReverseProtection"
+    
+    # Protect Sheet
+    ws_xl.protection.sheet = True
+    ws_xl.protection.password = "secret"
+    
+    # Unlock A1
+    ws_xl["A1"] = "Unlocked"
+    ws_xl["A1"].protection = openpyxl.styles.Protection(locked=False)
+    
+    # Lock B1
+    ws_xl["B1"] = "Locked"
+    ws_xl["B1"].protection = openpyxl.styles.Protection(locked=True)
+    
+    wb_xl.save(filename)
+    
+    # --- Verification ---
+    wb = PyWorkbook(str(filename))
+    ws = wb.active
+    
+    # Verify Sheet Protection
+    assert ws.protection["protected"] is True
+    assert ws.protection["password_set"] is True
+    assert ws.protection["protected"] is True
     
     wb.close()
