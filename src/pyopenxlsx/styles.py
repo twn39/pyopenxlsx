@@ -48,7 +48,14 @@ class Fill:
     def __init__(
         self, pattern_type=XLPatternType.Solid, color=None, background_color=None
     ):
-        self._pattern_type = pattern_type
+        if isinstance(pattern_type, str):
+            self._pattern_type = XLPatternType.Solid # Default fallback
+            for name, member in XLPatternType.__members__.items():
+                if name.lower() == pattern_type.lower():
+                    self._pattern_type = member
+                    break
+        else:
+            self._pattern_type = pattern_type
         self._color = None
         self._background_color = None
 
