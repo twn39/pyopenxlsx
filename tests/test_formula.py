@@ -2,18 +2,15 @@ import pytest
 import os
 from pyopenxlsx import Workbook, Formula
 
-TEST_FILE = "test_formula.xlsx"
+
 
 
 @pytest.fixture
-def wb():
-    if os.path.exists(TEST_FILE):
-        os.remove(TEST_FILE)
+def wb(tmp_path):
+    test_file = tmp_path / "test.xlsx"
     wb = Workbook()
     yield wb
     wb.close()  # Ensure handles are closed
-    if os.path.exists(TEST_FILE):
-        os.remove(TEST_FILE)
 
 
 def test_formula_api(wb):

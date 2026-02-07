@@ -36,6 +36,7 @@ def test_datetime_write_read(tmp_path):
     output = tmp_path / "test_datetime.xlsx"
     wb.save(str(output))
     assert output.exists()
+    wb.close()
 
 
 def test_date_write_read(tmp_path):
@@ -57,3 +58,4 @@ def test_date_write_read(tmp_path):
     assert read_d.year == 2023
     assert read_d.month == 12
     assert read_d.day == 25
+    wb.close()

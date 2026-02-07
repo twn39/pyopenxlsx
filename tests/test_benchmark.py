@@ -21,6 +21,7 @@ def write_pyopenxlsx(rows, cols, filepath):
         for c in range(1, cols + 1):
             ws.cell(row=r, column=c).value = f"R{r}C{c}"
     wb.save(filepath)
+    wb.close()
 
 
 def write_openpyxl(rows, cols, filepath):
@@ -63,6 +64,7 @@ def write_pyopenxlsx_set_cell_value(rows, cols, filepath):
         for c in range(1, cols + 1):
             ws.set_cell_value(r, c, f"R{r}C{c}")
     wb.save(filepath)
+    wb.close()
 
 
 def write_pyopenxlsx_write_rows(rows, cols, filepath):
@@ -72,6 +74,7 @@ def write_pyopenxlsx_write_rows(rows, cols, filepath):
     data = [[f"R{r}C{c}" for c in range(1, cols + 1)] for r in range(1, rows + 1)]
     ws.write_rows(1, data)
     wb.save(filepath)
+    wb.close()
 
 
 @pytest.mark.benchmark(group="write_large")
@@ -100,6 +103,7 @@ def write_pyopenxlsx_bulk(rows, cols, filepath):
     data = np.arange(rows * cols, dtype=np.float64).reshape(rows, cols)
     ws.write_range(1, 1, data)
     wb.save(filepath)
+    wb.close()
 
 
 @pytest.mark.benchmark(group="write_large")

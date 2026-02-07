@@ -2,7 +2,8 @@ import pyopenxlsx
 import os
 
 
-def test_comments():
+def test_comments(tmp_path):
+    filename = tmp_path / "test_comments.xlsx"
     wb = pyopenxlsx.Workbook()
     ws = wb.active
 
@@ -40,16 +41,15 @@ def test_comments():
     assert cell.comment is None
     assert ws._sheet.comments().count() == 1
 
-    wb.save("test_comments.xlsx")
+    wb.save(str(filename))
+    wb.close()
 
     # Re-open and check
-    wb2 = pyopenxlsx.load_workbook("test_comments.xlsx")
+    wb2 = pyopenxlsx.load_workbook(str(filename))
     ws2 = wb2.active
     assert ws2._sheet.comments().count() == 1
     assert ws2["A1"].comment == "This is a comment"
-
-    if os.path.exists("test_comments.xlsx"):
-        os.remove("test_comments.xlsx")
+    wb2.close()
 
 
 def test_comments_overloads():

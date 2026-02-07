@@ -2,18 +2,15 @@ import pytest
 import os
 from pyopenxlsx import Workbook
 
-TEST_FILE = "test_merges_v2.xlsx"
+
 
 
 @pytest.fixture
-def wb():
-    if os.path.exists(TEST_FILE):
-        os.remove(TEST_FILE)
+def wb(tmp_path):
+    test_file = tmp_path / "test.xlsx"
     wb = Workbook()
     yield wb
     wb.close()  # Ensure handles are closed
-    if os.path.exists(TEST_FILE):
-        os.remove(TEST_FILE)
 
 
 def test_merge_cells_api(wb):

@@ -4,9 +4,10 @@ from pyopenxlsx import Workbook
 from pyopenxlsx._openxlsx import XLDocument
 
 
-def test_range_address():
+def test_range_basic(tmp_path):
+    doc_path = tmp_path / "test_range.xlsx"
     doc = XLDocument()
-    doc.create("test_range.xlsx")
+    doc.create(str(doc_path))
     wb = doc.workbook()
     ws = wb.worksheet("Sheet1")
 
@@ -23,13 +24,12 @@ def test_range_address():
 
     doc.save()
     doc.close()
-    if os.path.exists("test_range.xlsx"):
-        os.remove("test_range.xlsx")
 
 
-def test_range_iteration():
+def test_range_iteration(tmp_path):
+    doc_path = tmp_path / "test_iter.xlsx"
     doc = XLDocument()
-    doc.create("test_iter.xlsx")
+    doc.create(str(doc_path))
     wb = doc.workbook()
     ws = wb.worksheet("Sheet1")
 
@@ -60,13 +60,12 @@ def test_range_iteration():
 
     doc.save()
     doc.close()
-    if os.path.exists("test_iter.xlsx"):
-        os.remove("test_iter.xlsx")
 
 
-def test_range_clear():
+def test_range_clear(tmp_path):
+    doc_path = tmp_path / "test_clear.xlsx"
     doc = XLDocument()
-    doc.create("test_clear.xlsx")
+    doc.create(str(doc_path))
     wb = doc.workbook()
     ws = wb.worksheet("Sheet1")
 
@@ -81,8 +80,6 @@ def test_range_clear():
 
     doc.save()
     doc.close()
-    if os.path.exists("test_clear.xlsx"):
-        os.remove("test_clear.xlsx")
 
 
 def test_wrapped_range_properties():
@@ -96,7 +93,8 @@ def test_wrapped_range_properties():
 
 
 @pytest.mark.asyncio
-async def test_range_clear_async():
+async def test_range_clear_async(tmp_path):
+    doc_path = tmp_path / "test_clear_async.xlsx"
     wb = Workbook()
     ws = wb.active
     ws["A1"].value = "async"

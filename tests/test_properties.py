@@ -20,6 +20,7 @@ def test_properties_basic():
     assert props.keywords == "Test Keywords"
     assert props.category == "Test Category"
     assert props.company == "Test Company"
+    wb.close()
 
 
 def test_properties_save_load(tmp_path):
@@ -33,6 +34,8 @@ def test_properties_save_load(tmp_path):
     wb2 = Workbook(path)
     assert wb2.properties.title == "Saved Title"
     assert wb2.properties.creator == "Saved Creator"
+    wb2.close()
+    wb.close()
 
 
 def test_low_level_properties():
@@ -46,6 +49,7 @@ def test_low_level_properties():
     # OpenXLSX property() returns empty string if not found or creates it?
     # In XLProperties::property, it appends if empty.
     assert doc.property(XLProperty.Title) == ""
+    wb.close()
 
 
 def test_app_properties():
@@ -60,6 +64,7 @@ def test_app_properties():
 
     app_props.delete_property("Manager")
     assert app_props.property("Manager") == ""
+    wb.close()
 
 
 def test_core_properties():
@@ -71,6 +76,7 @@ def test_core_properties():
 
     core_props.delete_property("dc:title")
     assert core_props.property("dc:title") == ""
+    wb.close()
 
 
 def test_properties_interface_and_caching(tmp_path):
@@ -102,6 +108,8 @@ def test_properties_interface_and_caching(tmp_path):
     wb2 = load_workbook(path)
     assert wb2.properties["Title"] == "Dict Title"
     assert wb2.properties["CustomProp"] == "CustomValue"
+    wb2.close()
+    wb.close()
 
 
 def test_properties_deletion():
@@ -111,3 +119,4 @@ def test_properties_deletion():
 
     del wb.properties["Company"]
     assert wb.properties.company == ""
+    wb.close()

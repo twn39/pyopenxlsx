@@ -81,3 +81,4 @@ def test_sheet_index():
     assert ws1.index == 1
     assert ws2.index == 0
     assert wb.sheetnames == ["Sheet2", "Sheet1"]
+    wb.close()

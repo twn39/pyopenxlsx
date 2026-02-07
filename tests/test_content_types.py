@@ -2,9 +2,10 @@ import pyopenxlsx
 import os
 
 
-def test_content_types():
+def test_content_types(tmp_path):
+    filename = tmp_path / "test_ct.xlsx"
     doc = pyopenxlsx.XLDocument()
-    doc.create("test_ct.xlsx")
+    doc.create(str(filename))
 
     ct = doc.content_types()
     items = ct.get_content_items()
@@ -53,9 +54,6 @@ def test_content_types():
 
     doc.save()
     doc.close()
-
-    if os.path.exists("test_ct.xlsx"):
-        os.remove("test_ct.xlsx")
 
 
 def test_content_type_enum():

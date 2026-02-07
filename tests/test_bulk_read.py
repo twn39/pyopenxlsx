@@ -19,6 +19,7 @@ class TestBulkReadBasic:
         ws = wb.active
         result = ws.get_rows_data()
         assert result == []
+        wb.close()
 
     def test_get_rows_data_single_cell(self):
         """Test get_rows_data with a single cell."""
@@ -27,6 +28,7 @@ class TestBulkReadBasic:
         ws.cell(1, 1, "Hello")
         result = ws.get_rows_data()
         assert result == [["Hello"]]
+        wb.close()
 
     def test_get_rows_data_single_row(self):
         """Test get_rows_data with a single row of data."""
@@ -37,6 +39,7 @@ class TestBulkReadBasic:
         ws.cell(1, 3, "C")
         result = ws.get_rows_data()
         assert result == [["A", "B", "C"]]
+        wb.close()
 
     def test_get_rows_data_multiple_rows(self):
         """Test get_rows_data with multiple rows."""
@@ -56,6 +59,7 @@ class TestBulkReadBasic:
         assert result[0] == ["Name", "Age", "City"]
         assert result[1] == ["Alice", 30, "NYC"]
         assert result[2] == ["Bob", 25, "LA"]
+        wb.close()
 
 
 class TestBulkReadDataTypes:

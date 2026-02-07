@@ -69,6 +69,7 @@ def test_workbook_add_style_font(tmp_path):
 
     output = tmp_path / "test_font.xlsx"
     wb.save(output)
+    wb.close()
     
     # Verify XML content
     with zipfile.ZipFile(output, "r") as z:
@@ -96,6 +97,7 @@ def test_workbook_add_style_border_no_empty_style(tmp_path):
 
     output = tmp_path / "test_border_xml.xlsx"
     wb.save(output)
+    wb.close()
 
     with zipfile.ZipFile(output, "r") as z:
         styles_xml = z.read("xl/styles.xml").decode("utf-8")
@@ -116,6 +118,7 @@ def test_workbook_add_style_fill_pattern(tmp_path):
 
     output = tmp_path / "test_fill.xlsx"
     wb.save(output)
+    wb.close()
 
     with zipfile.ZipFile(output, "r") as z:
         styles_xml = z.read("xl/styles.xml").decode("utf-8")
@@ -135,6 +138,7 @@ def test_workbook_add_style_alignment(tmp_path):
 
     output = tmp_path / "test_align.xlsx"
     wb.save(output)
+    wb.close()
 
     with zipfile.ZipFile(output, "r") as z:
         styles_xml = z.read("xl/styles.xml").decode("utf-8")
@@ -161,6 +165,7 @@ def test_complex_style_object(tmp_path):
 
     output = tmp_path / "test_complex.xlsx"
     wb.save(output)
+    wb.close()
     
     with zipfile.ZipFile(output, "r") as z:
         styles_xml = z.read("xl/styles.xml").decode("utf-8")

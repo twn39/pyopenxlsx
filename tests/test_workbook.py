@@ -14,12 +14,14 @@ def test_workbook_save_load(tmp_path):
     wb = Workbook()
     wb["Sheet1"]["A1"].value = "Hello World"
     wb.save(str(fn))
+    wb.close()
 
     assert os.path.exists(fn)
 
     wb2 = load_workbook(str(fn))
     assert len(wb2) == 1
     assert wb2["Sheet1"]["A1"].value == "Hello World"
+    wb2.close()
 
 
 def test_workbook_iteration():

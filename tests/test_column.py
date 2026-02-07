@@ -26,6 +26,8 @@ def test_column_properties(tmp_path):
     assert ws2.column(1).hidden is True
     assert ws2.column(2).width == pytest.approx(15.0, 0.1)
     assert ws2.column(2).hidden is False
+    wb2.close()
+    wb.close()
 
 
 def test_column_style(tmp_path):
@@ -44,3 +46,5 @@ def test_column_style(tmp_path):
     wb2 = load_workbook(str(filename))
     ws2 = wb2.active
     assert ws2.column(3).style_index == style_idx
+    wb2.close()
+    wb.close()

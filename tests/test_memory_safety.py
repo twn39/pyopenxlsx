@@ -2,35 +2,26 @@ import os
 from pyopenxlsx._openxlsx import XLDocument
 
 
-def test_context_manager():
+def test_context_manager(tmp_path):
     """Verify context manager works and closes document."""
-    doc_path = "test_ctx.xlsx"
-    if os.path.exists(doc_path):
-        os.remove(doc_path)
+    doc_path = tmp_path / "test_ctx.xlsx"
 
     with XLDocument() as doc:
-        doc.create(doc_path)
+        doc.create(str(doc_path))
         if not doc.workbook().sheet_exists("Sheet1"):
             doc.workbook().add_worksheet("Sheet1")
         doc.workbook().add_worksheet("Sheet2")
         # Ensure we can use it
         assert doc.workbook().sheet_exists("Sheet2")
 
-    # Validating correct cleanup is hard without mocking or inspecting internal state,
-    # but successful execution implies no double-free or crash.
-    if os.path.exists(doc_path):
-        os.remove(doc_path)
 
-
-def test_keep_alive():
+def test_keep_alive(tmp_path):
     """Verify child objects keep parent alive."""
-    doc_path = "test_mem.xlsx"
-    if os.path.exists(doc_path):
-        os.remove(doc_path)
+    doc_path = tmp_path / "test_mem.xlsx"
 
     def get_cell():
         doc = XLDocument()
-        doc.create(doc_path)
+        doc.create(str(doc_path))
         wb = doc.workbook()
         ws = wb.worksheet("Sheet1")
         return ws.cell("A1")
@@ -43,5 +34,5 @@ def test_keep_alive():
     cell.value = "Alive"
     assert cell.value == "Alive"
 
-    if os.path.exists(doc_path):
-        os.remove(doc_path)
+    # Explicitly delete cell to release keep-alive reference to doc
+    del cell

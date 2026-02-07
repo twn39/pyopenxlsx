@@ -4,27 +4,23 @@ from pyopenxlsx import load_workbook_async, Workbook
 
 
 @pytest.mark.asyncio
-async def test_async_load_save():
-    filename = "test_async.xlsx"
-    if os.path.exists(filename):
-        os.remove(filename)
+@pytest.mark.asyncio
+async def test_async_load_save(tmp_path):
+    filename = tmp_path / "test_async.xlsx"
 
     # Test async creation/save
     wb = Workbook()
     ws = wb.active
     ws.cell(1, 1, "Async Test")
-    await wb.save_async(filename)
+    await wb.save_async(str(filename))
     await wb.close_async()
 
     assert os.path.exists(filename)
 
     # Test async load
-    wb2 = await load_workbook_async(filename)
+    wb2 = await load_workbook_async(str(filename))
     assert wb2.active.cell(1, 1).value == "Async Test"
     await wb2.close_async()
-
-    if os.path.exists(filename):
-        os.remove(filename)
 
 
 @pytest.mark.asyncio
@@ -110,51 +106,39 @@ async def test_async_styles():
 
 
 @pytest.mark.asyncio
-async def test_async_context_manager():
+async def test_async_context_manager(tmp_path):
     """Test async context manager (async with)."""
-    filename = "test_async_ctx.xlsx"
-    if os.path.exists(filename):
-        os.remove(filename)
+    filename = tmp_path / "test_async_ctx.xlsx"
 
     # Test async with for new workbook
     async with Workbook() as wb:
         ws = wb.active
         ws.cell(1, 1, "Async Context")
         ws.cell(1, 2, 42)
-        await wb.save_async(filename)
+        await wb.save_async(str(filename))
 
     assert os.path.exists(filename)
 
     # Test async with for loading existing workbook
-    async with await load_workbook_async(filename) as wb2:
+    async with await load_workbook_async(str(filename)) as wb2:
         ws = wb2.active
         assert ws.cell(1, 1).value == "Async Context"
         assert ws.cell(1, 2).value == 42
 
-    # Cleanup
-    if os.path.exists(filename):
-        os.remove(filename)
-
 
 @pytest.mark.asyncio
-async def test_async_context_manager_exception():
+async def test_async_context_manager_exception(tmp_path):
     """Test async context manager properly closes on exception."""
-    filename = "test_async_exc.xlsx"
-    if os.path.exists(filename):
-        os.remove(filename)
+    filename = tmp_path / "test_async_exc.xlsx"
 
     try:
         async with Workbook() as wb:
             ws = wb.active
             ws.cell(1, 1, "Before Error")
-            await wb.save_async(filename)
+            await wb.save_async(str(filename))
             raise ValueError("Test exception")
     except ValueError:
         pass  # Expected
 
     # Verify file was saved before exception
     assert os.path.exists(filename)
-
-    # Cleanup
-    if os.path.exists(filename):
-        os.remove(filename)
