@@ -1,76 +1,74 @@
 # pyopenxlsx
 
-`pyopenxlsx` 是一个基于 [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ 库的高性能 Python Excel 绑定库。它旨在提供比纯 Python 库（如 openpyxl）更快的读写速度，同时保持 Pythonic 的 API 设计。
+`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
 
-## 核心特性
+## Core Features
 
-- **高性能**: 底层使用现代 C++17 编写的 OpenXLSX 库。
-- **Pythonic API**: 提供了符合 Python 习惯的接口（如属性访问、迭代器、上下文管理器）。
-- **异步支持**: 关键的 I/O 操作支持 `async/await`。
-- **样式支持**: 支持字体、填充、边框、对齐方式和数字格式。
-- **内存安全**: 结合了 C++ 的效率和 Python 的自动内存管理。
+-   **High Performance**: Powered by the modern C++17 OpenXLSX library.
+-   **Pythonic API**: Intuitive interface with properties, iterators, and context managers.
+-   **Async Support**: `async/await` support for key I/O operations.
+-   **Rich Styling**: comprehensive support for fonts, fills, borders, alignments, and number formats.
+-   **Memory Safety**: Combines C++ efficiency with Python's automatic memory management.
 
-## 技术栈
+## Tech Stack
 
-| 组件 | 技术 |
-|------|------|
+| Component | Technology |
+| :--- | :--- |
 | **C++ Core** | [OpenXLSX](https://github.com/troldal/OpenXLSX) |
 | **Bindings** | [pybind11](https://github.com/pybind/pybind11) |
 | **Build System** | [scikit-build-core](https://github.com/scikit-build/scikit-build-core) & [CMake](https://cmake.org/) |
-| **Package Management** | [uv](https://github.com/astral-sh/uv) |
-| **Testing** | [pytest](https://pytest.org/) & [pytest-cov](https://github.com/pytest-dev/pytest-cov) |
 
-## 安装
+## Installation
 
-### 从源码安装
+### Install from Source
 
 ```bash
-# 使用 uv (推荐)
+# Using uv (Recommended)
 uv pip install .
 
-# 或者使用 pip
+# Or using pip
 pip install .
 ```
 
-### 开发模式安装
+### Development Installation
 
 ```bash
 uv pip install -e .
 ```
 
-## 快速开始
+## Quick Start
 
-### 创建并保存工作簿
+### Create and Save a Workbook
 
 ```python
 from pyopenxlsx import Workbook
 
-# 创建新工作簿
+# Create a new workbook
 with Workbook() as wb:
     ws = wb.active
     ws.title = "MySheet"
     
-    # 写入数据
+    # Write data
     ws["A1"].value = "Hello"
     ws["B1"].value = 42
     ws.cell(row=2, column=1).value = 3.14
     
-    # 保存
+    # Save
     wb.save("example.xlsx")
 ```
 
-### 读取工作簿
+### Read a Workbook
 
 ```python
 from pyopenxlsx import load_workbook
 
 wb = load_workbook("example.xlsx")
 ws = wb["MySheet"]
-print(ws["A1"].value)  # 输出: Hello
+print(ws["A1"].value)  # Output: Hello
 wb.close()
 ```
 
-### 异步操作
+### Async Operations
 
 ```python
 import asyncio
@@ -80,13 +78,15 @@ async def main():
     wb = await load_workbook_async("example.xlsx")
     ws = wb.active
     print(ws["A1"].value)
+    
+    # Async save
     await wb.save_async("example_saved.async.xlsx")
     await wb.close_async()
 
 asyncio.run(main())
 ```
 
-### 设置样式
+### Styling
 
 ```python
 from pyopenxlsx import Workbook, Font, Fill, Border, Side, Alignment, XLColor
@@ -94,7 +94,7 @@ from pyopenxlsx import Workbook, Font, Fill, Border, Side, Alignment, XLColor
 wb = Workbook()
 ws = wb.active
 
-# 创建样式组件
+# Define styles
 font = Font(name="Arial", size=14, bold=True, color=XLColor(255, 0, 0))
 fill = Fill(pattern_type="solid", color=XLColor(255, 255, 0))
 border = Border(
@@ -105,7 +105,7 @@ border = Border(
 )
 alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
-# 应用样式
+# Apply style
 style_idx = wb.add_style(font=font, fill=fill, border=border, alignment=alignment)
 ws["A1"].value = "Styled Cell"
 ws["A1"].style_index = style_idx
@@ -113,7 +113,7 @@ ws["A1"].style_index = style_idx
 wb.save("styles.xlsx")
 ```
 
-### 插入图片
+### Insert Images
 
 ```python
 from pyopenxlsx import Workbook
@@ -121,11 +121,11 @@ from pyopenxlsx import Workbook
 wb = Workbook()
 ws = wb.active
 
-# 插入图片到 A1 单元格，自动保持宽高比
-# 需要安装 Pillow: pip install pillow
+# Insert image at A1, automatically maintaining aspect ratio
+# Requires Pillow: pip install pillow
 ws.add_image("logo.png", anchor="A1", width=200)
 
-# 或者指定精确的宽高
+# Or specify exact dimensions
 ws.add_image("banner.jpg", anchor="B5", width=400, height=100)
 
 wb.save("images.xlsx")
@@ -133,67 +133,72 @@ wb.save("images.xlsx")
 
 ---
 
-## API 文档
+## API Documentation
 
-### 模块导入
+### Module Exports
 
 ```python
 from pyopenxlsx import (
-    # 核心类
+    # Core Classes
     Workbook, Worksheet, Cell, Range,
     load_workbook, load_workbook_async,
     
-    # 样式类
+    # Style Classes
     Font, Fill, Border, Side, Alignment, Style, Protection,
     
-    # 枚举和常量
+    # Enums & Constants
     XLColor, XLSheetState, XLLineStyle, XLPatternType, XLAlignmentStyle,
-    XLProperty,
+    XLProperty, XLUnderlineStyle, XLFontSchemeStyle, XLVerticalAlignRunStyle,
+    XLFillType,
 )
 ```
 
 ---
 
-### `Workbook` 类
+### `Workbook` Class
 
-工作簿是 Excel 文件的顶层容器。
+The top-level container for an Excel file.
 
-#### 构造函数
+#### Constructor
 
 ```python
 Workbook(filename: str | None = None)
 ```
 
-- `filename`: 可选。如果提供，则打开现有文件；否则创建新工作簿。
+-   `filename`: Optional. If provided, opens an existing file; otherwise, creates a new workbook.
 
-#### 属性
+#### Properties
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `active` | `Worksheet \| None` | 获取或设置当前活动的工作表。 |
-| `sheetnames` | `list[str]` | 返回所有工作表名称的列表。 |
-| `properties` | `DocumentProperties` | 访问文档属性（标题、作者等）。 |
-| `styles` | `XLStyles` | 访问底层样式对象（高级用法）。 |
-| `workbook` | `XLWorkbook` | 访问底层 C++ 工作簿对象（高级用法）。 |
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `active` | `Worksheet \| None` | Get or set the currently active worksheet. |
+| `sheetnames` | `list[str]` | Returns a list of all worksheet names. |
+| `properties` | `DocumentProperties` | Access document metadata (title, author, etc.). |
+| `styles` | `XLStyles` | Access underlying style object (advanced usage). |
+| `workbook` | `XLWorkbook` | Access underlying C++ workbook object (advanced usage). |
 
-#### 方法
+#### Methods
 
-| 方法 | 返回类型 | 描述 |
-|------|----------|------|
-| `save(filename=None)` | `None` | 保存工作簿。如果未指定 `filename`，则保存到原始路径。 |
-| `save_async(filename=None)` | `Coroutine` | 异步保存工作簿。 |
-| `close()` | `None` | 关闭工作簿并释放资源。 |
-| `close_async()` | `Coroutine` | 异步关闭工作簿。 |
-| `create_sheet(title=None, index=None)` | `Worksheet` | 创建新工作表。`title` 默认为 "Sheet1", "Sheet2" 等。 |
-| `create_sheet_async(title=None, index=None)` | `Coroutine[Worksheet]` | 异步创建工作表。 |
-| `remove(worksheet)` | `None` | 删除指定的工作表。 |
-| `remove_async(worksheet)` | `Coroutine` | 异步删除工作表。 |
-| `copy_worksheet(from_worksheet)` | `Worksheet` | 复制工作表并返回副本。 |
-| `copy_worksheet_async(from_worksheet)` | `Coroutine[Worksheet]` | 异步复制工作表。 |
-| `add_style(...)` | `int` | 创建新样式并返回样式索引。详见下方。 |
-| `add_style_async(...)` | `Coroutine[int]` | 异步创建样式。 |
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `save(filename=None)` | `None` | Save the workbook. Saves to original path if `filename` is omitted. |
+| `save_async(filename=None)` | `Coroutine` | Asynchronously save the workbook. |
+| `close()` | `None` | Close the workbook and release resources. |
+| `close_async()` | `Coroutine` | Asynchronously close the workbook. |
+| `create_sheet(title=None, index=None)` | `Worksheet` | Create a new worksheet. `title` defaults to "Sheet1", etc. |
+| `create_sheet_async(...)` | `Coroutine` | Asynchronously create a worksheet. |
+| `remove(worksheet)` | `None` | Delete the specified worksheet. |
+| `remove_async(worksheet)` | `Coroutine` | Asynchronously delete a worksheet. |
+| `copy_worksheet(from_worksheet)` | `Worksheet` | Copy a worksheet and return the copy. |
+| `copy_worksheet_async(...)` | `Coroutine` | Asynchronously copy a worksheet. |
+| `add_style(...)` | `int` | Create a new style and return its index. See below. |
+| `add_style_async(...)` | `Coroutine` | Asynchronously create a style. |
+| `get_embedded_images()` | `list[ImageInfo]` | Get list of all images embedded in the workbook. |
+| `get_image_data(name)` | `bytes` | Get binary data of an embedded image by its name or path. |
+| `extract_images(out_dir)` | `list[str]` | Extract all images to a directory. Returns list of file paths. |
+| `extract_images_async(...)` | `Coroutine` | Asynchronously extract all images. |
 
-#### `add_style` 方法详解
+#### `add_style` Method
 
 ```python
 def add_style(
@@ -206,21 +211,12 @@ def add_style(
 ) -> int:
 ```
 
-**参数:**
+**Returns:** A style index (`int`) that can be assigned to `Cell.style_index`.
 
-- `font`: `Font` 对象、字体索引（int）或 `None`。
-- `fill`: `Fill` 对象、填充索引（int）或 `None`。
-- `border`: `Border` 对象、边框索引（int）或 `None`。
-- `alignment`: `Alignment` 对象或 `None`。
-- `number_format`: 格式字符串（如 `"0.00%"`）、内置格式 ID（如 `14` 表示日期）或 `None`。
-- `protection`: `Protection` 对象或 `None`。
-
-**返回:** 新创建的样式索引（`int`），可赋值给 `Cell.style_index`。
-
-**示例:**
+**Example:**
 
 ```python
-# 使用 Style 对象一次性传递所有样式
+# Pass all styles via a Style object
 from pyopenxlsx import Style, Font, Fill
 
 style = Style(
@@ -231,76 +227,49 @@ style = Style(
 idx = wb.add_style(style)
 ```
 
-#### 魔术方法
-
-| 方法 | 描述 |
-|------|------|
-| `__getitem__(key)` | 通过名称获取工作表：`wb["Sheet1"]` |
-| `__delitem__(key)` | 通过名称删除工作表：`del wb["Sheet1"]` |
-| `__iter__()` | 迭代所有工作表：`for ws in wb: ...` |
-| `__len__()` | 返回工作表数量：`len(wb)` |
-| `__contains__(key)` | 检查工作表是否存在：`"Sheet1" in wb` |
-| `__enter__() / __exit__()` | 支持上下文管理器：`with Workbook() as wb: ...` |
-
 ---
 
-### `Worksheet` 类
+### `Worksheet` Class
 
-工作表代表 Excel 文件中的一个 Sheet。
+Represents a sheet within an Excel file.
 
-#### 属性
+#### Properties
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `title` | `str` | 获取或设置工作表名称。 |
-| `index` | `int` | 获取或设置工作表在工作簿中的索引（从 0 开始）。 |
-| `sheet_state` | `str` | 获取或设置可见性：`"visible"`, `"hidden"`, `"very_hidden"`。 |
-| `max_row` | `int` | 返回已使用的最大行号。 |
-| `max_column` | `int` | 返回已使用的最大列号。 |
-| `rows` | `Iterator` | 按行迭代所有单元格。 |
-| `merges` | `MergeCells` | 获取合并单元格信息。 |
-| `protection` | `dict` | 获取工作表保护状态（只读）。 |
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `title` | `str` | Get or set the worksheet name. |
+| `index` | `int` | Get or set the worksheet index (0-based). |
+| `sheet_state` | `str` | Visibility: `"visible"`, `"hidden"`, `"very_hidden"`. |
+| `max_row` | `int` | Returns the maximum row index used. |
+| `max_column` | `int` | Returns the maximum column index used. |
+| `rows` | `Iterator` | Iterate over all rows with data. |
+| `merges` | `MergeCells` | Access merged cells information. |
+| `protection` | `dict` | Get worksheet protection status (read-only). |
 
-#### 方法
+#### Methods
 
-| 方法 | 返回类型 | 描述 |
-|------|----------|------|
-| `cell(row, column, value=None)` | `Cell` | 通过行列索引获取单元格（从 1 开始）。可选设置值。 |
-| `range(address)` | `Range` | 获取单元格范围，如 `ws.range("A1:C3")`。 |
-| `range(start, end)` | `Range` | 获取单元格范围，如 `ws.range("A1", "C3")`。 |
-| `merge_cells(address)` | `None` | 合并单元格，如 `ws.merge_cells("A1:B2")`。 |
-| `merge_cells_async(address)` | `Coroutine` | 异步合并单元格。 |
-| `unmerge_cells(address)` | `None` | 取消合并单元格。 |
-| `unmerge_cells_async(address)` | `Coroutine` | 异步取消合并。 |
-| `append(iterable)` | `None` | 在最后一行之后追加一行数据。 |
-| `append_async(iterable)` | `Coroutine` | 异步追加行。 |
-| `set_column_format(column, style_index)` | `None` | 设置整列的默认样式。`column` 可以是 `int` 或 `str`（如 `"A"`）。 |
-| `set_row_format(row, style_index)` | `None` | 设置整行的默认样式。 |
-| `column(col)` | `Column` | 获取列对象，用于设置宽度等属性。 |
-| `protect(...)` | `None` | 保护工作表。详见下方。 |
-| `protect_async(...)` | `Coroutine` | 异步保护工作表。 |
-| `unprotect()` | `None` | 取消工作表保护。 |
-| `unprotect_async()` | `Coroutine` | 异步取消保护。 |
-| `add_image(img_path, anchor, width, height)` | `None` | 插入图片。详见下方。 |
-| `add_image_async(...)` | `Coroutine` | 异步插入图片。 |
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `cell(row, column, value=None)` | `Cell` | Get cell by 1-based indices. Optionally set value. |
+| `range(address)` | `Range` | Get range by string, e.g., `ws.range("A1:C3")`. |
+| `range(start, end)` | `Range` | Get range by endpoints, e.g., `ws.range("A1", "C3")`. |
+| `merge_cells(address)` | `None` | Merge cells, e.g., `ws.merge_cells("A1:B2")`. |
+| `merge_cells_async(...)` | `Coroutine` | Asynchronously merge cells. |
+| `unmerge_cells(address)` | `None` | Unmerge cells. |
+| `unmerge_cells_async(...)` | `Coroutine` | Asynchronously unmerge cells. |
+| `append(iterable)` | `None` | Append a row of data after the last used row. |
+| `append_async(iterable)` | `Coroutine` | Asynchronously append a row. |
+| `set_column_format(col, style_idx)` | `None` | Set default style for a column. `col` can be int or "A". |
+| `set_row_format(row, style_idx)` | `None` | Set default style for a row. |
+| `column(col)` | `Column` | Get column object for width adjustments. |
+| `protect(...)` | `None` | Protect the worksheet. |
+| `protect_async(...)` | `Coroutine` | Asynchronously protect the worksheet. |
+| `unprotect()` | `None` | Unprotect the worksheet. |
+| `unprotect_async()` | `Coroutine` | Asynchronously unprotect. |
+| `add_image(...)` | `None` | Insert an image. |
+| `add_image_async(...)` | `Coroutine` | Asynchronously insert an image. |
 
-#### `protect` 方法详解
-
-```python
-def protect(
-    password: str | None = None,
-    objects: bool = True,
-    scenarios: bool = True,
-    insert_columns: bool = False,
-    insert_rows: bool = False,
-    delete_columns: bool = False,
-    delete_rows: bool = False,
-    select_locked_cells: bool = True,
-    select_unlocked_cells: bool = True,
-) -> None:
-```
-
-#### `add_image` 方法详解
+#### `add_image` Method
 
 ```python
 def add_image(
@@ -311,342 +280,235 @@ def add_image(
 ) -> None:
 ```
 
-- `img_path`: 图片文件路径（支持 PNG, JPG, GIF）。
-- `anchor`: 图片左上角锚定的单元格地址。
-- `width`, `height`: 图片尺寸（像素）。如果未提供，需要安装 Pillow 自动检测。
+-   `img_path`: Path to image (PNG, JPG, GIF).
+-   `anchor`: Top-left cell address.
+-   `width`, `height`: Pixel dimensions. Requires Pillow for auto-detection if not provided.
 
-#### 魔术方法
+#### Magic Methods
 
-| 方法 | 描述 |
-|------|------|
-| `__getitem__(key)` | 通过地址获取单元格：`ws["A1"]` |
+| Method | Description |
+| :--- | :--- |
+| `__getitem__(key)` | Get cell by address: `ws["A1"]` |
 
 ---
 
-### `Cell` 类
+### `Cell` Class
 
-单元格是 Excel 中最基本的数据单元。
+The fundamental unit of data in Excel.
 
-#### 属性
+#### Properties
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `value` | `Any` | 获取或设置单元格的值。支持 `str`, `int`, `float`, `bool`, `datetime`, `date`。 |
-| `formula` | `Formula` | 获取或设置单元格公式（不含 `=` 前缀）。 |
-| `style_index` | `int` | 获取或设置单元格的样式索引。 |
-| `style` | `int` | `style_index` 的别名。 |
-| `is_date` | `bool` | 判断单元格是否应用了日期格式。 |
-| `comment` | `str \| None` | 获取或设置单元格批注。设置为 `None` 删除批注。 |
-| `font` | `XLFont` | 获取单元格的字体对象（只读）。 |
-| `fill` | `XLFill` | 获取单元格的填充对象（只读）。 |
-| `border` | `XLBorder` | 获取单元格的边框对象（只读）。 |
-| `alignment` | `XLAlignment` | 获取单元格的对齐对象（只读）。 |
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `value` | `Any` | Get/Set value. Supports `str`, `int`, `float`, `bool`, `datetime`. |
+| `formula` | `Formula` | Get/Set formula string (without initial `=`). |
+| `style_index` | `int` | Get/Set style index. |
+| `style` | `int` | Alias for `style_index`. |
+| `is_date` | `bool` | True if the cell has a date format. |
+| `comment` | `str \| None` | Get/Set cell comment. Set `None` to remove. |
+| `font` | `XLFont` | Get font object (read-only). |
+| `fill` | `XLFill` | Get fill object (read-only). |
+| `border` | `XLBorder` | Get border object (read-only). |
+| `alignment` | `XLAlignment` | Get alignment object (read-only). |
 
-#### 日期处理
+#### Date Handling
 
-当 `is_date` 为 `True` 时，`value` 属性会自动将 Excel 序列号转换为 Python `datetime` 对象：
+If `is_date` is `True`, `value` automatically returns a Python `datetime` object.
 
 ```python
-from datetime import datetime
-from pyopenxlsx import Workbook
-
-wb = Workbook()
-ws = wb.active
-
-# 设置日期值和格式
+# Write
 ws["A1"].value = datetime(2024, 1, 15)
-style_idx = wb.add_style(number_format=14)  # 内置日期格式
-ws["A1"].style_index = style_idx
+ws["A1"].style_index = wb.add_style(number_format=14)  # Built-in date format
 
-# 读取时自动转换
-print(ws["A1"].value)  # datetime.datetime(2024, 1, 15, 0, 0)
-print(ws["A1"].is_date)  # True
+# Read
+print(ws["A1"].value)   # datetime.datetime(2024, 1, 15, 0, 0)
+print(ws["A1"].is_date) # True
 ```
 
-#### 公式设置
+#### Formulas
 
-**重要提示**：公式必须通过 `formula` 属性设置，而不是 `value` 属性。通过 `value` 设置以 `=` 开头的字符串会被当作普通文本处理。
+**Note**: Formulas must be set via the `formula` property, not `value`.
 
 ```python
-from pyopenxlsx import Workbook
+# Correct
+ws["A3"].formula = "SUM(A1:A2)" 
 
-wb = Workbook()
-ws = wb.active
-
-# ✅ 正确：使用 formula 属性（不需要 = 前缀）
-ws["A1"].value = 10
-ws["A2"].value = 20
-ws["A3"].formula = "A1+A2"        # 设置公式
-ws["A4"].formula = "SUM(A1:A2)"   # SUM 公式
-
-# ❌ 错误：使用 value 会被当作字符串
-ws["B1"].value = "=A1+A2"  # 这会显示为文本 "=A1+A2"
-
-# 读取公式
-print(ws["A3"].formula.text)  # 输出: A1+A2
-
-# 清除公式
-ws["A3"].formula.clear()
-
-wb.save("formulas.xlsx")
+# Incorrect (treated as string)
+ws["A3"].value = "=SUM(A1:A2)"
 ```
 
 ---
 
-### `Range` 类
+### `Range` Class
 
-范围表示一个矩形的单元格区域。
+Represents a rectangular area of cells.
 
-#### 属性
+#### Properties
 
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `address` | `str` | 返回范围地址，如 `"A1:C3"`。 |
-| `num_rows` | `int` | 返回范围包含的行数。 |
-| `num_columns` | `int` | 返回范围包含的列数。 |
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `address` | `str` | Range address, e.g., `"A1:C3"`. |
+| `num_rows` | `int` | Row count. |
+| `num_columns` | `int` | Column count. |
 
-#### 方法
+#### Methods
 
-| 方法 | 返回类型 | 描述 |
-|------|----------|------|
-| `clear()` | `None` | 清空范围内所有单元格的值。 |
-| `clear_async()` | `Coroutine` | 异步清空范围。 |
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `clear()` | `None` | Clear values in all cells of the range. |
+| `clear_async()` | `Coroutine` | Asynchronously clear range. |
 
-#### 迭代
+#### Iteration
 
 ```python
-# 迭代范围内的所有单元格
 for cell in ws.range("A1:B2"):
     print(cell.value)
 ```
 
 ---
 
-### 样式类
+### Style Classes
 
-#### `Font` 类
-
+#### `Font`
 ```python
-Font(
-    name: str = "Arial",
-    size: int = 11,
-    bold: bool = False,
-    italic: bool = False,
-    color: XLColor | str | None = None,
-)
+Font(name="Arial", size=11, bold=False, italic=False, color=None)
 ```
 
-#### `Fill` 类
-
+#### `Fill`
 ```python
-Fill(
-    pattern_type: XLPatternType | str = XLPatternType.Solid,
-    color: XLColor | str | None = None,
-    background_color: XLColor | str | None = None,
-)
+Fill(pattern_type="solid", color=None, background_color=None)
 ```
 
-#### `Border` 类
-
+#### `Border`
 ```python
-Border(
-    left: Side | str | None = None,
-    right: Side | str | None = None,
-    top: Side | str | None = None,
-    bottom: Side | str | None = None,
-    diagonal: Side | str | None = None,
-)
+Border(left=Side(), right=Side(), top=Side(), bottom=Side(), diagonal=Side())
 ```
 
-#### `Side` 类
-
+#### `Side`
 ```python
-Side(
-    style: XLLineStyle | str = XLLineStyle.Thin,
-    color: XLColor | str | None = None,
-)
+Side(style="thin", color=None)
 ```
+**Styles**: `"thin"`, `"thick"`, `"dashed"`, `"dotted"`, `"double"`, `"hair"`, `"medium"`, `"mediumDashed"`, `"mediumDashDot"`, `"mediumDashDotDot"`, `"slantDashDot"`
 
-**可用的线条样式:** `"thin"`, `"thick"`, `"dashed"`, `"dotted"`, `"double"`, `"hair"`, `"medium"`, `"mediumDashed"`, `"mediumDashDot"`, `"mediumDashDotDot"`, `"slantDashDot"`
-
-#### `Alignment` 类
-
+#### `Alignment`
 ```python
-Alignment(
-    horizontal: XLAlignmentStyle | str | None = None,
-    vertical: XLAlignmentStyle | str | None = None,
-    wrap_text: bool = False,
-)
+Alignment(horizontal="center", vertical="center", wrap_text=True)
 ```
-
-**可用的对齐方式:** `"left"`, `"center"`, `"right"`, `"general"`, `"top"`, `"bottom"`
-
-#### `Protection` 类
-
-```python
-Protection(
-    locked: bool = True,
-    hidden: bool = False,
-)
-```
-
-#### `Style` 类
-
-组合样式容器，可一次性传递给 `add_style()`：
-
-```python
-Style(
-    font: Font | None = None,
-    fill: Fill | None = None,
-    border: Border | None = None,
-    alignment: Alignment | None = None,
-    number_format: str | int | None = None,
-    protection: Protection | None = None,
-)
-```
+**Options**: `"left"`, `"center"`, `"right"`, `"general"`, `"top"`, `"bottom"`
 
 ---
 
-### `DocumentProperties` 类
+### `DocumentProperties`
 
-通过 `Workbook.properties` 访问。
+Accessed via `wb.properties`. Supports dict-like access.
 
-#### 属性
-
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `title` | `str` | 文档标题。 |
-| `subject` | `str` | 文档主题。 |
-| `creator` | `str` | 创建者。 |
-| `keywords` | `str` | 关键词。 |
-| `description` | `str` | 描述/备注。 |
-| `last_modified_by` | `str` | 最后修改者。 |
-| `category` | `str` | 分类。 |
-| `company` | `str` | 公司名称。 |
-
-#### 字典式访问
+-   Metadata: `title`, `subject`, `creator`, `keywords`, `description`, `last_modified_by`, `category`, `company`.
 
 ```python
-# 读取
-print(wb.properties["title"])
-print(wb.properties["creator"])
-
-# 写入
 wb.properties["title"] = "My Report"
-wb.properties["creator"] = "Python Script"
-
-# 删除
-del wb.properties["keywords"]
+print(wb.properties["creator"])
 ```
 
 ---
 
-### `Column` 类
+### `Column` Class
+Accessed via `ws.column(col_index)` or `ws.column("A")`.
 
-通过 `Worksheet.column()` 获取。
+#### Properties
 
-#### 属性
-
-| 属性 | 类型 | 描述 |
-|------|------|------|
-| `width` | `float` | 获取或设置列宽（字符单位）。 |
-| `hidden` | `bool` | 获取或设置列是否隐藏。 |
-| `style_index` | `int` | 获取或设置列的默认样式索引。 |
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `width` | `float` | Get or set the column width. |
+| `hidden` | `bool` | Get or set whether the column is hidden. |
+| `style_index` | `int` | Get or set the default style index for the column. |
 
 ---
 
-### 辅助函数
+### `Formula` Class
+Accessed via `cell.formula`.
+
+#### Properties
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `str` | Get or set the formula string. |
+
+#### Methods
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `clear()` | `None` | Remove the formula from the cell. |
+
+---
+
+### `MergeCells` Class
+Accessed via `ws.merges`. Represents the collection of merged ranges in a worksheet.
+
+#### Methods
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `append(reference)` | `None` | Create a merged range (e.g., `"A1:B2"`). |
+| `delete(index)` | `None` | Remove a merged range by its index. |
+| `find(reference)` | `int` | Find the index of a merged range. Returns -1 if not found. |
+| `__len__()` | `int` | Return the number of merged ranges. |
+| `__getitem__(index)` | `XLMergeCell` | Get a merged range object by index. |
+| `__iter__()` | `Iterator` | Iterate over all merged ranges. |
+| `__contains__(ref)` | `bool` | Check if a reference is within any merged range. |
+
+---
+
+### `ImageInfo` Class
+Returned by `wb.get_embedded_images()`.
+
+#### Attributes
+
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `str` | Filename of the image. |
+| `path` | `str` | Internal path in the XLSX archive. |
+| `extension` | `str` | File extension (e.g., "png"). |
+
+---
+
+### Helper Functions
 
 #### `load_workbook`
-
 ```python
 def load_workbook(filename: str) -> Workbook:
-    """打开现有的 Excel 文件。"""
+    """Open an existing Excel file."""
 ```
 
 #### `load_workbook_async`
-
 ```python
 async def load_workbook_async(filename: str) -> Workbook:
-    """异步打开现有的 Excel 文件。"""
+    """Asynchronously open an existing Excel file."""
 ```
 
 #### `is_date_format`
-
 ```python
 def is_date_format(format_code: int | str) -> bool:
     """
-    判断给定的格式代码是否表示日期/时间格式。
-    
-    - 对于 int：检查是否为内置日期格式 ID（14-22, 27-36, 45-47）。
-    - 对于 str：启发式检查格式字符串中是否包含日期时间标记。
+    Check if a number format code (int) or string represents a date/time format.
+    Useful for determining if a cell value should be treated as a datetime.
     """
 ```
 
 ---
 
-### 枚举类型
+## Development
 
-#### `XLColor`
-
-```python
-XLColor(r: int, g: int, b: int)  # RGB 构造
-XLColor(hex_string: str)         # 如 "#FF0000" 或 "FF0000"
-```
-
-#### `XLSheetState`
-
-- `XLSheetState.Visible`
-- `XLSheetState.Hidden`
-- `XLSheetState.VeryHidden`
-
-#### `XLLineStyle`
-
-- `XLLineStyle.Thin`
-- `XLLineStyle.Thick`
-- `XLLineStyle.Dashed`
-- `XLLineStyle.Dotted`
-- `XLLineStyle.Double`
-- `XLLineStyle.Hair`
-- `XLLineStyle.Medium`
-- `XLLineStyle.MediumDashed`
-- `XLLineStyle.MediumDashDot`
-- `XLLineStyle.MediumDashDotDot`
-- `XLLineStyle.SlantDashDot`
-
-#### `XLPatternType`
-
-- `XLPatternType.None`
-- `XLPatternType.Solid`
-- `XLPatternType.Gray125`
-- `XLPatternType.Gray0625`
-- ... (更多图案类型)
-
-#### `XLAlignmentStyle`
-
-- `XLAlignmentStyle.General`
-- `XLAlignmentStyle.Left`
-- `XLAlignmentStyle.Center`
-- `XLAlignmentStyle.Right`
-- `XLAlignmentStyle.Top`
-- `XLAlignmentStyle.Bottom`
-
----
-
-## 运行测试
+### Run Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 uv run pytest
 
-# 运行测试并查看覆盖率报告
+# With coverage
 uv run pytest --cov=src/pyopenxlsx --cov-report=term-missing
-
-# 生成 HTML 覆盖率报告
-uv run pytest --cov=src/pyopenxlsx --cov-report=html
-# 报告位于 htmlcov/index.html
 ```
 
-## 许可证
+## License
 
-本项目采用 MIT 许可证。底层 OpenXLSX 库采用其自身的许可证。
+MIT License.
+The underlying OpenXLSX library is licensed under its own terms.
