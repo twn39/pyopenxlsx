@@ -1,4 +1,13 @@
-# pyopenxlsx
+<div align="center">
+
+# PyOpenXLSX
+
+[![PyPI version](https://img.shields.io/pypi/v/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
+[![Python versions](https://img.shields.io/pypi/pyversions/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
+[![Build Status](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml/badge.svg)](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml)
+[![License](https://img.shields.io/pypi/l/pyopenxlsx.svg)](https://opensource.org/licenses/MIT)
+
+</div>
 
 `pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
 
@@ -20,10 +29,20 @@
 
 ## Installation
 
-### Install from Source
+### From PyPI (Recommended)
 
 ```bash
-# Using uv (Recommended)
+# Using pip
+pip install pyopenxlsx
+
+# Using uv
+uv pip install pyopenxlsx
+```
+
+### From Source
+
+```bash
+# Using uv
 uv pip install .
 
 # Or using pip
@@ -70,18 +89,40 @@ wb.close()
 
 ### Async Operations
 
+`pyopenxlsx` provides `async/await` support for all I/O-intensive operations, ensuring your event loop remains responsive.
+
 ```python
 import asyncio
-from pyopenxlsx import load_workbook_async
+from pyopenxlsx import Workbook, load_workbook_async, Font
 
 async def main():
-    wb = await load_workbook_async("example.xlsx")
-    ws = wb.active
-    print(ws["A1"].value)
-    
-    # Async save
-    await wb.save_async("example_saved.async.xlsx")
-    await wb.close_async()
+    # 1. Async context manager for automatic cleanup
+    async with Workbook() as wb:
+        ws = wb.active
+        ws["A1"].value = "Async Data"
+        
+        # 2. Async stylesheet creation
+        style_idx = await wb.add_style_async(font=Font(bold=True))
+        ws["A1"].style_index = style_idx
+        
+        # 3. Async worksheet operations
+        new_ws = await wb.create_sheet_async("AsyncSheet")
+        await new_ws.append_async(["Dynamic", "Row", 123])
+        
+        # 4. Async range operations
+        await new_ws.range("A1:C1").clear_async()
+        
+        # 5. Async save
+        await wb.save_async("async_example.xlsx")
+
+    # 6. Async load
+    async with await load_workbook_async("async_example.xlsx") as wb:
+        ws = wb.active
+        print(ws["A1"].value)
+        
+        # 7. Async protection
+        await ws.protect_async(password="secret")
+        await ws.unprotect_async()
 
 asyncio.run(main())
 ```
@@ -89,16 +130,17 @@ asyncio.run(main())
 ### Styling
 
 ```python
-from pyopenxlsx import Workbook, Font, Fill, Border, Side, Alignment, XLColor
+from pyopenxlsx import Workbook, Font, Fill, Border, Side, Alignment
 
 wb = Workbook()
 ws = wb.active
 
-# Define styles
-font = Font(name="Arial", size=14, bold=True, color=XLColor(255, 0, 0))
-fill = Fill(pattern_type="solid", color=XLColor(255, 255, 0))
+# Define styles using hex colors (ARGB) or names
+# Hex colors can be 6-digit (RRGGBB) or 8-digit (AARRGGBB)
+font = Font(name="Arial", size=14, bold=True, color="FF0000") # Red
+fill = Fill(pattern_type="solid", color="FFFF00")              # Yellow
 border = Border(
-    left=Side(style="thin", color=XLColor(0, 0, 0)),
+    left=Side(style="thin", color="000000"),
     right=Side(style="thin"),
     top=Side(style="thick"),
     bottom=Side(style="thin")
@@ -221,7 +263,7 @@ from pyopenxlsx import Style, Font, Fill
 
 style = Style(
     font=Font(bold=True),
-    fill=Fill(color=XLColor(200, 200, 200)),
+    fill=Fill(color="C8C8C8"), # Hex color
     number_format="0.00"
 )
 idx = wb.add_style(style)
