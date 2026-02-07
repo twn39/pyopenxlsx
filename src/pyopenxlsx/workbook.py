@@ -4,9 +4,10 @@ import os
 from weakref import WeakValueDictionary
 
 from . import _openxlsx
-from ._openxlsx import XLProperty
+from ._openxlsx import XLProperty, XLLineStyle, XLPatternType
 from .worksheet import Worksheet
 from .styles import Style
+
 
 
 class DocumentProperties:
@@ -226,14 +227,15 @@ class Workbook:
         number_format=None,
         protection=None,
     ):
+        style_obj = None
         if isinstance(font, Style):
-            s = font
-            font = s.font
-            fill = s.fill
-            border = s.border
-            alignment = s.alignment
-            number_format = s.number_format
-            protection = s.protection
+            style_obj = font
+            font = style_obj.font
+            fill = style_obj.fill
+            border = style_obj.border
+            alignment = style_obj.alignment
+            number_format = style_obj.number_format
+            protection = style_obj.protection
 
         # Create a new cell format entry (default)
         index = self.styles.cell_formats().create()
@@ -243,7 +245,16 @@ class Workbook:
             if isinstance(font, int):
                 xf.set_font_index(font)
             else:
-                idx = self.styles.fonts().create(font)
+                fonts = self.styles.fonts()
+                idx = fonts.create()
+                target_font = fonts.font_by_index(idx)
+                target_font.set_name(font.name())
+                target_font.set_size(font.size())
+                target_font.set_bold(font.bold())
+                target_font.set_italic(font.italic())
+                # TODO: Handle underline, etc. if added to Font class
+                if font.color():
+                    target_font.set_color(font.color())
                 xf.set_font_index(idx)
             xf.set_apply_font(True)
 
@@ -251,7 +262,19 @@ class Workbook:
             if isinstance(fill, int):
                 xf.set_fill_index(fill)
             else:
-                idx = self.styles.fills().create(fill)
+                fills = self.styles.fills()
+                idx = fills.create()
+                target_fill = fills.fill_by_index(idx)
+                
+                # Check for None pattern
+                p_type = fill.pattern_type()
+                if p_type != getattr(XLPatternType, "None"):
+                     target_fill.set_pattern_type(p_type)
+
+                if fill.color():
+                    target_fill.set_color(fill.color())
+                if fill.background_color():
+                    target_fill.set_background_color(fill.background_color())
                 xf.set_fill_index(idx)
             xf.set_apply_fill(True)
 
@@ -259,18 +282,37 @@ class Workbook:
             if isinstance(border, int):
                 xf.set_border_index(border)
             else:
-                idx = self.styles.borders().create(border)
+                borders = self.styles.borders()
+                idx = borders.create()
+                target_border = borders.border_by_index(idx)
+                
+                line_none = getattr(XLLineStyle, "None")
+                
+                l = border.left()
+                if l and l.style() and l.style() != line_none: target_border.set_left(l.style(), l.color())
+                
+                r = border.right()
+                if r and r.style() and r.style() != line_none: target_border.set_right(r.style(), r.color())
+                
+                t = border.top()
+                if t and t.style() and t.style() != line_none: target_border.set_top(t.style(), t.color())
+                
+                b = border.bottom()
+                if b and b.style() and b.style() != line_none: target_border.set_bottom(b.style(), b.color())
+                
+                d = border.diagonal()
+                if d and d.style() and d.style() != line_none: target_border.set_diagonal(d.style(), d.color())
+
                 xf.set_border_index(idx)
             xf.set_apply_border(True)
 
         if alignment:
             target_align = xf.alignment(True)
-            if hasattr(alignment, "horizontal"):
+            if alignment.horizontal():
                 target_align.set_horizontal(alignment.horizontal())
-            if hasattr(alignment, "vertical"):
+            if alignment.vertical():
                 target_align.set_vertical(alignment.vertical())
-            if hasattr(alignment, "wrap_text"):
-                target_align.set_wrap_text(alignment.wrap_text())
+            target_align.set_wrap_text(alignment.wrap_text())
             xf.set_apply_alignment(True)
 
         if number_format:
@@ -321,6 +363,9 @@ class Workbook:
             if hasattr(protection, "hidden"):
                 target_prot.set_hidden(protection.hidden)
             xf.set_apply_protection(True)
+
+        if style_obj:
+            style_obj.style_index = index
 
         return index
 

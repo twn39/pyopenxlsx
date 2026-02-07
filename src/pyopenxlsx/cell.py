@@ -104,7 +104,10 @@ class Cell:
 
     @style.setter
     def style(self, val):
-        self.style_index = val
+        if hasattr(val, "style_index"):
+            self.style_index = val.style_index
+        else:
+            self.style_index = val
 
     @property
     def font(self):
