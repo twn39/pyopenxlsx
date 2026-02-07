@@ -6,13 +6,62 @@ build-backend = "scikit_build_core.build"
 name = "pyopenxlsx"
 version = "0.2.0"
 description = "Python bindings for OpenXLSX using pybind11"
+readme = "README.md"
 authors = [{name = "curry tang", email = "twn39@163.com"}]
 license = {text = "MIT"}
 requires-python = ">=3.11"
+keywords = ["excel", "xlsx", "openxlsx", "pybind11", "high-performance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/twn39/pyopenxlsx"
+Repository = "https://github.com/twn39/pyopenxlsx"
+Issues = "https://github.com/twn39/pyopenxlsx/issues"
+
+[project.optional-dependencies]
+test = [
+    "openpyxl>=3.1.5",
+    "pillow>=12.1.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-benchmark>=4.0.0",
+    "numpy>=1.26.0",
+]
 
 [tool.scikit-build]
 cmake.version = ">=3.15"
 wheel.packages = ["src/pyopenxlsx"]
+
+[tool.cibuildwheel]
+build-frontend = "uv"
+test-extras = ["test"]
+test-command = "pytest {project}/tests -k \"not benchmark\""
+build-verbosity = "1"
+
+# Skip Python versions before 3.11
+skip = ["cp36-*", "cp37-*", "cp38-*", "cp39-*", "cp310-*", "pp*"]
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y zlib-devel"
+
+[tool.cibuildwheel.macos]
+# For macOS, we might need to ensure certain environment variables are set
+# but scikit-build-core usually handles this well.
+
+[tool.cibuildwheel.windows]
+# Windows usually works fine with scikit-build-core and MSVC
 
 [dependency-groups]
 dev = [
