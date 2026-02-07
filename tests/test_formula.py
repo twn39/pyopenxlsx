@@ -11,7 +11,7 @@ def wb():
         os.remove(TEST_FILE)
     wb = Workbook()
     yield wb
-    wb.save(TEST_FILE)
+    wb.close()  # Ensure handles are closed
     if os.path.exists(TEST_FILE):
         os.remove(TEST_FILE)
 

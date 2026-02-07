@@ -22,6 +22,7 @@ def test_range_address():
     assert rng2.num_columns() == 2
 
     doc.save()
+    doc.close()
     if os.path.exists("test_range.xlsx"):
         os.remove("test_range.xlsx")
 
@@ -58,6 +59,7 @@ def test_range_iteration():
     assert cells[3].value == 4  # B2
 
     doc.save()
+    doc.close()
     if os.path.exists("test_iter.xlsx"):
         os.remove("test_iter.xlsx")
 
@@ -78,6 +80,7 @@ def test_range_clear():
     assert ws.cell("B2").value is None
 
     doc.save()
+    doc.close()
     if os.path.exists("test_clear.xlsx"):
         os.remove("test_clear.xlsx")
 
@@ -101,3 +104,4 @@ async def test_range_clear_async():
 
     await rng.clear_async()
     assert ws["A1"].value is None
+    await wb.close_async()

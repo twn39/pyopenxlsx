@@ -16,6 +16,7 @@ def test_create_and_write(tmp_path):
     ws.cell(1, 4).value = True
 
     wb.save(filename)
+    wb.close()
     assert os.path.exists(filename)
 
 
@@ -32,6 +33,7 @@ def test_read_written_values(tmp_path):
     ws["D1"].value = False
 
     wb.save(filename)
+    wb.close()
 
     # Reload
     wb2 = load_workbook(str(filename))
@@ -41,6 +43,7 @@ def test_read_written_values(tmp_path):
     assert ws2["B1"].value == 456
     assert abs(ws2["C1"].value - 1.23) < 1e-9
     assert ws2["D1"].value is False
+    wb2.close()
 
 
 def test_overwrite_values(tmp_path):
@@ -51,6 +54,7 @@ def test_overwrite_values(tmp_path):
 
     ws["A1"].value = "Original"
     wb.save(filename)
+    wb.close()  # Close before reloading
 
     # Reload and overwrite
     wb2 = load_workbook(str(filename))
@@ -58,12 +62,14 @@ def test_overwrite_values(tmp_path):
     assert ws2["A1"].value == "Original"
 
     ws2["A1"].value = "New Value"
-    wb2.save()  # Save to same file
+    wb2.save()
+    wb2.close()  # Close before reloading again
 
     # Reload again
     wb3 = load_workbook(str(filename))
     ws3 = wb3.active
     assert ws3["A1"].value == "New Value"
+    wb3.close()
 
 
 def test_sheet_management(tmp_path):
@@ -85,3 +91,4 @@ def test_sheet_management(tmp_path):
 
     wb_loaded = load_workbook(str(filename))
     assert wb_loaded.sheetnames == ["First", "Third"]
+    wb_loaded.close()

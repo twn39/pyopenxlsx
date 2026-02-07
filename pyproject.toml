@@ -51,7 +51,7 @@ test-command = "pytest {project}/tests -k \"not benchmark\""
 build-verbosity = "1"
 
 # Skip Python versions before 3.11
-skip = ["cp36-*", "cp37-*", "cp38-*", "cp39-*", "cp310-*", "pp*"]
+skip = ["cp39-*", "cp310-*"]
 
 [tool.cibuildwheel.linux]
 before-all = "yum install -y zlib-devel"
