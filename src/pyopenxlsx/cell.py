@@ -60,11 +60,17 @@ class Cell:
     def comment(self, value):
         if self._worksheet is None:
             raise ValueError("Cell must be associated with a worksheet to set comments")
+        
+        comments = self._worksheet._sheet.comments()
+        # Ensure at least one author exists, otherwise Excel may report the file as corrupt
+        if comments.author_count() == 0:
+            comments.add_author("pyopenxlsx")
+            
         addr = self._cell.cell_reference().address()
         if value is None:
-            self._worksheet._sheet.comments().delete_comment(addr)
+            comments.delete_comment(addr)
         else:
-            self._worksheet._sheet.comments().set(addr, str(value))
+            comments.set(addr, str(value))
 
     @property
     def value(self):

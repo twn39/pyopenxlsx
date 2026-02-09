@@ -28,6 +28,27 @@ void init_types(py::module& m) {
         .def("set_text", &XLComment::setText)
         .def("set_author_id", &XLComment::setAuthorId);
 
+    // Bind XLShapeStyle
+    py::class_<XLShapeStyle>(m, "XLShapeStyle")
+        .def("width", &XLShapeStyle::width)
+        .def("height", &XLShapeStyle::height)
+        .def("set_width", &XLShapeStyle::setWidth)
+        .def("set_height", &XLShapeStyle::setHeight)
+        .def("set_raw", &XLShapeStyle::setRaw)
+        .def("show", &XLShapeStyle::show)
+        .def("hide", &XLShapeStyle::hide);
+
+    // Bind XLShapeClientData
+    py::class_<XLShapeClientData>(m, "XLShapeClientData")
+        .def("auto_fill", &XLShapeClientData::autoFill)
+        .def("set_auto_fill", &XLShapeClientData::setAutoFill)
+        .def("set_anchor", &XLShapeClientData::setAnchor);
+
+    // Bind XLShape
+    py::class_<XLShape>(m, "XLShape")
+        .def("style", &XLShape::style)
+        .def("client_data", &XLShape::clientData);
+
     // Bind XLComments
     py::class_<XLComments>(m, "XLComments")
         .def("count", &XLComments::count)
@@ -35,6 +56,7 @@ void init_types(py::module& m) {
         .def("get", py::overload_cast<const std::string&>(&XLComments::get, py::const_))
         .def("set", &XLComments::set, py::arg("cellRef"), py::arg("comment"),
              py::arg("author_id") = 0)
+        .def("shape", &XLComments::shape)
         .def("delete_comment", &XLComments::deleteComment)
         .def("author_count", &XLComments::authorCount)
         .def("author", &XLComments::author)

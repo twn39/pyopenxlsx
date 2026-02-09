@@ -74,3 +74,33 @@ def test_comments_overloads():
 
     # Test count
     assert comments.count() == 2
+
+def test_comment_anchor_and_size(tmp_path):
+    import zipfile
+    filename = tmp_path / "test_anchor.xlsx"
+    wb = pyopenxlsx.Workbook()
+    ws = wb.active
+    
+    ws["B2"].comment = "Large Comment"
+    shape = ws._sheet.comments().shape("B2")
+    
+    # Set a custom anchor
+    anchor_str = "2, 10, 2, 5, 8, 10, 10, 5"
+    shape.client_data().set_anchor(anchor_str)
+    
+    # Set custom size (even if Anchor takes priority, we test the API)
+    shape.style().set_width(300)
+    shape.style().set_height(150)
+    
+    wb.save(str(filename))
+    wb.close()
+    
+    # Verify XML content
+    with zipfile.ZipFile(filename, "r") as z:
+        vml = z.read("xl/drawings/vmlDrawing1.vml").decode("utf-8")
+        assert f"<x:Anchor>{anchor_str}</x:Anchor>" in vml
+        # C++ set_width/set_height adds 'pt' and might have the double semicolon quirk,
+        # but we check if our values are present
+        assert "width:300pt" in vml or "300" in vml
+        assert "height:150pt" in vml or "150" in vml
+

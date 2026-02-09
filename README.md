@@ -173,6 +173,35 @@ ws.add_image("banner.jpg", anchor="B5", width=400, height=100)
 wb.save("images.xlsx")
 ```
 
+### Comments
+
+```python
+from pyopenxlsx import Workbook
+
+wb = Workbook()
+ws = wb.active
+
+# 1. Simple comment
+ws["A1"].value = "Hover me"
+ws["A1"].comment = "This is a basic comment."
+
+# 2. Multiline comment with custom box size
+ws["B2"].value = "Large comment"
+ws["B2"].comment = "Line 1: High performance\nLine 2: Pythonic API\nLine 3: Custom anchor for large text."
+
+# Get the shape object to control display properties
+shape = ws._sheet.comments().shape("B2")
+
+# Use set_anchor to define the box size/position in grid coordinates
+# format: "start_col, col_offset, start_row, row_offset, end_col, col_offset, end_row, row_offset"
+shape.client_data().set_anchor("2, 10, 2, 5, 6, 10, 8, 5")
+
+# You can also enable auto_fill (Excel-dependent behavior)
+shape.client_data().set_auto_fill(True)
+
+wb.save("comments.xlsx")
+```
+
 ---
 
 ## API Documentation
@@ -497,6 +526,50 @@ Accessed via `ws.merges`. Represents the collection of merged ranges in a worksh
 | `__getitem__(index)` | `XLMergeCell` | Get a merged range object by index. |
 | `__iter__()` | `Iterator` | Iterate over all merged ranges. |
 | `__contains__(ref)` | `bool` | Check if a reference is within any merged range. |
+
+---
+
+### `XLComments` Class
+Accessed via `ws._sheet.comments()`.
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `add_author(name)` | `int` | Add a new author to the workbook. |
+| `set(ref, text, author_id=0)` | `None` | Set comment for a cell reference. |
+| `get(ref_or_idx)` | `str \| XLComment` | Get comment text or object. |
+| `shape(cell_ref)` | `XLShape` | Get the VML shape object for the comment box. |
+| `count()` | `int` | Number of comments in the sheet. |
+
+---
+
+### `XLShape` Class
+Represents the visual properties of a comment box.
+
+#### Methods
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `style()` | `XLShapeStyle` | Access size, position, and visibility properties. |
+| `client_data()` | `XLShapeClientData` | Access Excel-specific anchor and auto-fill data. |
+
+---
+
+### `XLShapeStyle` Class
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `set_width(val)` | `None` | Set box width in points. |
+| `set_height(val)` | `None` | Set box height in points. |
+| `show() / hide()` | `None` | Set comment visibility. |
+
+---
+
+### `XLShapeClientData` Class
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `set_anchor(str)` | `None` | Set box position/size using grid coordinates. |
+| `set_auto_fill(bool)`| `None` | Enable/disable automatic box sizing. |
 
 ---
 
