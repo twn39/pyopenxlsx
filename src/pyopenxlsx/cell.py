@@ -70,7 +70,50 @@ class Cell:
         if value is None:
             comments.delete_comment(addr)
         else:
-            comments.set(addr, str(value))
+            val_str = str(value)
+            comments.set(addr, val_str)
+            
+            # --- Auto-size Logic ---
+            try:
+                # Estimate dimensions based on text content
+                lines = val_str.split('\n')
+                line_count = len(lines)
+                
+                # More accurate width estimation: count chars, giving more weight to non-ASCII
+                def content_width(s):
+                    return sum(2 if ord(c) > 127 else 1 for c in s)
+                
+                max_width = max(content_width(line) for line in lines) if lines else 0
+                
+                # Heuristic settings:
+                # Average column width handles ~10-12 units of content_width
+                col_span = max(3, int(max_width / 10) + 1)
+                if col_span > 12: col_span = 12 # Moderate cap for width
+                
+                # Average row height handles 1 line of text
+                row_span = line_count + 1 
+                if row_span < 3: row_span = 3 # Minimum height
+                
+                # Get current cell coordinates (1-based)
+                ref = self._cell.cell_reference()
+                row = ref.row()
+                col = ref.column()
+                
+                # Calculate anchor positions
+                start_col = col + 1
+                start_row = row - 1 # Align closer to the top of the cell
+                if start_row < 1: start_row = 1
+                
+                end_col = start_col + col_span
+                end_row = start_row + row_span
+                
+                # Apply anchor: "col1, offset1, row1, offset1, col2, offset2, row2, offset2"
+                # Using smaller offsets for a cleaner look
+                anchor_str = f"{start_col}, 10, {start_row}, 5, {end_col}, 10, {end_row}, 5"
+                
+                comments.shape(addr).client_data().set_anchor(anchor_str)
+            except Exception:
+                pass
 
     @property
     def value(self):

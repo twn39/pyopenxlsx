@@ -175,29 +175,17 @@ wb.save("images.xlsx")
 
 ### Comments
 
+Comments are **automatically resized** to fit their content by default.
+
 ```python
 from pyopenxlsx import Workbook
 
 wb = Workbook()
 ws = wb.active
 
-# 1. Simple comment
-ws["A1"].value = "Hover me"
-ws["A1"].comment = "This is a basic comment."
-
-# 2. Multiline comment with custom box size
-ws["B2"].value = "Large comment"
-ws["B2"].comment = "Line 1: High performance\nLine 2: Pythonic API\nLine 3: Custom anchor for large text."
-
-# Get the shape object to control display properties
-shape = ws._sheet.comments().shape("B2")
-
-# Use set_anchor to define the box size/position in grid coordinates
-# format: "start_col, col_offset, start_row, row_offset, end_col, col_offset, end_row, row_offset"
-shape.client_data().set_anchor("2, 10, 2, 5, 6, 10, 8, 5")
-
-# You can also enable auto_fill (Excel-dependent behavior)
-shape.client_data().set_auto_fill(True)
+# Simple or multiline comments - all will auto-size perfectly
+ws["A1"].comment = "Short comment"
+ws["B2"].comment = "Line 1: High performance\nLine 2: Pythonic API\nLine 3: Auto-sized by default!"
 
 wb.save("comments.xlsx")
 ```

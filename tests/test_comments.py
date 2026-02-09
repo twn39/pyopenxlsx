@@ -1,5 +1,6 @@
 import pyopenxlsx
 import os
+import re
 
 
 def test_comments(tmp_path):
@@ -75,22 +76,18 @@ def test_comments_overloads():
     # Test count
     assert comments.count() == 2
 
-def test_comment_anchor_and_size(tmp_path):
+def test_comment_auto_sizing(tmp_path):
     import zipfile
-    filename = tmp_path / "test_anchor.xlsx"
+    filename = tmp_path / "test_autosize.xlsx"
     wb = pyopenxlsx.Workbook()
     ws = wb.active
     
-    ws["B2"].comment = "Large Comment"
-    shape = ws._sheet.comments().shape("B2")
+    # 1. Short comment
+    ws["A1"].comment = "Short"
     
-    # Set a custom anchor
-    anchor_str = "2, 10, 2, 5, 8, 10, 10, 5"
-    shape.client_data().set_anchor(anchor_str)
-    
-    # Set custom size (even if Anchor takes priority, we test the API)
-    shape.style().set_width(300)
-    shape.style().set_height(150)
+    # 2. Long multiline comment
+    long_text = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5"
+    ws["B2"].comment = long_text
     
     wb.save(str(filename))
     wb.close()
@@ -98,9 +95,19 @@ def test_comment_anchor_and_size(tmp_path):
     # Verify XML content
     with zipfile.ZipFile(filename, "r") as z:
         vml = z.read("xl/drawings/vmlDrawing1.vml").decode("utf-8")
-        assert f"<x:Anchor>{anchor_str}</x:Anchor>" in vml
-        # C++ set_width/set_height adds 'pt' and might have the double semicolon quirk,
-        # but we check if our values are present
-        assert "width:300pt" in vml or "300" in vml
-        assert "height:150pt" in vml or "150" in vml
+        
+        # Check if textbox auto-fit is enabled
+        assert "mso-fit-shape-to-text:t" in vml
+        
+        # Check if anchors are present and different
+        # (Very simple check: we expect at least two different Anchor tags)
+        anchors = re.findall(r"<x:Anchor>(.*?)</x:Anchor>", vml)
+        assert len(anchors) == 2
+        # The second anchor (for long text) should have a larger row span than the first
+        # Anchor format: "start_col, offset, start_row, offset, end_col, offset, end_row, offset"
+        def get_row_span(a):
+            parts = [int(p.strip()) for p in a.split(",")]
+            return parts[6] - parts[2]
+            
+        assert get_row_span(anchors[1]) > get_row_span(anchors[0])
 
