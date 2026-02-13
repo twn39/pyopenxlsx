@@ -18,10 +18,10 @@ if(NOT TARGET Boost::boost)
     add_library(Boost::config ALIAS boost_config_dummy)
 endif()
 
-add_subdirectory(third_party/OpenXLSX)
+add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
 # Configure pybind11
-add_subdirectory(third_party/pybind11)
+add_subdirectory(third_party/pybind11 EXCLUDE_FROM_ALL)
 
 # Define the python module
 pybind11_add_module(_openxlsx 

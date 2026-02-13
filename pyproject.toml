@@ -1,10 +1,10 @@
 [build-system]
-requires = ["scikit-build-core", "pybind11"]
+requires = ["scikit-build-core", "pybind11==3.0.1"]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyopenxlsx"
-version = "0.2.2"
+version = "0.2.3"
 description = "Python bindings for OpenXLSX using pybind11"
 readme = "README.md"
 authors = [{name = "curry tang", email = "twn39@163.com"}]
@@ -43,6 +43,33 @@ test = [
 [tool.scikit-build]
 cmake.version = ">=3.15"
 wheel.packages = ["src/pyopenxlsx"]
+sdist.include = [
+    "third_party/OpenXLSX/third_party/pugixml/src",
+    "third_party/OpenXLSX/third_party/pugixml/scripts",
+    "third_party/OpenXLSX/third_party/pugixml/CMakeLists.txt",
+    "third_party/OpenXLSX/third_party/pugixml/LICENSE.md",
+    "third_party/OpenXLSX/third_party/nowide/include",
+    "third_party/OpenXLSX/third_party/nowide/src",
+    "third_party/OpenXLSX/third_party/nowide/CMakeLists.txt",
+    "third_party/OpenXLSX/third_party/nowide/LICENSE",
+    "third_party/OpenXLSX/third_party/nowide/cmake",
+    "third_party/OpenXLSX/third_party/nowide/config",
+]
+sdist.exclude = [
+    "**/Benchmarks",
+    "**/Examples",
+    "third_party/**/tests",
+    "third_party/**/test",
+    "third_party/**/docs",
+    "third_party/**/.git",
+    "third_party/**/.github",
+    ".idea",
+    ".pytest_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+    "htmlcov",
+]
 
 [tool.cibuildwheel]
 build-frontend = "build[uv]"
