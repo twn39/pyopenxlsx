@@ -149,7 +149,7 @@ class Workbook:
     of Worksheet objects when they are no longer referenced elsewhere.
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, force_overwrite=True):
         self._doc = _openxlsx.XLDocument()
         self._temp_file = None  # Track temp file for cleanup
         if filename:
@@ -161,7 +161,7 @@ class Workbook:
             fd, temp_path = tempfile.mkstemp(suffix=".xlsx", prefix="pyopenxlsx_")
             os.close(fd)  # Close the file descriptor, XLDocument will manage the file
             self._temp_file = temp_path
-            self._doc.create(temp_path)
+            self._doc.create(temp_path, force_overwrite)
             self._filename = None
         self._wb = self._doc.workbook()
         # Use WeakValueDictionary to avoid keeping Worksheet objects alive indefinitely
@@ -170,16 +170,16 @@ class Workbook:
         self._styles = None
         self._date_format_cache = {}
 
-    def save(self, filename=None):
+    def save(self, filename=None, force_overwrite=True):
         if filename:
-            self._doc.save_as(str(filename))
+            self._doc.save_as(str(filename), force_overwrite)
         elif self._filename:
             self._doc.save()
         else:
             raise ValueError("No filename specified")
 
-    async def save_async(self, filename=None):
-        await asyncio.to_thread(self.save, filename)
+    async def save_async(self, filename=None, force_overwrite=True):
+        await asyncio.to_thread(self.save, filename, force_overwrite)
 
     def close(self):
         self._doc.close()

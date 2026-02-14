@@ -221,10 +221,11 @@ The top-level container for an Excel file.
 #### Constructor
 
 ```python
-Workbook(filename: str | None = None)
+Workbook(filename: str | None = None, force_overwrite: bool = True)
 ```
 
 -   `filename`: Optional. If provided, opens an existing file; otherwise, creates a new workbook.
+-   `force_overwrite`: Optional (default: `True`). If `True`, overwrites existing files when creating or saving. If `False`, an exception is raised if the file already exists.
 
 #### Properties
 
@@ -240,8 +241,8 @@ Workbook(filename: str | None = None)
 
 | Method | Return Type | Description |
 | :--- | :--- | :--- |
-| `save(filename=None)` | `None` | Save the workbook. Saves to original path if `filename` is omitted. |
-| `save_async(filename=None)` | `Coroutine` | Asynchronously save the workbook. |
+| `save(filename=None, force_overwrite=True)` | `None` | Save the workbook. Saves to original path if `filename` is omitted. |
+| `save_async(filename=None, force_overwrite=True)` | `Coroutine` | Asynchronously save the workbook. |
 | `close()` | `None` | Close the workbook and release resources. |
 | `close_async()` | `Coroutine` | Asynchronously close the workbook. |
 | `create_sheet(title=None, index=None)` | `Worksheet` | Create a new worksheet. `title` defaults to "Sheet1", etc. |

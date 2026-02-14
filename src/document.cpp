@@ -221,10 +221,11 @@ void init_document(py::module& m) {
                  self.open(path);
              })
         .def("create",
-             [](XLDocument& self, const std::string& name) {
+             [](XLDocument& self, const std::string& name, bool forceOverwrite) {
                  py::gil_scoped_release release;
-                 self.create(name);
-             })
+                 self.create(name, forceOverwrite);
+             },
+             py::arg("name"), py::arg("force_overwrite") = true)
         .def("close",
              [](XLDocument& self) {
                  py::gil_scoped_release release;
@@ -239,10 +240,11 @@ void init_document(py::module& m) {
                  self.save();
              })
         .def("save_as",
-             [](XLDocument& self, const std::string& name) {
+             [](XLDocument& self, const std::string& name, bool forceOverwrite) {
                  py::gil_scoped_release release;
-                 self.saveAs(name);
-             })
+                 self.saveAs(name, forceOverwrite);
+             },
+             py::arg("name"), py::arg("force_overwrite") = true)
         .def("workbook", &XLDocument::workbook, py::keep_alive<0, 1>())
         .def(
             "content_types",

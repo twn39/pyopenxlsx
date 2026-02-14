@@ -23,6 +23,22 @@ def test_document_manual_close(tmp_path):
     assert os.path.exists(filename)
 
 
+def test_document_create_overwrite(tmp_path):
+    import pytest
+    filename = tmp_path / "low_level_existing.xlsx"
+    
+    doc = pyopenxlsx.XLDocument()
+    doc.create(str(filename))
+    doc.save()
+    doc.close()
+    
+    assert os.path.exists(filename)
+    
+    doc2 = pyopenxlsx.XLDocument()
+    with pytest.raises(Exception):
+        doc2.create(str(filename), force_overwrite=False)
+    doc2.close()
+
 def test_document_properties(tmp_path):
     filename = tmp_path / "test_props.xlsx"
     doc = pyopenxlsx.XLDocument()
