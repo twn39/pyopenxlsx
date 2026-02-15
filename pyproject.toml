@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyopenxlsx"
-version = "0.2.4"
+version = "0.2.5"
 description = "Python bindings for OpenXLSX using pybind11"
 readme = "README.md"
 authors = [{name = "curry tang", email = "twn39@163.com"}]
@@ -124,6 +124,3 @@ exclude_lines = [
     "pass",
     "raise ImportError",
 ]
-
-[tool.ty.analysis]
-allowed-unresolved-imports = ["pyopenxlsx._openxlsx"]

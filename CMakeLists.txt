@@ -21,7 +21,7 @@ endif()
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
 # Configure pybind11
-add_subdirectory(third_party/pybind11 EXCLUDE_FROM_ALL)
+find_package(pybind11 REQUIRED)
 
 # Define the python module
 pybind11_add_module(_openxlsx 
