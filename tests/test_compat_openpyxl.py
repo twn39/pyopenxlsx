@@ -1,8 +1,8 @@
-import pytest
 from pyopenxlsx import Protection
 import datetime
 import openpyxl
-from pyopenxlsx import Workbook as PyWorkbook, Font, Fill, Border, Side, Alignment, XLPatternType, XLLineStyle, XLAlignmentStyle
+from pyopenxlsx import Workbook as PyWorkbook, Font, Fill, Border, Side, Alignment
+
 
 def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
     """
@@ -22,7 +22,7 @@ def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
     ws["B1"].value = 42
     ws["B2"].value = -100
     ws["B3"].value = 0
-    ws["B4"].value = 2147483647 # Max 32-bit signed
+    ws["B4"].value = 2147483647  # Max 32-bit signed
 
     # 3. Floats
     ws["C1"].value = 3.14159
@@ -35,15 +35,15 @@ def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
 
     dt = datetime.datetime(2023, 10, 27, 14, 30, 0)
     d = datetime.date(2023, 12, 25)
-    
+
     ws["E1"].value = dt
     ws["E2"].value = d
-    
+
     # Manually set style for dates so openpyxl recognizes them
     # (Assuming pyopenxlsx requires manual style app for now based on earlier exploration)
     date_style_idx = wb.add_style(number_format="yyyy-mm-dd hh:mm:ss")
     ws["E1"].style_index = date_style_idx
-    
+
     date_only_style_idx = wb.add_style(number_format="yyyy-mm-dd")
     ws["E2"].style_index = date_only_style_idx
 
@@ -78,12 +78,15 @@ def test_write_pyopenxlsx_read_openpyxl_datatypes(tmp_path):
     # Openpyxl should convert these to datetime objects if number format is correct
     assert isinstance(ws_xl["E1"].value, datetime.datetime)
     assert ws_xl["E1"].value == dt
-    
+
     # Openpyxl often reads dates as datetimes with 00:00:00 time
-    assert isinstance(ws_xl["E2"].value, datetime.datetime) # openpyxl reads dates as datetimes usually
+    assert isinstance(
+        ws_xl["E2"].value, datetime.datetime
+    )  # openpyxl reads dates as datetimes usually
     assert ws_xl["E2"].value.date() == d
 
     wb_xl.close()
+
 
 def test_write_pyopenxlsx_read_openpyxl_styles(tmp_path):
     """
@@ -96,7 +99,7 @@ def test_write_pyopenxlsx_read_openpyxl_styles(tmp_path):
 
     # 1. Font
     ws["A1"].value = "Bold"
-    ws["B1"].value = "Italic" 
+    ws["B1"].value = "Italic"
     ws["C1"].value = "Red"
     ws["D1"].value = "Size 14"
 
@@ -104,7 +107,7 @@ def test_write_pyopenxlsx_read_openpyxl_styles(tmp_path):
     # Colors in pyopenxlsx are usually ARGB hex strings
     font_bold = Font(bold=True)
     font_italic = Font(italic=True)
-    font_red = Font(color="FF0000") 
+    font_red = Font(color="FF0000")
     font_size = Font(size=14)
 
     style_bold = wb.add_style(font=font_bold)
@@ -120,7 +123,7 @@ def test_write_pyopenxlsx_read_openpyxl_styles(tmp_path):
     # 2. Fill
     ws["A2"].value = "Solid Fill"
     # Fill args: pattern_type, color (fg), background_color (bg)
-    fill_solid = Fill(pattern_type="solid", color="FFFF00") # Yellow
+    fill_solid = Fill(pattern_type="solid", color="FFFF00")  # Yellow
     style_fill = wb.add_style(fill=fill_solid)
     ws["A2"].style_index = style_fill
 
@@ -152,9 +155,9 @@ def test_write_pyopenxlsx_read_openpyxl_styles(tmp_path):
     # Check color. openpyxl might return "00FF0000" (ARGB) or valid Theme color.
     # pyopenxlsx "FF0000" -> ARGB "FFFF0000".
     if ws_xl["C1"].font.color and ws_xl["C1"].font.color.rgb:
-         # Accept either FFFF0000 or just FF0000 logic depending on normalization
-         assert ws_xl["C1"].font.color.rgb.upper() == "FFFF0000"
-    
+        # Accept either FFFF0000 or just FF0000 logic depending on normalization
+        assert ws_xl["C1"].font.color.rgb.upper() == "FFFF0000"
+
     assert ws_xl["D1"].font.sz == 14
 
     # Fill
@@ -181,7 +184,7 @@ def test_write_pyopenxlsx_read_openpyxl_images(tmp_path):
     """
     filename = tmp_path / "compat_images.xlsx"
     img_path = tmp_path / "test_image.png"
-    
+
     # Create a red 1x1 PNG
     img_data = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDAT\x08\xd7c\xf8\xff\xff?0\x00\x03\xff\x01\xfe\x8e\xfe\x1d\x00\x00\x00\x00IEND\xaeB`\x82"
     with open(img_path, "wb") as f:
@@ -190,19 +193,19 @@ def test_write_pyopenxlsx_read_openpyxl_images(tmp_path):
     wb = PyWorkbook()
     ws = wb.active
     ws.title = "Images"
-    
+
     # Add image
     ws.add_image(str(img_path), anchor="C3", width=100, height=100)
-    
+
     wb.save(str(filename))
 
     # --- Verification ---
     wb_xl = openpyxl.load_workbook(filename)
     ws_xl = wb_xl["Images"]
-    
+
     # openpyxl stores images in ws._images
     assert len(ws_xl._images) == 1
-    
+
     wb_xl.close()
 
 
@@ -211,42 +214,43 @@ def test_write_openpyxl_read_pyopenxlsx_datatypes_and_images(tmp_path):
     Test Case 2: Write with openpyxl, Read with pyopenxlsx.
     """
     filename = tmp_path / "reverse_compat.xlsx"
-    
+
     wb_xl = openpyxl.Workbook()
     ws_xl = wb_xl.active
     ws_xl.title = "Reverse"
-    
+
     ws_xl["A1"] = "Created by OpenPyXL"
     ws_xl["B1"] = 999
     ws_xl["C1"] = 123.456
-    
+
     # Add an image
     img_path = tmp_path / "xl_image.png"
     img_data = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDAT\x08\xd7c\xf8\xff\xff?0\x00\x03\xff\x01\xfe\x8e\xfe\x1d\x00\x00\x00\x00IEND\xaeB`\x82"
     with open(img_path, "wb") as f:
         f.write(img_data)
-        
+
     xl_img = openpyxl.drawing.image.Image(img_path)
     # Anchor to D4
     ws_xl.add_image(xl_img, "D4")
-    
+
     wb_xl.save(filename)
-    
+
     # --- Verification ---
     wb = PyWorkbook(str(filename))
     ws = wb.active
-    
+
     assert ws.title == "Reverse"
     assert ws["A1"].value == "Created by OpenPyXL"
     assert ws["B1"].value == 999
     assert abs(ws["C1"].value - 123.456) < 1e-9
-    
+
     # Check images
     images = wb.get_embedded_images()
     # Depending on how openpyxl writes images, they should be typically extractable
     assert len(images) >= 1
-    
+
     wb.close()
+
 
 def test_write_pyopenxlsx_read_openpyxl_formulas(tmp_path):
     """
@@ -265,7 +269,7 @@ def test_write_pyopenxlsx_read_openpyxl_formulas(tmp_path):
     ws["B1"].formula = "SUM(A1:A3)"
     ws["B2"].formula = "AVERAGE(A1:A3)"
     ws["B3"].formula = "A1+A2"
-    
+
     wb.save(str(filename))
 
     # --- Verification ---
@@ -287,37 +291,37 @@ def test_write_openpyxl_read_pyopenxlsx_formulas(tmp_path):
     Test Case 2b: Write formulas with openpyxl, Read with pyopenxlsx.
     """
     filename = tmp_path / "reverse_compat_formulas.xlsx"
-    
+
     wb_xl = openpyxl.Workbook()
     ws_xl = wb_xl.active
     ws_xl.title = "ReverseFormulas"
-    
+
     ws_xl["A1"] = 5
     ws_xl["A2"] = 15
-    
+
     ws_xl["B1"] = "=SUM(A1:A2)"
     ws_xl["B2"] = "=MAX(A1:A2)"
-    
+
     wb_xl.save(filename)
-    
+
     # --- Verification ---
     wb = PyWorkbook(str(filename))
     ws = wb.active
-    
+
     # Check formulas
     # Assuming .formula property exists and returns string
     # openpyxl stores formula with '=', pyopenxlsx might return with or without depending on impl.
     # Standardize on expecting '=' or checking containment.
-    
+
     f1 = ws["B1"].formula
     f2 = ws["B2"].formula
-    
+
     # It might return "SUM(A1:A2)" or "=SUM(A1:A2)"
-    # Let's handle both for robustness or assert exact if we know. 
+    # Let's handle both for robustness or assert exact if we know.
     # OpenXLSX usually returns the formula string.
     assert "SUM(A1:A2)" in str(f1).upper()
     assert "MAX(A1:A2)" in str(f2).upper()
-    
+
     wb.close()
 
 
@@ -335,7 +339,7 @@ def test_write_pyopenxlsx_read_openpyxl_protection(tmp_path):
 
     # 2. Locked/Unlocked Cells
     # By default in Excel, all cells are locked, but locking only takes effect when sheet is protected.
-    
+
     # Unlock A1
     ws["A1"].value = "Unlocked"
     unlocked_idx = wb.add_style(protection=Protection(locked=False))
@@ -345,7 +349,7 @@ def test_write_pyopenxlsx_read_openpyxl_protection(tmp_path):
     ws["B1"].value = "Locked"
     locked_idx = wb.add_style(protection=Protection(locked=True))
     ws["B1"].style_index = locked_idx
-    
+
     # Hidden C1
     ws["C1"].value = "HiddenFormula"
     # Hidden means formula is hidden
@@ -362,14 +366,18 @@ def test_write_pyopenxlsx_read_openpyxl_protection(tmp_path):
     assert ws_xl.protection.sheet is True
     # openpyxl might not be able to verify password correctness directly without hashcheck,
     # but it should show it's password protected if the hash is there.
-    assert ws_xl.protection.password is not None # openpyxl stores hash or password string if set
+    assert (
+        ws_xl.protection.password is not None
+    )  # openpyxl stores hash or password string if set
 
     # Verify Cell Locking
     # Note: openpyxl cell.protection returns a Protection object style
     assert ws_xl["A1"].protection.locked is False
-    assert ws_xl["B1"].protection.locked is True # Default is True usually, or explicitly set
+    assert (
+        ws_xl["B1"].protection.locked is True
+    )  # Default is True usually, or explicitly set
     assert ws_xl["C1"].protection.hidden is True
-    
+
     wb_xl.close()
 
 
@@ -378,32 +386,32 @@ def test_write_openpyxl_read_pyopenxlsx_protection(tmp_path):
     Test Case 2c: Write protection with openpyxl, Read with pyopenxlsx.
     """
     filename = tmp_path / "reverse_compat_protection.xlsx"
-    
+
     wb_xl = openpyxl.Workbook()
     ws_xl = wb_xl.active
     ws_xl.title = "ReverseProtection"
-    
+
     # Protect Sheet
     ws_xl.protection.sheet = True
     ws_xl.protection.password = "secret"
-    
+
     # Unlock A1
     ws_xl["A1"] = "Unlocked"
     ws_xl["A1"].protection = openpyxl.styles.Protection(locked=False)
-    
+
     # Lock B1
     ws_xl["B1"] = "Locked"
     ws_xl["B1"].protection = openpyxl.styles.Protection(locked=True)
-    
+
     wb_xl.save(filename)
-    
+
     # --- Verification ---
     wb = PyWorkbook(str(filename))
     ws = wb.active
-    
+
     # Verify Sheet Protection
     assert ws.protection["protected"] is True
     assert ws.protection["password_set"] is True
     assert ws.protection["protected"] is True
-    
+
     wb.close()

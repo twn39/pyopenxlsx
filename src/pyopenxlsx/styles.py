@@ -1,9 +1,5 @@
 from ._openxlsx import (
     XLColor,
-    XLFont,
-    XLFill,
-    XLBorder,
-    XLAlignment,
     XLPatternType,
     XLLineStyle,
     XLAlignmentStyle,
@@ -22,21 +18,35 @@ class Font:
             else:
                 self._color = color
         else:
-            self._color = XLColor(0, 0, 0) # Default black
+            self._color = XLColor(0, 0, 0)  # Default black
 
-    def name(self): return self._name
-    def set_name(self, value): self._name = value
-    
-    def size(self): return self._size
-    def set_size(self, value): self._size = value
-    
-    def bold(self): return self._bold
-    def set_bold(self, value): self._bold = value
-    
-    def italic(self): return self._italic
-    def set_italic(self, value): self._italic = value
-    
-    def color(self): return self._color
+    def name(self):
+        return self._name
+
+    def set_name(self, value):
+        self._name = value
+
+    def size(self):
+        return self._size
+
+    def set_size(self, value):
+        self._size = value
+
+    def bold(self):
+        return self._bold
+
+    def set_bold(self, value):
+        self._bold = value
+
+    def italic(self):
+        return self._italic
+
+    def set_italic(self, value):
+        self._italic = value
+
+    def color(self):
+        return self._color
+
     def set_color(self, value):
         if isinstance(value, str):
             self._color = XLColor(value)
@@ -49,7 +59,7 @@ class Fill:
         self, pattern_type=XLPatternType.Solid, color=None, background_color=None
     ):
         if isinstance(pattern_type, str):
-            self._pattern_type = XLPatternType.Solid # Default fallback
+            self._pattern_type = XLPatternType.Solid  # Default fallback
             for name, member in XLPatternType.__members__.items():
                 if name.lower() == pattern_type.lower():
                     self._pattern_type = member
@@ -70,17 +80,24 @@ class Fill:
             else:
                 self._background_color = background_color
 
-    def pattern_type(self): return self._pattern_type
-    def set_pattern_type(self, value): self._pattern_type = value
+    def pattern_type(self):
+        return self._pattern_type
 
-    def color(self): return self._color
+    def set_pattern_type(self, value):
+        self._pattern_type = value
+
+    def color(self):
+        return self._color
+
     def set_color(self, value):
         if isinstance(value, str):
             self._color = XLColor(value)
         else:
             self._color = value
 
-    def background_color(self): return self._background_color
+    def background_color(self):
+        return self._background_color
+
     def set_background_color(self, value):
         if isinstance(value, str):
             self._background_color = XLColor(value)
@@ -103,7 +120,7 @@ class Alignment:
                         break
             else:
                 self._horizontal = horizontal
-        
+
         if vertical:
             if isinstance(vertical, str):
                 # Map string to enum
@@ -114,14 +131,23 @@ class Alignment:
             else:
                 self._vertical = vertical
 
-    def horizontal(self): return self._horizontal
-    def set_horizontal(self, value): self._horizontal = value
+    def horizontal(self):
+        return self._horizontal
 
-    def vertical(self): return self._vertical
-    def set_vertical(self, value): self._vertical = value
+    def set_horizontal(self, value):
+        self._horizontal = value
 
-    def wrap_text(self): return self._wrap_text
-    def set_wrap_text(self, value): self._wrap_text = value
+    def vertical(self):
+        return self._vertical
+
+    def set_vertical(self, value):
+        self._vertical = value
+
+    def wrap_text(self):
+        return self._wrap_text
+
+    def set_wrap_text(self, value):
+        self._wrap_text = value
 
 
 def is_date_format(c_format):
@@ -182,8 +208,12 @@ class Side:
         else:
             self._color = XLColor(0, 0, 0)
 
-    def style(self): return self._style
-    def color(self): return self._color
+    def style(self):
+        return self._style
+
+    def color(self):
+        return self._color
+
 
 class Border:
     def __init__(
@@ -195,42 +225,70 @@ class Border:
         diagonal=None,
         outline=None,
     ):
-        self._left = Side(getattr(XLLineStyle, "None"), XLColor(0,0,0))
-        self._right = Side(getattr(XLLineStyle, "None"), XLColor(0,0,0))
-        self._top = Side(getattr(XLLineStyle, "None"), XLColor(0,0,0))
-        self._bottom = Side(getattr(XLLineStyle, "None"), XLColor(0,0,0))
-        self._diagonal = Side(getattr(XLLineStyle, "None"), XLColor(0,0,0))
+        self._left = Side(getattr(XLLineStyle, "None"), XLColor(0, 0, 0))
+        self._right = Side(getattr(XLLineStyle, "None"), XLColor(0, 0, 0))
+        self._top = Side(getattr(XLLineStyle, "None"), XLColor(0, 0, 0))
+        self._bottom = Side(getattr(XLLineStyle, "None"), XLColor(0, 0, 0))
+        self._diagonal = Side(getattr(XLLineStyle, "None"), XLColor(0, 0, 0))
 
         if outline:
             left = right = top = bottom = outline
 
         if left:
-            if isinstance(left, Side): self._left = left
-            else: self._left = Side(_get_line_style(left), XLColor(0, 0, 0))
+            if isinstance(left, Side):
+                self._left = left
+            else:
+                self._left = Side(_get_line_style(left), XLColor(0, 0, 0))
         if right:
-            if isinstance(right, Side): self._right = right
-            else: self._right = Side(_get_line_style(right), XLColor(0, 0, 0))
+            if isinstance(right, Side):
+                self._right = right
+            else:
+                self._right = Side(_get_line_style(right), XLColor(0, 0, 0))
         if top:
-            if isinstance(top, Side): self._top = top
-            else: self._top = Side(_get_line_style(top), XLColor(0, 0, 0))
+            if isinstance(top, Side):
+                self._top = top
+            else:
+                self._top = Side(_get_line_style(top), XLColor(0, 0, 0))
         if bottom:
-            if isinstance(bottom, Side): self._bottom = bottom
-            else: self._bottom = Side(_get_line_style(bottom), XLColor(0, 0, 0))
+            if isinstance(bottom, Side):
+                self._bottom = bottom
+            else:
+                self._bottom = Side(_get_line_style(bottom), XLColor(0, 0, 0))
         if diagonal:
-            if isinstance(diagonal, Side): self._diagonal = diagonal
-            else: self._diagonal = Side(_get_line_style(diagonal), XLColor(0, 0, 0))
+            if isinstance(diagonal, Side):
+                self._diagonal = diagonal
+            else:
+                self._diagonal = Side(_get_line_style(diagonal), XLColor(0, 0, 0))
 
-    def left(self): return self._left
-    def right(self): return self._right
-    def top(self): return self._top
-    def bottom(self): return self._bottom
-    def diagonal(self): return self._diagonal
+    def left(self):
+        return self._left
 
-    def set_left(self, style, color): self._left = Side(style, color)
-    def set_right(self, style, color): self._right = Side(style, color)
-    def set_top(self, style, color): self._top = Side(style, color)
-    def set_bottom(self, style, color): self._bottom = Side(style, color)
-    def set_diagonal(self, style, color): self._diagonal = Side(style, color)
+    def right(self):
+        return self._right
+
+    def top(self):
+        return self._top
+
+    def bottom(self):
+        return self._bottom
+
+    def diagonal(self):
+        return self._diagonal
+
+    def set_left(self, style, color):
+        self._left = Side(style, color)
+
+    def set_right(self, style, color):
+        self._right = Side(style, color)
+
+    def set_top(self, style, color):
+        self._top = Side(style, color)
+
+    def set_bottom(self, style, color):
+        self._bottom = Side(style, color)
+
+    def set_diagonal(self, style, color):
+        self._diagonal = Side(style, color)
 
 
 class Protection:

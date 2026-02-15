@@ -1,4 +1,4 @@
-from typing import Iterator, Union
+from typing import Iterator
 from ._openxlsx import XLMergeCells
 
 class MergeCells:

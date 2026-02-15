@@ -9,7 +9,6 @@ from .worksheet import Worksheet
 from .styles import Style
 
 
-
 class DocumentProperties:
     """
     High-level wrapper for Excel document properties.
@@ -265,11 +264,11 @@ class Workbook:
                 fills = self.styles.fills()
                 idx = fills.create()
                 target_fill = fills.fill_by_index(idx)
-                
+
                 # Check for None pattern
                 p_type = fill.pattern_type()
                 if p_type != getattr(XLPatternType, "None"):
-                     target_fill.set_pattern_type(p_type)
+                    target_fill.set_pattern_type(p_type)
 
                 if fill.color():
                     target_fill.set_color(fill.color())
@@ -285,23 +284,28 @@ class Workbook:
                 borders = self.styles.borders()
                 idx = borders.create()
                 target_border = borders.border_by_index(idx)
-                
+
                 line_none = getattr(XLLineStyle, "None")
-                
-                l = border.left()
-                if l and l.style() and l.style() != line_none: target_border.set_left(l.style(), l.color())
-                
+
+                left_side = border.left()
+                if left_side and left_side.style() and left_side.style() != line_none:
+                    target_border.set_left(left_side.style(), left_side.color())
+
                 r = border.right()
-                if r and r.style() and r.style() != line_none: target_border.set_right(r.style(), r.color())
-                
+                if r and r.style() and r.style() != line_none:
+                    target_border.set_right(r.style(), r.color())
+
                 t = border.top()
-                if t and t.style() and t.style() != line_none: target_border.set_top(t.style(), t.color())
-                
+                if t and t.style() and t.style() != line_none:
+                    target_border.set_top(t.style(), t.color())
+
                 b = border.bottom()
-                if b and b.style() and b.style() != line_none: target_border.set_bottom(b.style(), b.color())
-                
+                if b and b.style() and b.style() != line_none:
+                    target_border.set_bottom(b.style(), b.color())
+
                 d = border.diagonal()
-                if d and d.style() and d.style() != line_none: target_border.set_diagonal(d.style(), d.color())
+                if d and d.style() and d.style() != line_none:
+                    target_border.set_diagonal(d.style(), d.color())
 
                 xf.set_border_index(idx)
             xf.set_apply_border(True)

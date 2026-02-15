@@ -1,5 +1,3 @@
-
-
 class Formula:
     """
     Wrapper for Excel formulas.

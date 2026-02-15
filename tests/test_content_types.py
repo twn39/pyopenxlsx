@@ -1,5 +1,4 @@
 import pyopenxlsx
-import os
 
 
 def test_content_types(tmp_path):

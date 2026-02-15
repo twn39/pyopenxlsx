@@ -32,7 +32,11 @@ from .formula import Formula as Formula
 from .range import Range as Range
 from .worksheet import Worksheet as Worksheet
 from .column import Column as Column
-from .workbook import Workbook as Workbook, load_workbook as load_workbook, load_workbook_async as load_workbook_async
+from .workbook import (
+    Workbook as Workbook,
+    load_workbook as load_workbook,
+    load_workbook_async as load_workbook_async,
+)
 from .merge import MergeCells as MergeCells
 
 XLPatternNone: XLPatternType

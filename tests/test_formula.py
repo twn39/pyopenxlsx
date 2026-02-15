@@ -1,13 +1,9 @@
 import pytest
-import os
 from pyopenxlsx import Workbook, Formula
-
-
 
 
 @pytest.fixture
 def wb(tmp_path):
-    test_file = tmp_path / "test.xlsx"
     wb = Workbook()
     yield wb
     wb.close()  # Ensure handles are closed

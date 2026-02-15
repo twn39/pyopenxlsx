@@ -1,4 +1,3 @@
-import os
 import pytest
 from pyopenxlsx import Workbook
 from pyopenxlsx._openxlsx import XLDocument
@@ -94,7 +93,6 @@ def test_wrapped_range_properties():
 
 @pytest.mark.asyncio
 async def test_range_clear_async(tmp_path):
-    doc_path = tmp_path / "test_clear_async.xlsx"
     wb = Workbook()
     ws = wb.active
     ws["A1"].value = "async"

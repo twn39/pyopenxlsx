@@ -1,7 +1,6 @@
 from weakref import ref as weakref
 
 
-
 class Column:
     """
     Represents an Excel column.

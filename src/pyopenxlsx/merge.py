@@ -1,5 +1,3 @@
-
-
 class MergeCells:
     def __init__(self, raw_merges):
         self._merges = raw_merges

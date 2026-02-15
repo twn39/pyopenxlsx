@@ -1,4 +1,3 @@
-import os
 from pyopenxlsx._openxlsx import XLDocument
 
 

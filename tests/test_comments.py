@@ -1,5 +1,4 @@
 import pyopenxlsx
-import os
 import re
 
 
@@ -76,38 +75,40 @@ def test_comments_overloads():
     # Test count
     assert comments.count() == 2
 
+
 def test_comment_auto_sizing(tmp_path):
     import zipfile
+
     filename = tmp_path / "test_autosize.xlsx"
     wb = pyopenxlsx.Workbook()
     ws = wb.active
-    
+
     # 1. Short comment
     ws["A1"].comment = "Short"
-    
+
     # 2. Long multiline comment
     long_text = "Line 1\nLine 2\nLine 3\nLine 4\nLine 5"
     ws["B2"].comment = long_text
-    
+
     wb.save(str(filename))
     wb.close()
-    
+
     # Verify XML content
     with zipfile.ZipFile(filename, "r") as z:
         vml = z.read("xl/drawings/vmlDrawing1.vml").decode("utf-8")
-        
+
         # Check if textbox auto-fit is enabled
         assert "mso-fit-shape-to-text:t" in vml
-        
+
         # Check if anchors are present and different
         # (Very simple check: we expect at least two different Anchor tags)
         anchors = re.findall(r"<x:Anchor>(.*?)</x:Anchor>", vml)
         assert len(anchors) == 2
+
         # The second anchor (for long text) should have a larger row span than the first
         # Anchor format: "start_col, offset, start_row, offset, end_col, offset, end_row, offset"
         def get_row_span(a):
             parts = [int(p.strip()) for p in a.split(",")]
             return parts[6] - parts[2]
-            
-        assert get_row_span(anchors[1]) > get_row_span(anchors[0])
 
+        assert get_row_span(anchors[1]) > get_row_span(anchors[0])
