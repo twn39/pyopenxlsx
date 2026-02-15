@@ -20,7 +20,8 @@ endif()
 
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
-# Configure pybind11
+# Configure Python and pybind11
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 REQUIRED)
 
 # Define the python module
