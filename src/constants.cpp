@@ -1,6 +1,6 @@
 #include "bindings.hpp"
 
-void init_constants(py::module& m) {
+void init_constants(py::module_& m) {
     // Bind XLContentType enum
     py::enum_<XLContentType>(m, "XLContentType")
         .value("Workbook", XLContentType::Workbook)
@@ -25,8 +25,7 @@ void init_constants(py::module& m) {
         .value("Comments", XLContentType::Comments)
         .value("Table", XLContentType::Table)
         .value("VMLDrawing", XLContentType::VMLDrawing)
-        .value("Unknown", XLContentType::Unknown)
-        .export_values();
+        .value("Unknown", XLContentType::Unknown);
 
     // Bind XLProperty enum
     py::enum_<XLProperty>(m, "XLProperty")
@@ -49,13 +48,11 @@ void init_constants(py::module& m) {
         .value("SharedDoc", XLProperty::SharedDoc)
         .value("HyperlinkBase", XLProperty::HyperlinkBase)
         .value("HyperlinksChanged", XLProperty::HyperlinksChanged)
-        .value("AppVersion", XLProperty::AppVersion)
-        .export_values();
+        .value("AppVersion", XLProperty::AppVersion);
 
     // Bind XLSheetState
     py::enum_<XLSheetState>(m, "XLSheetState")
         .value("Visible", XLSheetState::Visible)
         .value("Hidden", XLSheetState::Hidden)
-        .value("VeryHidden", XLSheetState::VeryHidden)
-        .export_values();
+        .value("VeryHidden", XLSheetState::VeryHidden);
 }

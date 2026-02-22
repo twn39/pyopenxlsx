@@ -1,4 +1,4 @@
-#include <pybind11/numpy.h>
+#include <nanobind/ndarray.h>
 
 #include <headers/XLContentTypes.hpp>
 #include <headers/XLDrawing.hpp>
@@ -41,9 +41,8 @@ template struct Rob<XLDocumentData, &XLDocument::m_data>;
 std::list<XLXmlData> XLDocument::* get(XLDocumentData);
 }  // namespace
 
-void add_image_to_worksheet(XLWorksheet& ws, const std::string& imageData,
-                            const std::string& extension, uint32_t row, uint16_t col,
-                            uint32_t width, uint32_t height) {
+void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::string& extension,
+                            uint32_t row, uint16_t col, double width, double height) {
     auto& ws_public = reinterpret_cast<XLXmlFilePublic&>(ws);
     XLDocument& doc = ws_public.parentDoc();
     auto& doc_archive = doc.*get(XLDocumentArchive());
@@ -90,7 +89,8 @@ void add_image_to_worksheet(XLWorksheet& ws, const std::string& imageData,
         imgCount++;
     }
     std::string imgPath = "xl/media/image" + std::to_string(imgCount) + "." + extension;
-    doc_archive.addEntry(imgPath, imageData);
+    std::string strData(reinterpret_cast<const char*>(imageData.data()), imageData.size());
+    doc_archive.addEntry(imgPath, strData);
 
     // 2. Get worksheet relationships
     uint16_t sheetIdx = ws.index();
@@ -524,105 +524,62 @@ struct WriteCellData {
     double floatVal = 0.0;
 };
 
-// Write a numpy array or buffer to a worksheet range
-// Note: Data is copied from the buffer while GIL is held to avoid dangling pointers
-void write_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::buffer b) {
-    py::buffer_info info = b.request();
-
-    if (info.ndim != 2) {
+// Write a numpy array to a worksheet range cleanly using nanobind's ndarray
+template <typename T>
+void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
+                       py::ndarray<T, py::c_contig, py::device::cpu> b) {
+    if (b.ndim() != 2) {
         throw std::runtime_error("Incompatible buffer dimension! Expected 2D array.");
     }
 
-    uint32_t numRows = info.shape[0];
-    uint16_t numCols = info.shape[1];
+    uint32_t numRows = static_cast<uint32_t>(b.shape(0));
+    uint16_t numCols = static_cast<uint16_t>(b.shape(1));
 
-    // Copy data from Python buffer while GIL is held
-    // This ensures the buffer pointer remains valid during the copy
-    std::vector<std::vector<WriteCellData>> data;
+    // Copy data from numpy array while GIL is held
+    std::vector<std::vector<T>> data;
     data.reserve(numRows);
 
+    const T* ptr = static_cast<const T*>(b.data());
+
     for (uint32_t r = 0; r < numRows; ++r) {
-        std::vector<WriteCellData> rowData;
-        rowData.reserve(numCols);
-
-        for (uint16_t c = 0; c < numCols; ++c) {
-            void* ptr = (char*)info.ptr + r * info.strides[0] + c * info.strides[1];
-            WriteCellData cellData;
-
-            if (info.format == py::format_descriptor<double>::format()) {
-                cellData.type = WriteCellData::Type::Float;
-                cellData.floatVal = *(double*)ptr;
-            } else if (info.format == py::format_descriptor<int64_t>::format()) {
-                cellData.type = WriteCellData::Type::Integer;
-                cellData.intVal = *(int64_t*)ptr;
-            } else if (info.format == py::format_descriptor<int32_t>::format()) {
-                cellData.type = WriteCellData::Type::Integer;
-                cellData.intVal = (int64_t)*(int32_t*)ptr;
-            } else if (info.format == py::format_descriptor<float>::format()) {
-                cellData.type = WriteCellData::Type::Float;
-                cellData.floatVal = (double)*(float*)ptr;
-            } else if (info.format == py::format_descriptor<bool>::format()) {
-                cellData.type = WriteCellData::Type::Boolean;
-                cellData.boolVal = *(bool*)ptr;
-            }
-
-            rowData.push_back(cellData);
-        }
+        std::vector<T> rowData(ptr + r * numCols, ptr + (r + 1) * numCols);
         data.push_back(std::move(rowData));
     }
 
     // Now release GIL and write to worksheet using our copied data
     {
         py::gil_scoped_release release;
-
         for (uint32_t r = 0; r < numRows; ++r) {
             for (uint16_t c = 0; c < numCols; ++c) {
-                uint32_t targetRow = startRow + r;
-                uint16_t targetCol = startCol + c;
-                const auto& cellData = data[r][c];
-
-                switch (cellData.type) {
-                    case WriteCellData::Type::Float:
-                        ws.cell(targetRow, targetCol).value() = cellData.floatVal;
-                        break;
-                    case WriteCellData::Type::Integer:
-                        ws.cell(targetRow, targetCol).value() = cellData.intVal;
-                        break;
-                    case WriteCellData::Type::Boolean:
-                        ws.cell(targetRow, targetCol).value() = cellData.boolVal;
-                        break;
-                    default:
-                        break;
-                }
+                T val = data[r][c];
+                ws.cell(startRow + r, startCol + c).value() = val;
             }
         }
     }
 }
 
 // Read numeric data into a numpy array
-py::array_t<double> get_range_values(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
-                                     uint32_t endRow, uint16_t endCol) {
+py::ndarray<py::numpy, double, py::shape<-1, -1>> get_range_values(
+    XLWorksheet& ws, uint32_t startRow, uint16_t startCol, uint32_t endRow, uint16_t endCol) {
     uint32_t numRows = endRow - startRow + 1;
-    uint16_t numCols = endCol - startCol + 1;
+    uint32_t numCols = endCol - startCol + 1;
 
-    auto result = py::array_t<double>({numRows, (uint32_t)numCols});
-    py::buffer_info info = result.request();
-    double* ptr = (double*)info.ptr;
+    double* ptr = new double[numRows * numCols];
 
     {
         py::gil_scoped_release release;
         for (uint32_t r = 0; r < numRows; ++r) {
             XLRow row = ws.row(startRow + r);
             if (row.empty()) {
-                for (uint16_t c = 0; c < numCols; ++c) {
+                for (uint32_t c = 0; c < numCols; ++c) {
                     ptr[r * numCols + c] = 0.0;
                 }
                 continue;
             }
 
             std::vector<XLCellValue> values = row.values();
-            for (uint16_t c = 0; c < numCols; ++c) {
-                uint16_t colIdx = startCol + c - 1;
+            for (uint32_t c = 0; c < numCols; ++c) {
+                uint32_t colIdx = startCol + c - 1;
                 if (colIdx < values.size()) {
                     const auto& val = values[colIdx];
                     if (val.type() == XLValueType::Float) {
@@ -639,7 +596,9 @@ py::array_t<double> get_range_values(XLWorksheet& ws, uint32_t startRow, uint16_
         }
     }
 
-    return result;
+    py::capsule owner(ptr, [](void* p) noexcept { delete[] (double*)p; });
+    size_t shape[2] = {numRows, numCols};
+    return py::ndarray<py::numpy, double, py::shape<-1, -1>>(ptr, 2, shape, owner);
 }
 
 // Direct cell value setter - bypasses Python Cell object creation
@@ -652,19 +611,19 @@ void set_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col, py::object valu
         py::gil_scoped_release release;
         ws.cell(row, col).value().clear();
     } else if (py::isinstance<py::bool_>(value)) {
-        bool val = value.cast<bool>();
+        bool val = py::cast<bool>(value);
         py::gil_scoped_release release;
         ws.cell(row, col).value() = val;
     } else if (py::isinstance<py::int_>(value)) {
-        int64_t val = value.cast<int64_t>();
+        int64_t val = py::cast<int64_t>(value);
         py::gil_scoped_release release;
         ws.cell(row, col).value() = val;
     } else if (py::isinstance<py::float_>(value)) {
-        double val = value.cast<double>();
+        double val = py::cast<double>(value);
         py::gil_scoped_release release;
         ws.cell(row, col).value() = val;
     } else if (py::isinstance<py::str>(value)) {
-        std::string val = value.cast<std::string>();
+        std::string val = py::cast<std::string>(value);
         py::gil_scoped_release release;
         ws.cell(row, col).value() = val;
     } else {
@@ -687,20 +646,20 @@ struct BatchCellValue {
             val.type = Type::Empty;
         } else if (py::isinstance<py::bool_>(obj)) {
             val.type = Type::Boolean;
-            val.boolVal = obj.cast<bool>();
+            val.boolVal = py::cast<bool>(obj);
         } else if (py::isinstance<py::int_>(obj)) {
             val.type = Type::Integer;
-            val.intVal = obj.cast<int64_t>();
+            val.intVal = py::cast<int64_t>(obj);
         } else if (py::isinstance<py::float_>(obj)) {
             val.type = Type::Float;
-            val.floatVal = obj.cast<double>();
+            val.floatVal = py::cast<double>(obj);
         } else if (py::isinstance<py::str>(obj)) {
             val.type = Type::String;
-            val.strVal = obj.cast<std::string>();
+            val.strVal = py::cast<std::string>(obj);
         } else {
             // Try to convert to string as fallback
             val.type = Type::String;
-            val.strVal = py::str(obj).cast<std::string>();
+            val.strVal = py::cast<std::string>(py::str(obj));
         }
         return val;
     }
@@ -752,7 +711,7 @@ void write_rows_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::
 
     for (auto row : rows) {
         std::vector<XLCellValue> rowData;
-        py::list rowList = row.cast<py::list>();
+        py::list rowList = py::cast<py::list>(row);
         rowData.reserve(py::len(rowList));
 
         for (auto cell : rowList) {
@@ -808,13 +767,13 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
     writes.reserve(py::len(cells));
 
     for (auto item : cells) {
-        py::tuple t = item.cast<py::tuple>();
+        py::tuple t = py::cast<py::tuple>(item);
         if (py::len(t) != 3) {
             throw py::value_error("Each item must be a tuple of (row, col, value)");
         }
         CellWrite cw;
-        cw.row = t[0].cast<uint32_t>();
-        cw.col = t[1].cast<uint16_t>();
+        cw.row = py::cast<uint32_t>(t[0]);
+        cw.col = py::cast<uint16_t>(t[1]);
         cw.value = BatchCellValue::from_python(t[2]);
         writes.push_back(std::move(cw));
     }
@@ -830,7 +789,7 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
     }
 }
 
-void init_worksheet(py::module& m) {
+void init_worksheet(py::module_& m) {
     // Bind XLColumn
     py::class_<XLColumn>(m, "XLColumn")
         .def("width", &XLColumn::width)
@@ -900,7 +859,7 @@ void init_worksheet(py::module& m) {
             py::arg("rangeReference"))
         .def("column_format",
              py::overload_cast<const std::string&>(&XLWorksheet::getColumnFormat, py::const_))
-        .def("merges", &XLWorksheet::merges, py::return_value_policy::reference_internal)
+        .def("merges", &XLWorksheet::merges, py::rv_policy::reference_internal)
         .def("set_column_format",
              py::overload_cast<const std::string&, XLStyleIndex>(&XLWorksheet::setColumnFormat),
              py::arg("column"), py::arg("cellFormatIndex"))
@@ -996,9 +955,9 @@ void init_worksheet(py::module& m) {
                 self.allowSelectUnlockedCells(set);
             },
             py::arg("set") = true)
-        .def("comments", &XLWorksheet::comments, py::return_value_policy::reference_internal)
+        .def("comments", &XLWorksheet::comments, py::rv_policy::reference_internal)
         .def("add_image", &add_image_to_worksheet, py::arg("image_data"), py::arg("extension"),
-             py::arg("row"), py::arg("col"), py::arg("width"), py::arg("height"))
+             py::arg("row") = 1, py::arg("col") = 1, py::arg("width") = 0, py::arg("height") = 0)
         // Bulk read APIs for performance optimization
         .def("get_rows_data", &get_rows_data,
              "Get all rows data as list[list[Any]] - optimized for bulk read")
@@ -1012,8 +971,13 @@ void init_worksheet(py::module& m) {
         .def(
             "iter_row_values", [](XLWorksheet& self) { return RowValuesIterator(self); },
             py::keep_alive<0, 1>(), "Iterate over rows, yielding each row's values as list[Any]")
-        .def("write_range_data", &write_range_data, py::arg("start_row"), py::arg("start_col"),
-             py::arg("data"), "Write a 2D numpy array or buffer to a worksheet range")
+        .def("write_range_data", &write_range_typed<double>, py::arg("start_row"),
+             py::arg("start_col"), py::arg("data"),
+             "Write a 2D numpy array or buffer to a worksheet range")
+        .def("write_range_data", &write_range_typed<int64_t>, py::arg("start_row"),
+             py::arg("start_col"), py::arg("data"))
+        .def("write_range_data", &write_range_typed<bool>, py::arg("start_row"),
+             py::arg("start_col"), py::arg("data"))
         .def("get_range_values", &get_range_values, py::arg("start_row"), py::arg("start_col"),
              py::arg("end_row"), py::arg("end_col"),
              "Read a range of numeric cells into a 2D numpy array of doubles")

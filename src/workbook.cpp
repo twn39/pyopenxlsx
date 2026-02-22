@@ -6,7 +6,7 @@ class XLWorkbookPublic : public XLWorkbook {
     using XLXmlFile::xmlDocument;
 };
 
-void init_workbook(py::module& m) {
+void init_workbook(py::module_& m) {
     // Bind XLWorkbook
     py::class_<XLWorkbook>(m, "XLWorkbook")
         .def(

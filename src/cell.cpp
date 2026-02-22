@@ -1,6 +1,6 @@
 #include "bindings.hpp"
 
-void init_cell(py::module& m) {
+void init_cell(py::module_& m) {
     // Bind XLMergeCells
     py::class_<XLMergeCells>(m, "XLMergeCells")
         .def("count", &XLMergeCells::count)
@@ -30,7 +30,8 @@ void init_cell(py::module& m) {
         .def(
             "__iter__",
             [](const XLCellRange& self) {
-                return py::make_iterator<py::return_value_policy::copy>(self.begin(), self.end());
+                return py::make_iterator(py::type<XLCellRange>(), "iterator", self.begin(),
+                                         self.end());
             },
             py::keep_alive<0, 1>());
 
@@ -47,7 +48,7 @@ void init_cell(py::module& m) {
 
     // Bind XLCell
     py::class_<XLCell>(m, "XLCell")
-        .def_property(
+        .def_prop_rw(
             "value",
             [](const XLCell& self) -> py::object {
                 py::gil_scoped_release release;
@@ -80,19 +81,19 @@ void init_cell(py::module& m) {
                     py::gil_scoped_release release;
                     self.value().clear();
                 } else if (py::isinstance<py::bool_>(value)) {
-                    bool val = value.cast<bool>();
+                    bool val = py::cast<bool>(value);
                     py::gil_scoped_release release;
                     self.value() = val;
                 } else if (py::isinstance<py::int_>(value)) {
-                    int64_t val = value.cast<int64_t>();
+                    int64_t val = py::cast<int64_t>(value);
                     py::gil_scoped_release release;
                     self.value() = val;
                 } else if (py::isinstance<py::float_>(value)) {
-                    double val = value.cast<double>();
+                    double val = py::cast<double>(value);
                     py::gil_scoped_release release;
                     self.value() = val;
                 } else if (py::isinstance<py::str>(value)) {
-                    std::string val = value.cast<std::string>();
+                    std::string val = py::cast<std::string>(value);
                     py::gil_scoped_release release;
                     self.value() = val;
                 } else {
@@ -103,9 +104,9 @@ void init_cell(py::module& m) {
         .def("set_formula",
              [](XLCell& self, const py::object& value) {
                  if (py::isinstance<py::str>(value)) {
-                     self.formula() = value.cast<std::string>();
+                     self.formula() = py::cast<std::string>(value);
                  } else if (py::isinstance<XLFormula>(value)) {
-                     self.formula() = value.cast<XLFormula>();
+                     self.formula() = py::cast<XLFormula>(value);
                  } else {
                      throw py::type_error("Unsupported type for formula assignment");
                  }

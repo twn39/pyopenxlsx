@@ -24,7 +24,7 @@
 | Component | Technology |
 | :--- | :--- |
 | **C++ Core** | [OpenXLSX](https://github.com/troldal/OpenXLSX) |
-| **Bindings** | [pybind11](https://github.com/pybind/pybind11) |
+| **Bindings** | [nanobind](https://github.com/wjakob/nanobind) |
 | **Build System** | [scikit-build-core](https://github.com/scikit-build/scikit-build-core) & [CMake](https://cmake.org/) |
 
 ## Installation

@@ -105,16 +105,15 @@ py::bytes get_image_data(XLDocument& doc, const std::string& imagePath) {
         data = archive.getEntry(fullPath);
     }
 
-    return py::bytes(data);
+    return py::bytes(data.data(), data.size());
 }
 
-void init_document(py::module& m) {
+void init_document(py::module_& m) {
     // Bind ImageInfo struct
     py::class_<ImageInfo>(m, "ImageInfo")
-        .def_readonly("name", &ImageInfo::name, "Image filename (e.g., 'image1.png')")
-        .def_readonly("path", &ImageInfo::path,
-                      "Full path in archive (e.g., 'xl/media/image1.png')")
-        .def_readonly("extension", &ImageInfo::extension, "File extension (e.g., 'png')")
+        .def_ro("name", &ImageInfo::name, "Image filename (e.g., 'image1.png')")
+        .def_ro("path", &ImageInfo::path, "Full path in archive (e.g., 'xl/media/image1.png')")
+        .def_ro("extension", &ImageInfo::extension, "File extension (e.g., 'png')")
         .def("__repr__", [](const ImageInfo& self) {
             return "<ImageInfo name='" + self.name + "' path='" + self.path + "'>";
         });
@@ -220,12 +219,13 @@ void init_document(py::module& m) {
                  py::gil_scoped_release release;
                  self.open(path);
              })
-        .def("create",
-             [](XLDocument& self, const std::string& name, bool forceOverwrite) {
-                 py::gil_scoped_release release;
-                 self.create(name, forceOverwrite);
-             },
-             py::arg("name"), py::arg("force_overwrite") = true)
+        .def(
+            "create",
+            [](XLDocument& self, const std::string& name, bool forceOverwrite) {
+                py::gil_scoped_release release;
+                self.create(name, forceOverwrite);
+            },
+            py::arg("name"), py::arg("force_overwrite") = true)
         .def("close",
              [](XLDocument& self) {
                  py::gil_scoped_release release;
@@ -239,29 +239,30 @@ void init_document(py::module& m) {
                  py::gil_scoped_release release;
                  self.save();
              })
-        .def("save_as",
-             [](XLDocument& self, const std::string& name, bool forceOverwrite) {
-                 py::gil_scoped_release release;
-                 self.saveAs(name, forceOverwrite);
-             },
-             py::arg("name"), py::arg("force_overwrite") = true)
+        .def(
+            "save_as",
+            [](XLDocument& self, const std::string& name, bool forceOverwrite) {
+                py::gil_scoped_release release;
+                self.saveAs(name, forceOverwrite);
+            },
+            py::arg("name"), py::arg("force_overwrite") = true)
         .def("workbook", &XLDocument::workbook, py::keep_alive<0, 1>())
         .def(
             "content_types",
             [](XLDocument& self) { return &(self.*get(XLDocumentContentTypes())); },
-            py::return_value_policy::reference_internal)
+            py::rv_policy::reference_internal)
         .def(
             "app_properties",
             [](XLDocument& self) { return &(self.*get(XLDocumentAppProperties())); },
-            py::return_value_policy::reference_internal)
+            py::rv_policy::reference_internal)
         .def(
             "core_properties",
             [](XLDocument& self) { return &(self.*get(XLDocumentCoreProperties())); },
-            py::return_value_policy::reference_internal)
+            py::rv_policy::reference_internal)
         .def("property", &XLDocument::property)
         .def("set_property", &XLDocument::setProperty)
         .def("delete_property", &XLDocument::deleteProperty)
-        .def("styles", &XLDocument::styles, py::return_value_policy::reference_internal)
+        .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
         .def(
             "get_embedded_images",
             [](XLDocument& self) {
@@ -275,7 +276,11 @@ void init_document(py::module& m) {
              "or just filename (e.g., 'image1.png').")
         .def(
             "__enter__", [](XLDocument& self) -> XLDocument& { return self; },
-            py::return_value_policy::reference)
-        .def("__exit__", [](XLDocument& self, py::object exc_type, py::object exc_value,
-                            py::object traceback) { self.close(); });
+            py::rv_policy::reference)
+        .def(
+            "__exit__",
+            [](XLDocument& self, py::handle exc_type, py::handle exc_value, py::handle traceback) {
+                self.close();
+            },
+            py::arg("exc_type").none(), py::arg("exc_value").none(), py::arg("traceback").none());
 }

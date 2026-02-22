@@ -1,6 +1,6 @@
 #include "bindings.hpp"
 
-void init_styles(py::module& m) {
+void init_styles(py::module_& m) {
     // Bind Style Enums
     py::enum_<XLUnderlineStyle>(m, "XLUnderlineStyle")
         .value("None", XLUnderlineNone)
@@ -232,12 +232,11 @@ void init_styles(py::module& m) {
 
     // Bind XLStyles
     py::class_<XLStyles>(m, "XLStyles")
-        .def("fonts", &XLStyles::fonts, py::return_value_policy::reference_internal)
-        .def("fills", &XLStyles::fills, py::return_value_policy::reference_internal)
-        .def("borders", &XLStyles::borders, py::return_value_policy::reference_internal)
-        .def("cell_formats", &XLStyles::cellFormats, py::return_value_policy::reference_internal)
-        .def("number_formats", &XLStyles::numberFormats,
-             py::return_value_policy::reference_internal);
+        .def("fonts", &XLStyles::fonts, py::rv_policy::reference_internal)
+        .def("fills", &XLStyles::fills, py::rv_policy::reference_internal)
+        .def("borders", &XLStyles::borders, py::rv_policy::reference_internal)
+        .def("cell_formats", &XLStyles::cellFormats, py::rv_policy::reference_internal)
+        .def("number_formats", &XLStyles::numberFormats, py::rv_policy::reference_internal);
 
     // Bind XLNumberFormat
     py::class_<XLNumberFormat>(m, "XLNumberFormat")

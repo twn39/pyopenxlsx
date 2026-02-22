@@ -1,3 +1,7 @@
 [submodule "third_party/OpenXLSX"]
 	path = third_party/OpenXLSX
 	url = git@github.com:twn39/OpenXLSX.git
+[submodule "third_party/nanobind"]
+	path = third_party/nanobind
+	url = https://github.com/wjakob/nanobind
+	branch = master

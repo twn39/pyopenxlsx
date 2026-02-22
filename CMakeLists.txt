@@ -20,12 +20,13 @@ endif()
 
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
-# Configure Python and pybind11
+# Configure Python and nanobind
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
-find_package(pybind11 REQUIRED)
+
+add_subdirectory(third_party/nanobind)
 
 # Define the python module
-pybind11_add_module(_openxlsx 
+nanobind_add_module(_openxlsx 
     src/bindings.cpp
     src/constants.cpp
     src/types.cpp

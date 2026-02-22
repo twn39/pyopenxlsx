@@ -1,6 +1,6 @@
 #include "bindings.hpp"
 
-PYBIND11_MODULE(_openxlsx, m) {
+NB_MODULE(_openxlsx, m) {
     m.doc() = "Python bindings for OpenXLSX";
     init_constants(m);
     init_types(m);

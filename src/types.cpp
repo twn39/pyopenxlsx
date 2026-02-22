@@ -2,7 +2,7 @@
 
 #include "bindings.hpp"
 
-void init_types(py::module& m) {
+void init_types(py::module_& m) {
     // Bind XLContentItem
     py::class_<XLContentItem>(m, "XLContentItem")
         .def(py::init<>())
@@ -65,14 +65,15 @@ void init_types(py::module& m) {
     // Bind XLDateTime
     py::class_<XLDateTime>(m, "XLDateTime")
         .def(py::init<>())
-        .def(py::init([](double serial) { return new XLDateTime(serial); }))
-        .def(py::init([](long long timestamp) {
-            return new XLDateTime((time_t)timestamp);
-        }))  // support unix timestamp
+        .def("__init__", [](XLDateTime* t, double serial) { new (t) XLDateTime(serial); })
+        .def("__init__",
+             [](XLDateTime* t, long long timestamp) {
+                 new (t) XLDateTime((time_t)timestamp);
+             })  // support unix timestamp
         .def("serial", &XLDateTime::serial)
         .def("as_datetime", [](const XLDateTime& self) {
             std::tm t = self.tm();
-            auto datetime = py::module::import("datetime").attr("datetime");
+            auto datetime = py::module_::import_("datetime").attr("datetime");
             // Note: std::tm_year is years since 1900, tm_mon is 0-11
             return datetime(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min,
                             t.tm_sec);
