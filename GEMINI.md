@@ -1,6 +1,6 @@
 # PyOpenXLSX Project Context
 
-`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library, using `pybind11` and `scikit-build-core`.
+`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library, using `nanobind` and `scikit-build-core`.
 
 ## Project Overview
 
