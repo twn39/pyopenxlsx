@@ -326,22 +326,19 @@ py::object get_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col) {
 py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, uint32_t endRow,
                         uint16_t endCol) {
     // First, read all data without GIL
-    std::vector<std::vector<CellValueData>> data;
+    std::vector<CellValueData> data;
+    uint32_t numRows = endRow - startRow + 1;
+    uint16_t numCols = endCol - startCol + 1;
 
     {
         py::gil_scoped_release release;
 
-        uint32_t numRows = endRow - startRow + 1;
-        uint16_t numCols = endCol - startCol + 1;
-
-        // Pre-allocate
-        data.reserve(numRows);
+        // Pre-allocate everything in one block
+        data.resize(numRows * numCols);
 
         // Iterate over the specified range
         for (uint32_t r = startRow; r <= endRow; ++r) {
-            std::vector<CellValueData> rowData;
-            rowData.reserve(numCols);
-
+            uint32_t baseIdx = (r - startRow) * numCols;
             XLRow row = ws.row(r);
             if (!row.empty()) {
                 // Get all values from the row first
@@ -351,28 +348,22 @@ py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, u
                 for (uint16_t c = startCol; c <= endCol; ++c) {
                     uint16_t colIdx = c - 1;  // values is 0-indexed
                     if (colIdx < values.size()) {
-                        rowData.push_back(CellValueData::from(values[colIdx]));
-                    } else {
-                        rowData.emplace_back();  // Empty cell
+                        data[baseIdx + (c - startCol)] = CellValueData::from(values[colIdx]);
                     }
-                }
-            } else {
-                // Empty row - fill with empty values
-                for (uint16_t c = 0; c < numCols; ++c) {
-                    rowData.emplace_back();
+                    // For missing cells, data[baseIdx + offset] is already initialized as
+                    // Type::Empty
                 }
             }
-
-            data.push_back(std::move(rowData));
         }
     }
 
     // Now convert to Python with GIL held
     py::list result;
-    for (const auto& rowData : data) {
+    for (uint32_t r = 0; r < numRows; ++r) {
         py::list pyRow;
-        for (const auto& cellData : rowData) {
-            pyRow.append(cellData.to_python());
+        uint32_t baseIdx = r * numCols;
+        for (uint16_t c = 0; c < numCols; ++c) {
+            pyRow.append(data[baseIdx + c].to_python());
         }
         result.append(pyRow);
     }
@@ -383,46 +374,42 @@ py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, u
 // Bulk read all rows data - returns list[list[Any]]
 py::list get_rows_data(XLWorksheet& ws) {
     // First, read all data without GIL
-    std::vector<std::vector<CellValueData>> data;
+    std::vector<CellValueData> data;
+    uint32_t rowCount = 0;
+    uint16_t colCount = 0;
 
     {
         py::gil_scoped_release release;
 
-        uint32_t rowCount = ws.rowCount();
-        uint16_t colCount = ws.columnCount();
+        rowCount = ws.rowCount();
+        colCount = ws.columnCount();
 
-        // Pre-allocate
-        data.reserve(rowCount);
+        // Pre-allocate everything in one shot
+        data.resize(rowCount * colCount);
 
         // Iterate over rows
         for (uint32_t r = 1; r <= rowCount; ++r) {
-            std::vector<CellValueData> rowData;
-            rowData.reserve(colCount);
-
+            uint32_t baseIdx = (r - 1) * colCount;
             XLRow row = ws.row(r);
             if (!row.empty()) {
                 // Use the implicit conversion to std::vector<XLCellValue>
                 std::vector<XLCellValue> values = row.values();
-                for (const auto& val : values) {
-                    rowData.push_back(CellValueData::from(val));
+                uint32_t valCount =
+                    std::min(static_cast<uint32_t>(values.size()), static_cast<uint32_t>(colCount));
+                for (uint32_t i = 0; i < valCount; ++i) {
+                    data[baseIdx + i] = CellValueData::from(values[i]);
                 }
             }
-
-            // Pad with empty values if needed
-            while (rowData.size() < colCount) {
-                rowData.emplace_back();
-            }
-
-            data.push_back(std::move(rowData));
         }
     }
 
     // Now convert to Python with GIL held
     py::list result;
-    for (const auto& rowData : data) {
+    for (uint32_t r = 0; r < rowCount; ++r) {
         py::list pyRow;
-        for (const auto& cellData : rowData) {
-            pyRow.append(cellData.to_python());
+        uint32_t baseIdx = r * colCount;
+        for (uint16_t c = 0; c < colCount; ++c) {
+            pyRow.append(data[baseIdx + c].to_python());
         }
         result.append(pyRow);
     }
@@ -535,23 +522,15 @@ void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
     uint32_t numRows = static_cast<uint32_t>(b.shape(0));
     uint16_t numCols = static_cast<uint16_t>(b.shape(1));
 
-    // Copy data from numpy array while GIL is held
-    std::vector<std::vector<T>> data;
-    data.reserve(numRows);
-
     const T* ptr = static_cast<const T*>(b.data());
-
-    for (uint32_t r = 0; r < numRows; ++r) {
-        std::vector<T> rowData(ptr + r * numCols, ptr + (r + 1) * numCols);
-        data.push_back(std::move(rowData));
-    }
+    std::vector<T> data(ptr, ptr + numRows * numCols);
 
     // Now release GIL and write to worksheet using our copied data
     {
         py::gil_scoped_release release;
         for (uint32_t r = 0; r < numRows; ++r) {
             for (uint16_t c = 0; c < numCols; ++c) {
-                T val = data[r][c];
+                T val = data[r * numCols + c];
                 ws.cell(startRow + r, startCol + c).value() = val;
             }
         }
