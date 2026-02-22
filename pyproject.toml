@@ -54,6 +54,12 @@ sdist.include = [
     "third_party/OpenXLSX/third_party/nowide/LICENSE",
     "third_party/OpenXLSX/third_party/nowide/cmake",
     "third_party/OpenXLSX/third_party/nowide/config",
+    "third_party/nanobind/include",
+    "third_party/nanobind/src",
+    "third_party/nanobind/ext",
+    "third_party/nanobind/cmake",
+    "third_party/nanobind/CMakeLists.txt",
+    "third_party/nanobind/LICENSE",
 ]
 sdist.exclude = [
     "**/Benchmarks",
