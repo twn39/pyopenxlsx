@@ -609,10 +609,10 @@ def is_date_format(format_code: int | str) -> bool:
 
 | Scenario | pyopenxlsx | openpyxl | Speedup |
 | :--- | :--- | :--- | :--- |
-| **Read** (20,000 cells) | **~7ms** | ~155ms | **21x** |
-| **Write** (1,000 cells) | **~6ms** | ~9ms | **1.5x** |
-| **Write** (50,000 cells) | **~200ms** | ~318ms | **1.6x** |
-| **Bulk Write** (50,000 cells) | **~77ms** | N/A | **4.1x** |
+| **Read** (20,000 cells) | **~7.5ms** | ~151ms | **20x** |
+| **Write** (1,000 cells) | **~5ms** | ~8.4ms | **1.7x** |
+| **Write** (50,000 cells) | **~178ms** | ~318ms | **1.8x** |
+| **Bulk Write** (50,000 cells) | **~80ms** | N/A | **4.0x** |
 | **Iteration** (20,000 cells) | **~86ms** | ~157ms | **1.8x** |
 
 > [!NOTE]
