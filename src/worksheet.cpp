@@ -46,8 +46,13 @@ void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::str
     auto& ws_public = reinterpret_cast<XLXmlFilePublic&>(ws);
     XLDocument& doc = ws_public.parentDoc();
 
-    // 1. Add image to document package
-    std::string imgName = "image" + std::to_string(std::time(nullptr)) + "." + extension;
+    // 1. Add image to document package - use sequential naming (image1, image2, ...)
+    auto& archive = doc.*get(XLDocumentArchive());
+    int imgNum = 1;
+    while (archive.hasEntry("xl/media/image" + std::to_string(imgNum) + "." + extension)) {
+        ++imgNum;
+    }
+    std::string imgName = "image" + std::to_string(imgNum) + "." + extension;
     std::string imgPath;
     {
         py::gil_scoped_release release;
