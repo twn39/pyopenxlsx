@@ -659,8 +659,15 @@ def is_date_format(format_code: int | str) -> bool:
 | **Iteration** (20,000 cells) | **~80ms** | ~150ms | **1.9x** |
 | **Bulk Write** (1,000,000 cells) | **~1.5s** | ~6.2s | **4.1x** |
 
+### Resource Usage (1,000,000 cells)
+
+| Library | Execution Time | Memory Delta | CPU Load |
+| :--- | :--- | :--- | :--- |
+| **pyopenxlsx** | **~1.5s** | ~400 MB | ~99% |
+| **openpyxl** | ~6.2s | ~600 MB* | ~99% |
+
 > [!NOTE]
-> Benchmarks were performed on a local development machine using `pytest-benchmark`. Results may vary based on environment and data complexity. Bulk write uses `ws.write_range()` with NumPy arrays.
+> *Memory delta for `openpyxl` can be misleading due to Python's garbage collection timing during the benchmark. However, `pyopenxlsx` consistently shows lower memory pressure for bulk operations as data is handled primarily in C++.
 
 ### Why is it faster?
 1. **C++ Foundation**: Core operations happen in highly optimized C++.

@@ -2,7 +2,40 @@ import pytest
 import openpyxl
 import asyncio
 import numpy as np
+import psutil
+import os
+import time
 from pyopenxlsx import Workbook as PyWorkbook, load_workbook_async
+
+
+class ResourceMonitor:
+    def __init__(self, name):
+        self.name = name
+        self.process = psutil.Process(os.getpid())
+
+    def __enter__(self):
+        self.start_mem = self.process.memory_info().rss / (1024 * 1024)  # MB
+        self.start_cpu = self.process.cpu_times()
+        self.start_time = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.perf_counter()
+        self.end_mem = self.process.memory_info().rss / (1024 * 1024)  # MB
+        self.end_cpu = self.process.cpu_times()
+
+        duration = self.end_time - self.start_time
+        mem_diff = self.end_mem - self.start_mem
+        cpu_user = self.end_cpu.user - self.start_cpu.user
+        cpu_sys = self.end_cpu.system - self.start_cpu.system
+        cpu_total = cpu_user + cpu_sys
+
+        print(f"\n[Resource: {self.name}]")
+        print(f"  Time: {duration:.4f}s")
+        print(f"  Memory Delta: {mem_diff:+.2f} MB (End: {self.end_mem:.2f} MB)")
+        print(f"  CPU Usage: User {cpu_user:.4f}s, System {cpu_sys:.4f}s, Total {cpu_total:.4f}s")
+        if duration > 0:
+            print(f"  CPU Load: {(cpu_total / duration) * 100:.1f}%")
 
 
 # Fixture to provide a temporary file path
@@ -109,6 +142,31 @@ def write_pyopenxlsx_bulk(rows, cols, filepath):
 @pytest.mark.benchmark(group="write_large")
 def test_write_large_bulk_pyopenxlsx(benchmark, temp_xlsx_file):
     benchmark(write_pyopenxlsx_bulk, 1000, 50, temp_xlsx_file)
+
+
+# --- Extreme Volume Benchmarks (1,000,000 cells) ---
+
+
+@pytest.mark.benchmark(group="write_extreme")
+def test_write_extreme_bulk_pyopenxlsx(benchmark, temp_xlsx_file):
+    """Extreme volume test: 1,000,000 cells using numpy bulk write"""
+    with ResourceMonitor("pyopenxlsx_bulk_1M"):
+        # 10,000 rows x 100 columns = 1,000,000 cells
+        benchmark(write_pyopenxlsx_bulk, 10000, 100, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_extreme")
+def test_write_extreme_write_rows_pyopenxlsx(benchmark, temp_xlsx_file):
+    """Extreme volume test: 1,000,000 cells using write_rows"""
+    with ResourceMonitor("pyopenxlsx_rows_1M"):
+        benchmark(write_pyopenxlsx_write_rows, 10000, 100, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_extreme")
+def test_write_extreme_openpyxl(benchmark, temp_xlsx_file):
+    """Extreme volume test: 1,000,000 cells using openpyxl"""
+    with ResourceMonitor("openpyxl_1M"):
+        benchmark(write_openpyxl, 10000, 100, temp_xlsx_file)
 
 
 # --- Read Benchmarks ---
