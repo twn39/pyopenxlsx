@@ -11,6 +11,9 @@
 
 </div>
 
+> [!IMPORTANT]
+> `pyopenxlsx` currently uses a specialized **fork** of the [OpenXLSX](https://github.com/troldal/OpenXLSX) library (v1.0.0+), which includes critical performance optimizations and functional enhancements (such as custom properties and improved hyperlink handling) not currently available in the upstream repository.
+
 `pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
 
 ## Core Features
