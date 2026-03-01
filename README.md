@@ -657,6 +657,7 @@ def is_date_format(format_code: int | str) -> bool:
 | **Write** (50,000 cells) | **~169ms** | ~305ms | **1.8x** |
 | **Bulk Write** (50,000 cells) | **~74ms** | N/A | **4.1x** |
 | **Iteration** (20,000 cells) | **~80ms** | ~150ms | **1.9x** |
+| **Bulk Write** (1,000,000 cells) | **~1.5s** | ~6.2s | **4.1x** |
 
 > [!NOTE]
 > Benchmarks were performed on a local development machine using `pytest-benchmark`. Results may vary based on environment and data complexity. Bulk write uses `ws.write_range()` with NumPy arrays.
