@@ -21,7 +21,9 @@
 -   **High Performance**: Powered by the modern C++17 OpenXLSX library.
 -   **Pythonic API**: Intuitive interface with properties, iterators, and context managers.
 -   **Async Support**: `async/await` support for key I/O operations.
--   **Rich Styling**: comprehensive support for fonts, fills, borders, alignments, and number formats.
+-   **Rich Styling**: Comprehensive support for fonts, fills, borders, alignments, and number formats.
+-   **Extended Metadata**: Support for both standard and **custom document properties**.
+-   **Advanced Content**: Support for **images**, **hyperlinks** (external/internal), and **comments**.
 -   **Memory Safety**: Combines C++ efficiency with Python's automatic memory management.
 
 ## Tech Stack
@@ -79,6 +81,37 @@ with Workbook() as wb:
     
     # Save
     wb.save("example.xlsx")
+```
+
+### Custom Properties
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    # Set custom document properties
+    wb.custom_properties["Author"] = "Curry Tang"
+    wb.custom_properties["Project"] = "PyOpenXLSX"
+    wb.save("props.xlsx")
+```
+
+### Hyperlinks
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    ws["A1"].value = "Google"
+    # External link
+    ws.add_hyperlink("A1", "https://www.google.com", tooltip="Search")
+    
+    # Internal link to another sheet
+    ws2 = wb.create_sheet("Data")
+    ws["A2"].value = "See Data"
+    ws.add_internal_hyperlink("A2", "Data!A1")
+    
+    wb.save("links.xlsx")
 ```
 
 ### Read a Workbook
@@ -238,7 +271,8 @@ Workbook(filename: str | None = None, force_overwrite: bool = True)
 | :--- | :--- | :--- |
 | `active` | `Worksheet \| None` | Get or set the currently active worksheet. |
 | `sheetnames` | `list[str]` | Returns a list of all worksheet names. |
-| `properties` | `DocumentProperties` | Access document metadata (title, author, etc.). |
+| `properties` | `DocumentProperties` | Access standard document metadata (title, author, etc.). |
+| `custom_properties` | `CustomProperties` | Access custom document properties (dict-like). |
 | `styles` | `XLStyles` | Access underlying style object (advanced usage). |
 | `workbook` | `XLWorkbook` | Access underlying C++ workbook object (advanced usage). |
 
@@ -308,6 +342,8 @@ Represents a sheet within an Excel file.
 | `max_row` | `int` | Returns the maximum row index used. |
 | `max_column` | `int` | Returns the maximum column index used. |
 | `rows` | `Iterator` | Iterate over all rows with data. |
+| `has_drawing` | `bool` | True if the worksheet has a drawing (images, etc.). |
+| `drawing` | `XLDrawing` | Access underlying drawing object (advanced usage). |
 | `merges` | `MergeCells` | Access merged cells information. |
 | `protection` | `dict` | Get worksheet protection status (read-only). |
 
@@ -324,6 +360,8 @@ Represents a sheet within an Excel file.
 | `unmerge_cells_async(...)` | `Coroutine` | Asynchronously unmerge cells. |
 | `append(iterable)` | `None` | Append a row of data after the last used row. |
 | `append_async(iterable)` | `Coroutine` | Asynchronously append a row. |
+| `add_hyperlink(ref, url, tooltip="")` | `None` | Add an external hyperlink to a cell. |
+| `add_internal_hyperlink(ref, loc, ...)` | `None` | Add an internal hyperlink (e.g., `"Sheet2!A1"`). |
 | `set_column_format(col, style_idx)` | `None` | Set default style for a column. `col` can be int or "A". |
 | `set_row_format(row, style_idx)` | `None` | Set default style for a row. |
 | `column(col)` | `Column` | Get column object for width adjustments. |
@@ -614,11 +652,11 @@ def is_date_format(format_code: int | str) -> bool:
 
 | Scenario | pyopenxlsx | openpyxl | Speedup |
 | :--- | :--- | :--- | :--- |
-| **Read** (20,000 cells) | **~7.5ms** | ~151ms | **20x** |
-| **Write** (1,000 cells) | **~5ms** | ~8.4ms | **1.7x** |
-| **Write** (50,000 cells) | **~178ms** | ~318ms | **1.8x** |
-| **Bulk Write** (50,000 cells) | **~80ms** | N/A | **4.0x** |
-| **Iteration** (20,000 cells) | **~86ms** | ~157ms | **1.8x** |
+| **Read** (20,000 cells) | **~7.2ms** | ~145ms | **20.2x** |
+| **Write** (1,000 cells) | **~4.8ms** | ~8.1ms | **1.7x** |
+| **Write** (50,000 cells) | **~169ms** | ~305ms | **1.8x** |
+| **Bulk Write** (50,000 cells) | **~74ms** | N/A | **4.1x** |
+| **Iteration** (20,000 cells) | **~80ms** | ~150ms | **1.9x** |
 
 > [!NOTE]
 > Benchmarks were performed on a local development machine using `pytest-benchmark`. Results may vary based on environment and data complexity. Bulk write uses `ws.write_range()` with NumPy arrays.
