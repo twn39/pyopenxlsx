@@ -28,14 +28,6 @@ set(OPENXLSX_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(OPENXLSX_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(OPENXLSX_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 
-# Prevent nowide from searching for Boost
-if(NOT TARGET Boost::boost)
-    add_library(boost_dummy INTERFACE)
-    add_library(Boost::boost ALIAS boost_dummy)
-    add_library(boost_config_dummy INTERFACE)
-    add_library(Boost::config ALIAS boost_config_dummy)
-endif()
-
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
 # Configure Python and nanobind

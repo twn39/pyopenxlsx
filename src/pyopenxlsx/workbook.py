@@ -140,6 +140,31 @@ class DocumentProperties:
         self[XLProperty.Company] = value
 
 
+class CustomProperties:
+    """
+    Proxy for custom document properties.
+    """
+
+    def __init__(self, doc):
+        self._doc = doc
+
+    def __getitem__(self, name):
+        return self._doc.custom_property(name)
+
+    def __setitem__(self, name, value):
+        self._doc.set_custom_property(name, str(value))
+
+    def __delitem__(self, name):
+        self._doc.delete_custom_property(name)
+
+    def __contains__(self, name):
+        try:
+            val = self._doc.custom_property(name)
+            return val != ""
+        except Exception:
+            return False
+
+
 class Workbook:
     """
     Represents an Excel workbook.
@@ -216,6 +241,15 @@ class Workbook:
         if not hasattr(self, "_properties"):
             self._properties = DocumentProperties(self._doc)
         return self._properties
+
+    @property
+    def custom_properties(self):
+        """
+        Get the custom document properties.
+        """
+        if not hasattr(self, "_custom_properties"):
+            self._custom_properties = CustomProperties(self._doc)
+        return self._custom_properties
 
     def add_style(
         self,

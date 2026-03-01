@@ -67,6 +67,16 @@ class Worksheet:
     def max_column(self):
         return self._sheet.column_count()
 
+    @property
+    def has_drawing(self):
+        """Check if the worksheet has a drawing (images, charts, etc.)."""
+        return self._sheet.has_drawing()
+
+    @property
+    def drawing(self):
+        """Get the drawing object for the worksheet."""
+        return self._sheet.drawing()
+
     def append(self, iterable):
         row = self.max_row + 1
         for col, val in enumerate(iterable, start=1):
@@ -291,6 +301,26 @@ class Worksheet:
 
     async def add_image_async(self, img_path, anchor="A1", width=None, height=None):
         await asyncio.to_thread(self.add_image, img_path, anchor, width, height)
+
+    def add_hyperlink(self, cell_ref, url, tooltip=""):
+        """
+        Add an external hyperlink to a cell.
+
+        :param cell_ref: Cell reference (e.g., 'A1').
+        :param url: URL of the hyperlink.
+        :param tooltip: Optional tooltip text.
+        """
+        self._sheet.add_hyperlink(cell_ref, url, tooltip)
+
+    def add_internal_hyperlink(self, cell_ref, location, tooltip=""):
+        """
+        Add an internal hyperlink (to another sheet or range) to a cell.
+
+        :param cell_ref: Cell reference (e.g., 'A1').
+        :param location: Destination in the workbook (e.g., 'Sheet2!A1').
+        :param tooltip: Optional tooltip text.
+        """
+        self._sheet.add_internal_hyperlink(cell_ref, location, tooltip)
 
     def get_rows_data(self):
         """

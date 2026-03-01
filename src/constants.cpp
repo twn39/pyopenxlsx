@@ -25,6 +25,7 @@ void init_constants(py::module_& m) {
         .value("Comments", XLContentType::Comments)
         .value("Table", XLContentType::Table)
         .value("VMLDrawing", XLContentType::VMLDrawing)
+        .value("Hyperlink", XLContentType::Hyperlink)
         .value("Unknown", XLContentType::Unknown);
 
     // Bind XLProperty enum

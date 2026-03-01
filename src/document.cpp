@@ -262,7 +262,29 @@ void init_document(py::module_& m) {
         .def("property", &XLDocument::property)
         .def("set_property", &XLDocument::setProperty)
         .def("delete_property", &XLDocument::deleteProperty)
+        .def("custom_property", &XLDocument::customProperty, py::arg("name"),
+             "Get a custom document property by name")
+        .def("set_custom_property", &XLDocument::setCustomProperty, py::arg("name"),
+             py::arg("value"), "Set a custom document property")
+        .def("delete_custom_property", &XLDocument::deleteCustomProperty, py::arg("name"),
+             "Delete a custom document property by name")
         .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
+        .def(
+            "add_image",
+            [](XLDocument& self, const std::string& name, py::bytes data) {
+                py::gil_scoped_release release;
+                return self.addImage(name, std::string(static_cast<const char*>(data.data()), data.size()));
+            },
+            py::arg("name"), py::arg("data"),
+            "Add an image to the document archive. Returns the path in the archive.")
+        .def(
+            "get_image",
+            [](XLDocument& self, const std::string& path) {
+                py::gil_scoped_release release;
+                std::string data = self.getImage(path);
+                return py::bytes(data.data(), data.size());
+            },
+            py::arg("path"), "Get image data as bytes from the document archive.")
         .def(
             "get_embedded_images",
             [](XLDocument& self) {

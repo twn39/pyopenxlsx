@@ -45,202 +45,38 @@ void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::str
                             uint32_t row, uint16_t col, double width, double height) {
     auto& ws_public = reinterpret_cast<XLXmlFilePublic&>(ws);
     XLDocument& doc = ws_public.parentDoc();
-    auto& doc_archive = doc.*get(XLDocumentArchive());
-    auto& doc_data = doc.*get(XLDocumentData());
-    auto& contentTypes = doc.*get(XLDocumentContentTypes());
 
-    // 0. Add image extension to ContentTypes if not already present
-    std::string imgMimeType;
-    if (extension == "png") {
-        imgMimeType = "image/png";
-    } else if (extension == "jpg" || extension == "jpeg") {
-        imgMimeType = "image/jpeg";
-    } else if (extension == "gif") {
-        imgMimeType = "image/gif";
-    } else {
-        imgMimeType = "image/" + extension;
+    // 1. Add image to document package
+    std::string imgName = "image" + std::to_string(std::time(nullptr)) + "." + extension;
+    std::string imgPath;
+    {
+        py::gil_scoped_release release;
+        imgPath =
+            doc.addImage(imgName, std::string(static_cast<const char*>(imageData.data()),
+                                              imageData.size()));
     }
 
-    // Use XLXmlFilePublic to access xmlDocument()
-    auto& contentTypesPublic = reinterpret_cast<XLXmlFilePublic&>(contentTypes);
-    auto& ctDoc = contentTypesPublic.xmlDocument();
-    auto ctRoot = ctDoc.document_element();
+    // 2. Get worksheet drawing
+    XLDrawing& drawing = ws.drawing();
 
-    if (!ctRoot.find_child_by_attribute("Default", "Extension", extension.c_str())) {
-        XMLNode lastDefault;
-        for (auto child : ctRoot.children("Default")) {
-            lastDefault = child;
-        }
+    // 3. Add relationship from drawing to image
+    // Note: drawing is in xl/drawings/, images are in xl/media/
+    // Path should be ../media/imageN.ext
+    std::string relPath = "../media/" + imgPath.substr(imgPath.find_last_of('/') + 1);
 
-        XMLNode node;
-        if (lastDefault.empty()) {
-            node = ctRoot.prepend_child("Default");
-        } else {
-            node = ctRoot.insert_child_after("Default", lastDefault);
-        }
-
-        node.append_attribute("Extension").set_value(extension.c_str());
-        node.append_attribute("ContentType").set_value(imgMimeType.c_str());
-    }
-
-    // 1. Add image to archive
-    int imgCount = 1;
-    while (doc_archive.hasEntry("xl/media/image" + std::to_string(imgCount) + "." + extension)) {
-        imgCount++;
-    }
-    std::string imgPath = "xl/media/image" + std::to_string(imgCount) + "." + extension;
-    std::string strData(reinterpret_cast<const char*>(imageData.data()), imageData.size());
-    doc_archive.addEntry(imgPath, strData);
-
-    // 2. Get worksheet relationships
-    uint16_t sheetIdx = ws.index();
-    XLRelationships wsRels = doc.sheetRelationships(sheetIdx);
-
-    // 3. Check if worksheet already has a drawing
-    std::string drawingPath = "";
-    std::string drawingRelId = "";
-    for (auto& rel : wsRels.relationships()) {
-        if (rel.type() == XLRelationshipType::Drawing) {
-            drawingRelId = rel.id();
-            drawingPath = eliminateDotAndDotDotFromPath("xl/worksheets/" + rel.target());
-            break;
-        }
-    }
-
-    if (drawingPath.empty()) {
-        // Create new drawing
-        int drawCount = 1;
-        while (doc_archive.hasEntry("xl/drawings/drawing" + std::to_string(drawCount) + ".xml")) {
-            drawCount++;
-        }
-        drawingPath = "xl/drawings/drawing" + std::to_string(drawCount) + ".xml";
-
-        // Add relationship from worksheet to drawing
+    std::string relId;
+    {
+        py::gil_scoped_release release;
         auto rel =
-            wsRels.addRelationship(XLRelationshipType::Drawing,
-                                   "../drawings/drawing" + std::to_string(drawCount) + ".xml");
-        drawingRelId = rel.id();
+            drawing.relationships().addRelationship(XLRelationshipType::Image, relPath);
+        relId = rel.id();
 
-        // Create empty drawing XML
-        std::string emptyDrawing =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-            "<xdr:wsDr "
-            "xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
-            "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\">\n"
-            "</xdr:wsDr>";
-
-        // Add to doc_data
-        doc_data.emplace_back(&doc, drawingPath, "", XLContentType::Drawing);
-        doc_data.back().setRawData(emptyDrawing);
-
-        // Update ContentTypes
-        contentTypes.addOverride("/" + drawingPath, XLContentType::Drawing);
-
-        // Update Worksheet XML to include <drawing>
-        auto& wsDoc = ws_public.xmlDocument();
-        auto wsNode = wsDoc.document_element();
-        if (wsNode.child("drawing").empty()) {
-            auto refNode = wsNode.child("legacyDrawing");
-            if (refNode.empty()) refNode = wsNode.child("picture");
-            if (refNode.empty()) refNode = wsNode.child("oleObjects");
-
-            pugi::xml_node drawNode;
-            if (!refNode.empty()) {
-                drawNode = wsNode.insert_child_before("drawing", refNode);
-            } else {
-                drawNode = wsNode.append_child("drawing");
-            }
-            drawNode.append_attribute("r:id").set_value(drawingRelId.c_str());
-        }
+        // 4. Add image to drawing
+        drawing.addImage(relId, imgName, "Image", row - 1, col - 1, (uint32_t)width,
+                         (uint32_t)height);
     }
-
-    // 4. Add image to drawing
-    std::string drawingFileName = drawingPath.substr(drawingPath.find_last_of('/') + 1);
-    std::string drawingRelsPath = "xl/drawings/_rels/" + drawingFileName + ".rels";
-
-    XLXmlData* drawRelsData = nullptr;
-    for (auto& d : doc_data) {
-        if (d.getXmlPath() == drawingRelsPath) {
-            drawRelsData = &d;
-            break;
-        }
-    }
-
-    if (!drawRelsData) {
-        std::string emptyRels =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-            "<Relationships "
-            "xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
-            "</Relationships>";
-        doc_data.emplace_back(&doc, drawingRelsPath, "", XLContentType::Relationships);
-        drawRelsData = &doc_data.back();
-        drawRelsData->setRawData(emptyRels);
-    }
-
-    XLRelationships drawRels(drawRelsData, drawingRelsPath);
-    std::string relImgPath = "../media/image" + std::to_string(imgCount) + "." + extension;
-    auto imgRel = drawRels.addRelationship(XLRelationshipType::Image, relImgPath);
-    std::string imgRelId = imgRel.id();
-
-    // 5. Add picture element to drawing XML
-    XLXmlData* drawData = nullptr;
-    for (auto& d : doc_data) {
-        if (d.getXmlPath() == drawingPath) {
-            drawData = &d;
-            break;
-        }
-    }
-
-    auto drawDoc = drawData->getXmlDocument();
-    auto wsDr = drawDoc->document_element();
-
-    uint64_t emuWidth = (uint64_t)width * 9525;
-    uint64_t emuHeight = (uint64_t)height * 9525;
-
-    auto anchor = wsDr.append_child("xdr:oneCellAnchor");
-    auto from = anchor.append_child("xdr:from");
-    from.append_child("xdr:col").text().set(std::to_string(col - 1).c_str());
-    from.append_child("xdr:colOff").text().set("0");
-    from.append_child("xdr:row").text().set(std::to_string(row - 1).c_str());
-    from.append_child("xdr:rowOff").text().set("0");
-
-    auto ext = anchor.append_child("xdr:ext");
-    ext.append_attribute("cx").set_value(std::to_string(emuWidth).c_str());
-    ext.append_attribute("cy").set_value(std::to_string(emuHeight).c_str());
-
-    auto pic = anchor.append_child("xdr:pic");
-    auto nvPicPr = pic.append_child("xdr:nvPicPr");
-    auto cNvPr = nvPicPr.append_child("xdr:cNvPr");
-    cNvPr.append_attribute("id").set_value(std::to_string(imgCount).c_str());
-    cNvPr.append_attribute("name").set_value(("Picture " + std::to_string(imgCount)).c_str());
-
-    nvPicPr.append_child("xdr:cNvPicPr")
-        .append_child("a:picLocks")
-        .append_attribute("noChangeAspect")
-        .set_value("1");
-
-    auto blipFill = pic.append_child("xdr:blipFill");
-    auto blip = blipFill.append_child("a:blip");
-    blip.append_attribute("xmlns:r").set_value(
-        "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-    blip.append_attribute("r:embed").set_value(imgRelId.c_str());
-
-    blipFill.append_child("a:stretch").append_child("a:fillRect");
-
-    auto spPr = pic.append_child("xdr:spPr");
-    auto xfrm = spPr.append_child("a:xfrm");
-    xfrm.append_child("a:off").append_attribute("x").set_value("0");
-    xfrm.child("a:off").append_attribute("y").set_value("0");
-    auto xfrmExt = xfrm.append_child("a:ext");
-    xfrmExt.append_attribute("cx").set_value(std::to_string(emuWidth).c_str());
-    xfrmExt.append_attribute("cy").set_value(std::to_string(emuHeight).c_str());
-
-    auto prstGeom = spPr.append_child("a:prstGeom");
-    prstGeom.append_attribute("prst").set_value("rect");
-    prstGeom.append_child("a:avLst");
-
-    anchor.append_child("xdr:clientData");
 }
+
 
 // Helper function to convert XLCellValue to py::object efficiently
 // Note: GIL must be held when calling this function
@@ -769,6 +605,27 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
 }
 
 void init_worksheet(py::module_& m) {
+    // Bind XLDrawingItem
+    py::class_<XLDrawingItem>(m, "XLDrawingItem")
+        .def("name", &XLDrawingItem::name)
+        .def("description", &XLDrawingItem::description)
+        .def("row", &XLDrawingItem::row)
+        .def("col", &XLDrawingItem::col)
+        .def("width", &XLDrawingItem::width)
+        .def("height", &XLDrawingItem::height)
+        .def("relationship_id", &XLDrawingItem::relationshipId);
+
+    // Bind XLDrawing
+    py::class_<XLDrawing>(m, "XLDrawing")
+        .def("image_count", &XLDrawing::imageCount)
+        .def("image", &XLDrawing::image, py::arg("index"))
+        .def("add_image", &XLDrawing::addImage, py::arg("r_id"), py::arg("name"),
+             py::arg("description"), py::arg("row"), py::arg("col"), py::arg("width"),
+             py::arg("height"))
+        .def("add_scaled_image", &XLDrawing::addScaledImage, py::arg("r_id"), py::arg("name"),
+             py::arg("description"), py::arg("data"), py::arg("row"), py::arg("col"),
+             py::arg("scaling_factor") = 1.0);
+
     // Bind XLColumn
     py::class_<XLColumn>(m, "XLColumn")
         .def("width", &XLColumn::width)
@@ -790,6 +647,12 @@ void init_worksheet(py::module_& m) {
         .def("set_active", &XLWorksheet::setActive)
         .def("row_count", &XLWorksheet::rowCount)
         .def("column_count", &XLWorksheet::columnCount)
+        .def("has_drawing", &XLWorksheet::hasDrawing)
+        .def("drawing", &XLWorksheet::drawing, py::rv_policy::reference_internal)
+        .def("add_hyperlink", &XLWorksheet::addHyperlink, py::arg("cellRef"), py::arg("url"),
+             py::arg("tooltip") = "")
+        .def("add_internal_hyperlink", &XLWorksheet::addInternalHyperlink, py::arg("cellRef"),
+             py::arg("location"), py::arg("tooltip") = "")
         .def(
             "cell",
             [](XLWorksheet& self, const std::string& ref) {
