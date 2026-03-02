@@ -1,6 +1,6 @@
 # PyOpenXLSX Project Context
 
-`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library, using `nanobind` and `scikit-build-core`.
+`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/twn39/OpenXLSX) C++ library, using `nanobind` and `scikit-build-core`.
 
 ## Project Overview
 
@@ -18,16 +18,13 @@ The project uses `uv` for dependency management.
 
 ```bash
 # Install development dependencies and the package in editable mode
-uv pip install -e ".[test]"
+uv pip install -e .
 ```
 
 ### Build Commands
 Since it uses `scikit-build-core`, standard Python build tools work:
 
 ```bash
-# Build wheel
-python -m build
-
 # Build using uv
 uv build
 ```
@@ -49,7 +46,13 @@ uv run pytest tests/test_benchmark.py
 ## Development Conventions
 
 - **Hybrid Implementation**: Low-level performance-critical logic resides in C++, while the high-level user-facing API is implemented in Python in `src/pyopenxlsx/`.
-- **Async Support**: Many I/O operations have async counterparts (e.g., `Workbook.save_async`, `load_workbook_async`) implemented using `asyncio` and thread pools where appropriate.
+- **Performance Optimization**:
+    - **Fast Path**: Use `Worksheet.set_cell_value`, `write_rows`, or `set_cells` for bulk updates. These bypass Python `Cell` object creation and are 10-20x faster.
+    - **Bulk Read/Write**: Supports `numpy` and buffer protocols (via `write_range`, `get_range_values`) for high-speed numeric data processing.
+- **Memory Safety**:
+    - Uses `WeakValueDictionary` for worksheet and cell caching to ensure objects are garbage collected when no longer referenced externally.
+    - Utilizes `weakref` for back-references (e.g., `Cell` -> `Worksheet`) to prevent circular reference cycles.
+- **Async Support**: Many I/O operations have async counterparts (e.g., `Workbook.save_async`, `load_workbook_async`) implemented using `asyncio` and thread pools.
 - **Type Safety**:
     - Type stubs (`.pyi` files) are provided in `src/pyopenxlsx/` for better IDE support and static analysis.
     - The project includes a `py.typed` marker.
@@ -62,8 +65,9 @@ uv run pytest tests/test_benchmark.py
 
 ## Key Files and Directories
 
-- `src/bindings.cpp`: Entry point for pybind11 module definitions.
-- `src/pyopenxlsx/`: Python package source code.
+- `src/bindings.cpp`: Entry point for nanobind module definitions.
+- `src/pyopenxlsx/`: Python package source code and type stubs (`.pyi`).
+- `src/*.cpp`: Modularized C++ binding implementations for Cells, Styles, etc.
 - `src/pyopenxlsx/workbook.py`: Main `Workbook` class implementation.
 - `CMakeLists.txt`: Root CMake configuration for building the C++ extension.
 - `pyproject.toml`: Main project configuration, dependencies, and build metadata.
