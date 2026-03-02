@@ -16,6 +16,7 @@ jobs:
   # Runs on every push to main and every PR to collect coverage data.
   test_and_coverage:
     name: Code Coverage
+    if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

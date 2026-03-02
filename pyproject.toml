@@ -29,6 +29,17 @@ Homepage = "https://github.com/twn39/pyopenxlsx"
 Repository = "https://github.com/twn39/pyopenxlsx"
 Issues = "https://github.com/twn39/pyopenxlsx/issues"
 
+[project.optional-dependencies]
+test = [
+    "openpyxl>=3.1.5",
+    "pillow>=12.1.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-benchmark>=4.0.0",
+    "numpy>=1.26.0",
+    "psutil>=7.2.2"
+]
 
 [tool.scikit-build]
 cmake.version = ">=3.15"
