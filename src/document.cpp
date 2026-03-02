@@ -10,7 +10,7 @@ struct ImageInfo {
 
 // Get list of images embedded in the document
 std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
-    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
+    auto& archive = doc.archive();
     std::vector<ImageInfo> images;
 
     const std::string prefix = "xl/media/";
@@ -52,7 +52,7 @@ std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
 
 // Get image data as bytes
 py::bytes get_image_data(XLDocument& doc, const std::string& imagePath) {
-    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
+    auto& archive = doc.archive();
 
     std::string fullPath = imagePath;
     if (imagePath.find('/') == std::string::npos) {
@@ -154,8 +154,7 @@ void init_document(py::module_& m) {
         .def("set_property",
              [](XLAppProperties& self, const std::string& name, const std::string& value) {
                  py::gil_scoped_release release;
-                 auto& public_self = static_cast<XLAppPropertiesPublic&>(self);
-                 auto& doc = public_self.getXmlDocument();
+                 auto& doc = self.xmlDocument();
                  auto property = doc.document_element().child(name.c_str());
                  if (property.empty()) property = doc.document_element().append_child(name.c_str());
                  property.text().set(value.c_str());
@@ -212,16 +211,13 @@ void init_document(py::module_& m) {
             py::arg("name"), py::arg("force_overwrite") = true)
         .def("workbook", &XLDocument::workbook, py::keep_alive<0, 1>())
         .def(
-            "content_types",
-            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentContentTypes())); },
+            "content_types", [](XLDocument& self) { return &self.contentTypes(); },
             py::rv_policy::reference_internal)
         .def(
-            "app_properties",
-            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentAppProperties())); },
+            "app_properties", [](XLDocument& self) { return &self.appProperties(); },
             py::rv_policy::reference_internal)
         .def(
-            "core_properties",
-            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentCoreProperties())); },
+            "core_properties", [](XLDocument& self) { return &self.coreProperties(); },
             py::rv_policy::reference_internal)
         .def("property", &XLDocument::property)
         .def("set_property", &XLDocument::setProperty)

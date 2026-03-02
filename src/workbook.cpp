@@ -26,8 +26,7 @@ void init_workbook(py::module_& m) {
         .def("worksheet_names", &XLWorkbook::worksheetNames)
         .def("sheet_exists", &XLWorkbook::sheetExists)
         .def("clear_active_tab", [](XLWorkbook& self) {
-            auto& public_workbook = static_cast<XLWorkbookPublic&>(self);
-            auto bookViews = public_workbook.xmlDocument().document_element().child("bookViews");
+            auto bookViews = self.xmlDocument().document_element().child("bookViews");
             if (!bookViews.empty()) {
                 auto view = bookViews.first_child_of_type(pugi::node_element);
                 if (!view.empty()) {

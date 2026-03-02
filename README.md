@@ -4,9 +4,9 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
-[![Downloads](https://img.shields.io/pypi/dm/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
+[![Downloads](https://img.shields.io/pypi/dm/pyopenxlsx)](https://pypi.org/project/pyopenxlsx/)
 [![Build Status](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml/badge.svg)](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml)
-[![Codecov](https://codecov.io/gh/twn39/pyopenxlsx/branch/main/graph/badge.svg)](https://codecov.io/gh/twn39/pyopenxlsx)
+[![Codecov](https://img.shields.io/codecov/c/github/twn39/pyopenxlsx)](https://codecov.io/gh/twn39/pyopenxlsx)
 [![License](https://img.shields.io/pypi/l/pyopenxlsx.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 </div>

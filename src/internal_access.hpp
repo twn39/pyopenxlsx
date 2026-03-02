@@ -6,10 +6,13 @@
  * @brief Shared internal utilities for pyopenxlsx binding layer.
  *
  * Contains:
- * - Rob template hack for private member access (single definition to avoid ODR)
- * - Helper classes for accessing protected members
  * - Unified CellData structure for read/write operations
  * - Excel limits and precondition helpers
+ *
+ * Note: The Rob template hack has been removed. All access to OpenXLSX
+ * internals is now through public APIs added to the fork:
+ * - XLDocument::archive(), appProperties(), coreProperties(), contentTypes()
+ * - XLXmlFile::parentDoc(), xmlDocument(), getXmlPath()
  */
 
 #include <gsl/gsl>
@@ -23,71 +26,6 @@
 // ============================================================
 constexpr uint32_t kExcelMaxRows = 1048576;
 constexpr uint16_t kExcelMaxCols = 16384;
-
-// ============================================================
-// Rob template hack — single definition for all TUs
-// ============================================================
-namespace pyxl_detail {
-
-template <typename Tag, typename Tag::type M>
-struct Rob {
-    friend typename Tag::type get(Tag) { return M; }
-};
-
-// -- XLDocument private member accessors --
-
-struct XLDocumentContentTypes {
-    typedef XLContentTypes XLDocument::* type;
-};
-template struct Rob<XLDocumentContentTypes, &XLDocument::m_contentTypes>;
-XLContentTypes XLDocument::* get(XLDocumentContentTypes);
-
-struct XLDocumentArchive {
-    typedef IZipArchive XLDocument::* type;
-};
-template struct Rob<XLDocumentArchive, &XLDocument::m_archive>;
-IZipArchive XLDocument::* get(XLDocumentArchive);
-
-struct XLDocumentAppProperties {
-    typedef XLAppProperties XLDocument::* type;
-};
-template struct Rob<XLDocumentAppProperties, &XLDocument::m_appProperties>;
-XLAppProperties XLDocument::* get(XLDocumentAppProperties);
-
-struct XLDocumentCoreProperties {
-    typedef XLProperties XLDocument::* type;
-};
-template struct Rob<XLDocumentCoreProperties, &XLDocument::m_coreProperties>;
-XLProperties XLDocument::* get(XLDocumentCoreProperties);
-
-struct XLDocumentData {
-    typedef std::list<XLXmlData> XLDocument::* type;
-};
-template struct Rob<XLDocumentData, &XLDocument::m_data>;
-std::list<XLXmlData> XLDocument::* get(XLDocumentData);
-
-}  // namespace pyxl_detail
-
-// ============================================================
-// Helper classes for accessing protected members
-// ============================================================
-
-class XLXmlFilePublic : public XLXmlFile {
-   public:
-    using XLXmlFile::getXmlPath;
-    using XLXmlFile::parentDoc;
-    using XLXmlFile::xmlDocument;
-};
-
-class XLAppPropertiesPublic : public XLAppProperties {
-   public:
-    XMLDocument& getXmlDocument() { return xmlDocument(); }
-};
-
-class XLWorkbookPublic : public XLWorkbook {
-   public:
-    using XLXmlFile::xmlDocument;
-};
 
 // ============================================================
 // Unified CellData structure for read/write operations

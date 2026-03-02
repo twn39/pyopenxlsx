@@ -7,13 +7,11 @@
 
 void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::string& extension,
                             uint32_t row, uint16_t col, double width, double height) {
-    // FIX: Use static_cast via inheritance chain instead of reinterpret_cast (UB)
-    // Inheritance: XLWorksheet → XLSheetBase<XLWorksheet> → XLXmlFile
-    auto& ws_public = static_cast<XLXmlFilePublic&>(static_cast<XLXmlFile&>(ws));
-    XLDocument& doc = ws_public.parentDoc();
+    // Use public APIs instead of Rob hack / reinterpret_cast
+    XLDocument& doc = ws.parentDoc();
 
     // 1. Add image to document package
-    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
+    auto& archive = doc.archive();
     int imgNum = 1;
     while (archive.hasEntry("xl/media/image" + std::to_string(imgNum) + "." + extension)) {
         ++imgNum;
@@ -157,6 +155,7 @@ py::list get_rows_data(XLWorksheet& ws) {
     }
 
     // Now convert to Python with GIL held
+    // Note: nanobind py::list has no size-based constructor, so we use append
     py::list result;
     for (uint32_t r = 0; r < rowCount; ++r) {
         py::list pyRow;
@@ -164,7 +163,7 @@ py::list get_rows_data(XLWorksheet& ws) {
         for (uint16_t c = 0; c < colCount; ++c) {
             pyRow.append(data[baseIdx + c].to_python());
         }
-        result.append(pyRow);
+        result.append(std::move(pyRow));
     }
 
     return result;

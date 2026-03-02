@@ -486,14 +486,14 @@ class Workbook:
     def __getitem__(self, key):
         if key in self._sheets:
             return self._sheets[key]
-        if key in self.sheetnames:
+        if self.workbook.sheet_exists(key):
             ws = Worksheet(self.workbook.worksheet(key), self)
             self._sheets[key] = ws
             return ws
         raise KeyError(f"Worksheet {key} does not exist")
 
     def __delitem__(self, key):
-        if key in self.sheetnames:
+        if self.workbook.sheet_exists(key):
             self.workbook.delete_sheet(key)
             if key in self._sheets:
                 del self._sheets[key]
@@ -508,7 +508,7 @@ class Workbook:
         return self.workbook.sheet_count()
 
     def __contains__(self, key):
-        return key in self.sheetnames
+        return self.workbook.sheet_exists(key)
 
     def get_embedded_images(self):
         """
