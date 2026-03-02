@@ -13,23 +13,38 @@ std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
     auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
     std::vector<ImageInfo> images;
 
-    // Check for common image formats
-    const std::vector<std::string> extensions = {"png", "jpg", "jpeg", "gif",
-                                                 "bmp", "emf", "wmf",  "tiff"};
+    const std::string prefix = "xl/media/";
+    // Image extensions to recognize
+    static const std::vector<std::string> imageExts = {".png", ".jpg", ".jpeg", ".gif",
+                                                       ".bmp", ".emf", ".wmf",  ".tiff"};
 
-    for (const auto& ext : extensions) {
-        for (int i = 1; i <= 1000; ++i) {
-            std::string path = "xl/media/image" + std::to_string(i) + "." + ext;
-            if (archive.hasEntry(path)) {
-                ImageInfo info;
-                info.path = path;
-                info.name = "image" + std::to_string(i) + "." + ext;
-                info.extension = ext;
-                images.push_back(info);
-            } else if (i > 10) {
+    // Single pass over all entries — O(n) instead of O(8000) hasEntry() probes
+    for (const auto& entryName : archive.entryNames()) {
+        if (entryName.size() <= prefix.size() || entryName.compare(0, prefix.size(), prefix) != 0)
+            continue;
+
+        std::string filename = entryName.substr(prefix.size());
+        auto dotPos = filename.rfind('.');
+        if (dotPos == std::string::npos) continue;
+
+        std::string ext = filename.substr(dotPos);
+        // Convert to lowercase for comparison
+        for (auto& ch : ext) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+
+        bool isImage = false;
+        for (const auto& imageExt : imageExts) {
+            if (ext == imageExt) {
+                isImage = true;
                 break;
             }
         }
+        if (!isImage) continue;
+
+        ImageInfo info;
+        info.path = entryName;
+        info.name = filename;
+        info.extension = ext.substr(1);  // Remove leading dot
+        images.push_back(std::move(info));
     }
 
     return images;

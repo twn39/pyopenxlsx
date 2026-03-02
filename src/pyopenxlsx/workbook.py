@@ -587,14 +587,10 @@ class Workbook:
 
     def __del__(self):
         # Ensure temporary file is cleaned up even if close() was not called
-        if (
-            hasattr(self, "_temp_file")
-            and self._temp_file
-            and os.path.exists(self._temp_file)
-        ):
+        if hasattr(self, "_temp_file") and self._temp_file:
             try:
                 os.unlink(self._temp_file)
-            except OSError:
+            except (OSError, FileNotFoundError):
                 pass
 
 
