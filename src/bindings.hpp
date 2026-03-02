@@ -7,6 +7,7 @@
 #include <nanobind/stl/vector.h>
 
 #include <OpenXLSX.hpp>
+#include <gsl/gsl>
 
 namespace py = nanobind;
 using namespace OpenXLSX;

@@ -1,49 +1,5 @@
-#include <headers/XLContentTypes.hpp>
-#include <regex>
 
-#include "bindings.hpp"
-
-// Helper to access protected members
-class XLAppPropertiesPublic : public XLAppProperties {
-   public:
-    XMLDocument& getXmlDocument() { return xmlDocument(); }
-};
-
-namespace {
-// Template trick to access private members of a class, even if it's final.
-template <typename Tag, typename Tag::type M>
-struct Rob {
-    friend typename Tag::type get(Tag) { return M; }
-};
-
-struct XLDocumentContentTypes {
-    typedef XLContentTypes XLDocument::* type;
-};
-
-template struct Rob<XLDocumentContentTypes, &XLDocument::m_contentTypes>;
-XLContentTypes XLDocument::* get(XLDocumentContentTypes);
-
-struct XLDocumentAppProperties {
-    typedef XLAppProperties XLDocument::* type;
-};
-
-template struct Rob<XLDocumentAppProperties, &XLDocument::m_appProperties>;
-XLAppProperties XLDocument::* get(XLDocumentAppProperties);
-
-struct XLDocumentCoreProperties {
-    typedef XLProperties XLDocument::* type;
-};
-
-template struct Rob<XLDocumentCoreProperties, &XLDocument::m_coreProperties>;
-XLProperties XLDocument::* get(XLDocumentCoreProperties);
-
-struct XLDocumentArchive {
-    typedef IZipArchive XLDocument::* type;
-};
-
-template struct Rob<XLDocumentArchive, &XLDocument::m_archive>;
-IZipArchive XLDocument::* get(XLDocumentArchive);
-}  // namespace
+#include "internal_access.hpp"
 
 // Structure to hold image info
 struct ImageInfo {
@@ -54,19 +10,15 @@ struct ImageInfo {
 
 // Get list of images embedded in the document
 std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
-    auto& archive = doc.*get(XLDocumentArchive());
+    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
     std::vector<ImageInfo> images;
-
-    // Excel stores images in xl/media/ directory
-    // We need to iterate through the archive to find them
-    // Since IZipArchive doesn't have a list entries method, we try common patterns
 
     // Check for common image formats
     const std::vector<std::string> extensions = {"png", "jpg", "jpeg", "gif",
                                                  "bmp", "emf", "wmf",  "tiff"};
 
     for (const auto& ext : extensions) {
-        for (int i = 1; i <= 1000; ++i) {  // Check up to 1000 images per type
+        for (int i = 1; i <= 1000; ++i) {
             std::string path = "xl/media/image" + std::to_string(i) + "." + ext;
             if (archive.hasEntry(path)) {
                 ImageInfo info;
@@ -75,8 +27,6 @@ std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
                 info.extension = ext;
                 images.push_back(info);
             } else if (i > 10) {
-                // If we haven't found any in the first 10, skip to next extension
-                // to avoid checking all 1000 for each type
                 break;
             }
         }
@@ -87,10 +37,9 @@ std::vector<ImageInfo> get_embedded_images(XLDocument& doc) {
 
 // Get image data as bytes
 py::bytes get_image_data(XLDocument& doc, const std::string& imagePath) {
-    auto& archive = doc.*get(XLDocumentArchive());
+    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
 
     std::string fullPath = imagePath;
-    // If only image name is provided, prepend xl/media/
     if (imagePath.find('/') == std::string::npos) {
         fullPath = "xl/media/" + imagePath;
     }
@@ -249,15 +198,15 @@ void init_document(py::module_& m) {
         .def("workbook", &XLDocument::workbook, py::keep_alive<0, 1>())
         .def(
             "content_types",
-            [](XLDocument& self) { return &(self.*get(XLDocumentContentTypes())); },
+            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentContentTypes())); },
             py::rv_policy::reference_internal)
         .def(
             "app_properties",
-            [](XLDocument& self) { return &(self.*get(XLDocumentAppProperties())); },
+            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentAppProperties())); },
             py::rv_policy::reference_internal)
         .def(
             "core_properties",
-            [](XLDocument& self) { return &(self.*get(XLDocumentCoreProperties())); },
+            [](XLDocument& self) { return &(self.*get(pyxl_detail::XLDocumentCoreProperties())); },
             py::rv_policy::reference_internal)
         .def("property", &XLDocument::property)
         .def("set_property", &XLDocument::setProperty)
@@ -272,8 +221,11 @@ void init_document(py::module_& m) {
         .def(
             "add_image",
             [](XLDocument& self, const std::string& name, py::bytes data) {
+                // FIX: Copy py::bytes data BEFORE releasing GIL (accessing Python buffer requires
+                // GIL)
+                std::string imgData(static_cast<const char*>(data.data()), data.size());
                 py::gil_scoped_release release;
-                return self.addImage(name, std::string(static_cast<const char*>(data.data()), data.size()));
+                return self.addImage(name, std::move(imgData));
             },
             py::arg("name"), py::arg("data"),
             "Add an image to the document archive. Returns the path in the archive.")

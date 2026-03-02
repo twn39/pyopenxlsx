@@ -1,10 +1,4 @@
-#include "bindings.hpp"
-
-// Helper to access protected members
-class XLWorkbookPublic : public XLWorkbook {
-   public:
-    using XLXmlFile::xmlDocument;
-};
+#include "internal_access.hpp"
 
 void init_workbook(py::module_& m) {
     // Bind XLWorkbook

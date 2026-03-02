@@ -431,7 +431,7 @@ class Workbook:
             for name in names:
                 ws = self.workbook.worksheet(name)
                 if ws.is_active():
-                    return Worksheet(ws, self)
+                    return self[name]  # Use cache via __getitem__
         except Exception:
             pass
 

@@ -79,8 +79,9 @@ class Worksheet:
 
     def append(self, iterable):
         row = self.max_row + 1
-        for col, val in enumerate(iterable, start=1):
-            self.cell(row, col, value=val)
+        values = list(iterable)
+        if values:
+            self._sheet.write_row_data(row, 1, values)
 
     async def append_async(self, iterable):
         await asyncio.to_thread(self.append, iterable)

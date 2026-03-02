@@ -1,79 +1,43 @@
 #include <nanobind/ndarray.h>
 
-#include <headers/XLContentTypes.hpp>
-#include <headers/XLDrawing.hpp>
 #include <variant>
 #include <vector>
 
-#include "bindings.hpp"
-
-// Helper to access protected members
-class XLXmlFilePublic : public XLXmlFile {
-   public:
-    using XLXmlFile::getXmlPath;
-    using XLXmlFile::parentDoc;
-    using XLXmlFile::xmlDocument;
-};
-
-namespace {
-// Template trick to access private members
-template <typename Tag, typename Tag::type M>
-struct Rob {
-    friend typename Tag::type get(Tag) { return M; }
-};
-
-struct XLDocumentContentTypes {
-    typedef XLContentTypes XLDocument::* type;
-};
-template struct Rob<XLDocumentContentTypes, &XLDocument::m_contentTypes>;
-XLContentTypes XLDocument::* get(XLDocumentContentTypes);
-
-struct XLDocumentArchive {
-    typedef IZipArchive XLDocument::* type;
-};
-template struct Rob<XLDocumentArchive, &XLDocument::m_archive>;
-IZipArchive XLDocument::* get(XLDocumentArchive);
-
-struct XLDocumentData {
-    typedef std::list<XLXmlData> XLDocument::* type;
-};
-template struct Rob<XLDocumentData, &XLDocument::m_data>;
-std::list<XLXmlData> XLDocument::* get(XLDocumentData);
-}  // namespace
+#include "internal_access.hpp"
 
 void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::string& extension,
                             uint32_t row, uint16_t col, double width, double height) {
-    auto& ws_public = reinterpret_cast<XLXmlFilePublic&>(ws);
+    // FIX: Use static_cast via inheritance chain instead of reinterpret_cast (UB)
+    // Inheritance: XLWorksheet → XLSheetBase<XLWorksheet> → XLXmlFile
+    auto& ws_public = static_cast<XLXmlFilePublic&>(static_cast<XLXmlFile&>(ws));
     XLDocument& doc = ws_public.parentDoc();
 
-    // 1. Add image to document package - use sequential naming (image1, image2, ...)
-    auto& archive = doc.*get(XLDocumentArchive());
+    // 1. Add image to document package
+    auto& archive = doc.*get(pyxl_detail::XLDocumentArchive());
     int imgNum = 1;
     while (archive.hasEntry("xl/media/image" + std::to_string(imgNum) + "." + extension)) {
         ++imgNum;
     }
     std::string imgName = "image" + std::to_string(imgNum) + "." + extension;
+
+    // FIX: Copy py::bytes data BEFORE releasing GIL (accessing Python buffer requires GIL)
+    std::string imgDataStr(static_cast<const char*>(imageData.data()), imageData.size());
     std::string imgPath;
     {
         py::gil_scoped_release release;
-        imgPath =
-            doc.addImage(imgName, std::string(static_cast<const char*>(imageData.data()),
-                                              imageData.size()));
+        imgPath = doc.addImage(imgName, std::move(imgDataStr));
     }
 
     // 2. Get worksheet drawing
     XLDrawing& drawing = ws.drawing();
 
     // 3. Add relationship from drawing to image
-    // Note: drawing is in xl/drawings/, images are in xl/media/
-    // Path should be ../media/imageN.ext
     std::string relPath = "../media/" + imgPath.substr(imgPath.find_last_of('/') + 1);
 
     std::string relId;
     {
         py::gil_scoped_release release;
-        auto rel =
-            drawing.relationships().addRelationship(XLRelationshipType::Image, relPath);
+        auto rel = drawing.relationships().addRelationship(XLRelationshipType::Image, relPath);
         relId = rel.id();
 
         // 4. Add image to drawing
@@ -81,7 +45,6 @@ void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::str
                          (uint32_t)height);
     }
 }
-
 
 // Helper function to convert XLCellValue to py::object efficiently
 // Note: GIL must be held when calling this function
@@ -101,64 +64,16 @@ inline py::object cell_value_to_pyobject(const XLCellValue& val) {
     }
 }
 
-// Internal structure to hold cell value data without Python objects
-struct CellValueData {
-    enum class Type { Empty, Boolean, Integer, Float, String };
-    Type type = Type::Empty;
-    bool boolVal = false;
-    int64_t intVal = 0;
-    double floatVal = 0.0;
-    std::string strVal;
-
-    static CellValueData from(const XLCellValue& val) {
-        CellValueData data;
-        switch (val.type()) {
-            case XLValueType::Boolean:
-                data.type = Type::Boolean;
-                data.boolVal = val.get<bool>();
-                break;
-            case XLValueType::Integer:
-                data.type = Type::Integer;
-                data.intVal = val.get<int64_t>();
-                break;
-            case XLValueType::Float:
-                data.type = Type::Float;
-                data.floatVal = val.get<double>();
-                break;
-            case XLValueType::String:
-                data.type = Type::String;
-                data.strVal = val.get<std::string>();
-                break;
-            default:
-                data.type = Type::Empty;
-                break;
-        }
-        return data;
-    }
-
-    py::object to_python() const {
-        switch (type) {
-            case Type::Boolean:
-                return py::cast(boolVal);
-            case Type::Integer:
-                return py::cast(intVal);
-            case Type::Float:
-                return py::cast(floatVal);
-            case Type::String:
-                return py::cast(strVal);
-            default:
-                return py::none();
-        }
-    }
-};
-
 // Get a single cell's value directly without creating a Cell object
 py::object get_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col) {
-    CellValueData data;
+    Expects(row >= 1 && row <= kExcelMaxRows);
+    Expects(col >= 1 && col <= kExcelMaxCols);
+
+    CellData data;
     {
         py::gil_scoped_release release;
         XLCell cell = ws.cell(row, col);
-        data = CellValueData::from(cell.value());
+        data = CellData::from(cell.value());
     }
     return data.to_python();
 }
@@ -166,33 +81,33 @@ py::object get_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col) {
 // Bulk read a specific range of cells - returns list[list[Any]]
 py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, uint32_t endRow,
                         uint16_t endCol) {
+    Expects(startRow >= 1 && startRow <= kExcelMaxRows);
+    Expects(endRow >= startRow && endRow <= kExcelMaxRows);
+    Expects(startCol >= 1 && startCol <= kExcelMaxCols);
+    Expects(endCol >= startCol && endCol <= kExcelMaxCols);
+
+    auto numRows = gsl::narrow<uint32_t>(endRow - startRow + 1);
+    auto numCols = gsl::narrow<uint16_t>(endCol - startCol + 1);
+
     // First, read all data without GIL
-    std::vector<CellValueData> data;
-    uint32_t numRows = endRow - startRow + 1;
-    uint16_t numCols = endCol - startCol + 1;
+    std::vector<CellData> data;
 
     {
         py::gil_scoped_release release;
 
-        // Pre-allocate everything in one block
-        data.resize(numRows * numCols);
+        data.resize(static_cast<size_t>(numRows) * numCols);
 
-        // Iterate over the specified range
         for (uint32_t r = startRow; r <= endRow; ++r) {
-            uint32_t baseIdx = (r - startRow) * numCols;
+            size_t baseIdx = static_cast<size_t>(r - startRow) * numCols;
             XLRow row = ws.row(r);
             if (!row.empty()) {
-                // Get all values from the row first
                 std::vector<XLCellValue> values = row.values();
 
-                // Extract values for the specified column range
                 for (uint16_t c = startCol; c <= endCol; ++c) {
-                    uint16_t colIdx = c - 1;  // values is 0-indexed
+                    auto colIdx = gsl::narrow<size_t>(c - 1);  // values is 0-indexed
                     if (colIdx < values.size()) {
-                        data[baseIdx + (c - startCol)] = CellValueData::from(values[colIdx]);
+                        data[baseIdx + (c - startCol)] = CellData::from(values[colIdx]);
                     }
-                    // For missing cells, data[baseIdx + offset] is already initialized as
-                    // Type::Empty
                 }
             }
         }
@@ -202,7 +117,7 @@ py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, u
     py::list result;
     for (uint32_t r = 0; r < numRows; ++r) {
         py::list pyRow;
-        uint32_t baseIdx = r * numCols;
+        size_t baseIdx = static_cast<size_t>(r) * numCols;
         for (uint16_t c = 0; c < numCols; ++c) {
             pyRow.append(data[baseIdx + c].to_python());
         }
@@ -215,7 +130,7 @@ py::list get_range_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, u
 // Bulk read all rows data - returns list[list[Any]]
 py::list get_rows_data(XLWorksheet& ws) {
     // First, read all data without GIL
-    std::vector<CellValueData> data;
+    std::vector<CellData> data;
     uint32_t rowCount = 0;
     uint16_t colCount = 0;
 
@@ -225,20 +140,17 @@ py::list get_rows_data(XLWorksheet& ws) {
         rowCount = ws.rowCount();
         colCount = ws.columnCount();
 
-        // Pre-allocate everything in one shot
-        data.resize(rowCount * colCount);
+        data.resize(static_cast<size_t>(rowCount) * colCount);
 
-        // Iterate over rows
         for (uint32_t r = 1; r <= rowCount; ++r) {
-            uint32_t baseIdx = (r - 1) * colCount;
+            size_t baseIdx = static_cast<size_t>(r - 1) * colCount;
             XLRow row = ws.row(r);
             if (!row.empty()) {
-                // Use the implicit conversion to std::vector<XLCellValue>
                 std::vector<XLCellValue> values = row.values();
-                uint32_t valCount =
+                auto valCount =
                     std::min(static_cast<uint32_t>(values.size()), static_cast<uint32_t>(colCount));
                 for (uint32_t i = 0; i < valCount; ++i) {
-                    data[baseIdx + i] = CellValueData::from(values[i]);
+                    data[baseIdx + i] = CellData::from(values[i]);
                 }
             }
         }
@@ -248,7 +160,7 @@ py::list get_rows_data(XLWorksheet& ws) {
     py::list result;
     for (uint32_t r = 0; r < rowCount; ++r) {
         py::list pyRow;
-        uint32_t baseIdx = r * colCount;
+        size_t baseIdx = static_cast<size_t>(r) * colCount;
         for (uint16_t c = 0; c < colCount; ++c) {
             pyRow.append(data[baseIdx + c].to_python());
         }
@@ -260,8 +172,10 @@ py::list get_rows_data(XLWorksheet& ws) {
 
 // Get a single row's data as list[Any] - more efficient for row iteration
 py::list get_row_values(XLWorksheet& ws, uint32_t rowNumber) {
+    Expects(rowNumber >= 1 && rowNumber <= kExcelMaxRows);
+
     // First, read data without GIL
-    std::vector<CellValueData> rowData;
+    std::vector<CellData> rowData;
     uint16_t colCount;
 
     {
@@ -272,10 +186,9 @@ py::list get_row_values(XLWorksheet& ws, uint32_t rowNumber) {
 
         XLRow row = ws.row(rowNumber);
         if (!row.empty()) {
-            // Use the implicit conversion to std::vector<XLCellValue>
             std::vector<XLCellValue> values = row.values();
             for (const auto& val : values) {
-                rowData.push_back(CellValueData::from(val));
+                rowData.push_back(CellData::from(val));
             }
         }
 
@@ -294,64 +207,6 @@ py::list get_row_values(XLWorksheet& ws, uint32_t rowNumber) {
     return result;
 }
 
-// Optimized rows iterator - yields row values directly as list[Any]
-class RowValuesIterator {
-   public:
-    RowValuesIterator(XLWorksheet& ws)
-        : m_ws(ws), m_currentRow(1), m_maxRow(ws.rowCount()), m_colCount(ws.columnCount()) {}
-
-    py::list next() {
-        if (m_currentRow > m_maxRow) {
-            throw py::stop_iteration();
-        }
-
-        // Read data without GIL
-        std::vector<CellValueData> rowData;
-        {
-            py::gil_scoped_release release;
-
-            rowData.reserve(m_colCount);
-            XLRow row = m_ws.row(m_currentRow);
-            if (!row.empty()) {
-                // Use the implicit conversion to std::vector<XLCellValue>
-                std::vector<XLCellValue> values = row.values();
-                for (const auto& val : values) {
-                    rowData.push_back(CellValueData::from(val));
-                }
-            }
-
-            // Pad with empty values if needed
-            while (rowData.size() < m_colCount) {
-                rowData.emplace_back();
-            }
-        }
-
-        // Convert to Python with GIL held
-        py::list result;
-        for (const auto& cellData : rowData) {
-            result.append(cellData.to_python());
-        }
-
-        ++m_currentRow;
-        return result;
-    }
-
-   private:
-    XLWorksheet& m_ws;
-    uint32_t m_currentRow;
-    uint32_t m_maxRow;
-    uint16_t m_colCount;
-};
-
-// Internal structure to hold cell value for writing
-struct WriteCellData {
-    enum class Type { Empty, Boolean, Integer, Float };
-    Type type = Type::Empty;
-    bool boolVal = false;
-    int64_t intVal = 0;
-    double floatVal = 0.0;
-};
-
 // Write a numpy array to a worksheet range cleanly using nanobind's ndarray
 template <typename T>
 void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
@@ -360,18 +215,21 @@ void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
         throw std::runtime_error("Incompatible buffer dimension! Expected 2D array.");
     }
 
-    uint32_t numRows = static_cast<uint32_t>(b.shape(0));
-    uint16_t numCols = static_cast<uint16_t>(b.shape(1));
+    auto numRows = gsl::narrow<uint32_t>(b.shape(0));
+    auto numCols = gsl::narrow<uint16_t>(b.shape(1));
+
+    Expects(startRow >= 1 && startRow + numRows - 1 <= kExcelMaxRows);
+    Expects(startCol >= 1 && startCol + numCols - 1 <= kExcelMaxCols);
 
     const T* ptr = static_cast<const T*>(b.data());
-    std::vector<T> data(ptr, ptr + numRows * numCols);
+    std::vector<T> data(ptr, ptr + static_cast<size_t>(numRows) * numCols);
 
     // Now release GIL and write to worksheet using our copied data
     {
         py::gil_scoped_release release;
         for (uint32_t r = 0; r < numRows; ++r) {
             for (uint16_t c = 0; c < numCols; ++c) {
-                T val = data[r * numCols + c];
+                T val = data[static_cast<size_t>(r) * numCols + c];
                 ws.cell(startRow + r, startCol + c).value() = val;
             }
         }
@@ -379,54 +237,62 @@ void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
 }
 
 // Read numeric data into a numpy array
+// FIX: Use unique_ptr for exception-safe memory management (was: raw new with delayed capsule)
 py::ndarray<py::numpy, double, py::shape<-1, -1>> get_range_values(
     XLWorksheet& ws, uint32_t startRow, uint16_t startCol, uint32_t endRow, uint16_t endCol) {
-    uint32_t numRows = endRow - startRow + 1;
-    uint32_t numCols = endCol - startCol + 1;
+    Expects(startRow >= 1 && startRow <= kExcelMaxRows);
+    Expects(endRow >= startRow && endRow <= kExcelMaxRows);
+    Expects(startCol >= 1 && startCol <= kExcelMaxCols);
+    Expects(endCol >= startCol && endCol <= kExcelMaxCols);
 
-    double* ptr = new double[numRows * numCols];
+    auto numRows = gsl::narrow<size_t>(endRow - startRow + 1);
+    auto numCols = gsl::narrow<size_t>(endCol - startCol + 1);
+
+    // FIX: Use unique_ptr so memory is freed on exception before capsule takes ownership
+    auto uptr = std::make_unique<double[]>(numRows * numCols);
+    gsl::span<double> buf(uptr.get(), numRows * numCols);
 
     {
         py::gil_scoped_release release;
-        for (uint32_t r = 0; r < numRows; ++r) {
-            XLRow row = ws.row(startRow + r);
+        for (size_t r = 0; r < numRows; ++r) {
+            auto rowSpan = buf.subspan(r * numCols, numCols);
+            XLRow row = ws.row(gsl::narrow<uint32_t>(startRow + r));
             if (row.empty()) {
-                for (uint32_t c = 0; c < numCols; ++c) {
-                    ptr[r * numCols + c] = 0.0;
-                }
+                std::fill(rowSpan.begin(), rowSpan.end(), 0.0);
                 continue;
             }
 
             std::vector<XLCellValue> values = row.values();
-            for (uint32_t c = 0; c < numCols; ++c) {
-                uint32_t colIdx = startCol + c - 1;
+            for (size_t c = 0; c < numCols; ++c) {
+                auto colIdx = gsl::narrow<size_t>(startCol + c - 1);
                 if (colIdx < values.size()) {
                     const auto& val = values[colIdx];
                     if (val.type() == XLValueType::Float) {
-                        ptr[r * numCols + c] = val.get<double>();
+                        rowSpan[c] = val.get<double>();
                     } else if (val.type() == XLValueType::Integer) {
-                        ptr[r * numCols + c] = (double)val.get<int64_t>();
+                        rowSpan[c] = static_cast<double>(val.get<int64_t>());
                     } else {
-                        ptr[r * numCols + c] = 0.0;
+                        rowSpan[c] = 0.0;
                     }
                 } else {
-                    ptr[r * numCols + c] = 0.0;
+                    rowSpan[c] = 0.0;
                 }
             }
         }
     }
 
+    // Transfer ownership from unique_ptr to capsule
+    double* ptr = uptr.release();
     py::capsule owner(ptr, [](void* p) noexcept { delete[] (double*)p; });
     size_t shape[2] = {numRows, numCols};
     return py::ndarray<py::numpy, double, py::shape<-1, -1>>(ptr, 2, shape, owner);
 }
 
 // Direct cell value setter - bypasses Python Cell object creation
-// This is much faster for bulk writes as it avoids:
-// 1. Creating Python Cell wrapper objects
-// 2. WeakValueDictionary cache operations
-// 3. Multiple Python/C++ boundary crossings
 void set_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col, py::object value) {
+    Expects(row >= 1 && row <= kExcelMaxRows);
+    Expects(col >= 1 && col <= kExcelMaxCols);
+
     if (value.is_none()) {
         py::gil_scoped_release release;
         ws.cell(row, col).value().clear();
@@ -451,81 +317,13 @@ void set_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col, py::object valu
     }
 }
 
-// Internal structure to hold any cell value for batch operations
-struct BatchCellValue {
-    enum class Type { Empty, Boolean, Integer, Float, String };
-    Type type = Type::Empty;
-    bool boolVal = false;
-    int64_t intVal = 0;
-    double floatVal = 0.0;
-    std::string strVal;
-
-    static BatchCellValue from_python(py::handle obj) {
-        BatchCellValue val;
-        if (obj.is_none()) {
-            val.type = Type::Empty;
-        } else if (py::isinstance<py::bool_>(obj)) {
-            val.type = Type::Boolean;
-            val.boolVal = py::cast<bool>(obj);
-        } else if (py::isinstance<py::int_>(obj)) {
-            val.type = Type::Integer;
-            val.intVal = py::cast<int64_t>(obj);
-        } else if (py::isinstance<py::float_>(obj)) {
-            val.type = Type::Float;
-            val.floatVal = py::cast<double>(obj);
-        } else if (py::isinstance<py::str>(obj)) {
-            val.type = Type::String;
-            val.strVal = py::cast<std::string>(obj);
-        } else {
-            // Try to convert to string as fallback
-            val.type = Type::String;
-            val.strVal = py::cast<std::string>(py::str(obj));
-        }
-        return val;
-    }
-
-    void apply_to(XLCell& cell) const {
-        switch (type) {
-            case Type::Empty:
-                cell.value().clear();
-                break;
-            case Type::Boolean:
-                cell.value() = boolVal;
-                break;
-            case Type::Integer:
-                cell.value() = intVal;
-                break;
-            case Type::Float:
-                cell.value() = floatVal;
-                break;
-            case Type::String:
-                cell.value() = strVal;
-                break;
-        }
-    }
-};
-
-// Convert BatchCellValue to XLCellValue for use with OpenXLSX row assignment
-inline XLCellValue to_xlcellvalue(const BatchCellValue& val) {
-    switch (val.type) {
-        case BatchCellValue::Type::Boolean:
-            return XLCellValue(val.boolVal);
-        case BatchCellValue::Type::Integer:
-            return XLCellValue(val.intVal);
-        case BatchCellValue::Type::Float:
-            return XLCellValue(val.floatVal);
-        case BatchCellValue::Type::String:
-            return XLCellValue(val.strVal);
-        default:
-            return XLCellValue();
-    }
-}
-
 // Write a 2D Python list to a worksheet range
-// This is optimized for any Python data (strings, mixed types, etc.)
 // Uses OpenXLSX's row batch assignment for better performance
 void write_rows_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::list rows) {
-    // First pass: extract all data while holding GIL
+    Expects(startRow >= 1 && startRow <= kExcelMaxRows);
+    Expects(startCol >= 1 && startCol <= kExcelMaxCols);
+
+    // First pass: extract all data while holding GIL, convert to XLCellValue directly
     std::vector<std::vector<XLCellValue>> data;
     data.reserve(py::len(rows));
 
@@ -535,8 +333,8 @@ void write_rows_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::
         rowData.reserve(py::len(rowList));
 
         for (auto cell : rowList) {
-            BatchCellValue bv = BatchCellValue::from_python(cell);
-            rowData.push_back(to_xlcellvalue(bv));
+            CellData cd = CellData::from_python(cell);
+            rowData.push_back(cd.to_xlcellvalue());
         }
         data.push_back(std::move(rowData));
     }
@@ -546,8 +344,7 @@ void write_rows_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::
         py::gil_scoped_release release;
 
         for (size_t r = 0; r < data.size(); ++r) {
-            // Use OpenXLSX's optimized row assignment
-            XLRow xlRow = ws.row(startRow + r);
+            XLRow xlRow = ws.row(gsl::narrow<uint32_t>(startRow + r));
             xlRow.values() = data[r];
         }
     }
@@ -555,13 +352,16 @@ void write_rows_data(XLWorksheet& ws, uint32_t startRow, uint16_t startCol, py::
 
 // Write a single row of Python data
 void write_row_data(XLWorksheet& ws, uint32_t row, uint16_t startCol, py::list values) {
+    Expects(row >= 1 && row <= kExcelMaxRows);
+    Expects(startCol >= 1 && startCol <= kExcelMaxCols);
+
     // Extract data while holding GIL
     std::vector<XLCellValue> data;
     data.reserve(py::len(values));
 
     for (auto val : values) {
-        BatchCellValue bv = BatchCellValue::from_python(val);
-        data.push_back(to_xlcellvalue(bv));
+        CellData cd = CellData::from_python(val);
+        data.push_back(cd.to_xlcellvalue());
     }
 
     // Write without GIL using row-level batch assignment
@@ -579,7 +379,7 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
     struct CellWrite {
         uint32_t row;
         uint16_t col;
-        BatchCellValue value;
+        CellData value;
     };
 
     // Extract all data while holding GIL
@@ -594,7 +394,9 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
         CellWrite cw;
         cw.row = py::cast<uint32_t>(t[0]);
         cw.col = py::cast<uint16_t>(t[1]);
-        cw.value = BatchCellValue::from_python(t[2]);
+        Expects(cw.row >= 1 && cw.row <= kExcelMaxRows);
+        Expects(cw.col >= 1 && cw.col <= kExcelMaxCols);
+        cw.value = CellData::from_python(t[2]);
         writes.push_back(std::move(cw));
     }
 
@@ -815,9 +617,6 @@ void init_worksheet(py::module_& m) {
              "Get a range of cells as list[list[Any]] - optimized bulk read for specific range")
         .def("get_cell_value", &get_cell_value, py::arg("row"), py::arg("col"),
              "Get a single cell's value directly without creating a Cell object")
-        .def(
-            "iter_row_values", [](XLWorksheet& self) { return RowValuesIterator(self); },
-            py::keep_alive<0, 1>(), "Iterate over rows, yielding each row's values as list[Any]")
         .def("write_range_data", &write_range_typed<double>, py::arg("start_row"),
              py::arg("start_col"), py::arg("data"),
              "Write a 2D numpy array or buffer to a worksheet range")
@@ -842,9 +641,4 @@ void init_worksheet(py::module_& m) {
         .def("set_cells_batch", &set_cells_batch, py::arg("cells"),
              "Batch set multiple cell values: [(row, col, value), ...]. "
              "Efficient for non-contiguous cell updates");
-
-    // Bind the RowValuesIterator
-    py::class_<RowValuesIterator>(m, "RowValuesIterator")
-        .def("__iter__", [](RowValuesIterator& self) -> RowValuesIterator& { return self; })
-        .def("__next__", &RowValuesIterator::next);
 }

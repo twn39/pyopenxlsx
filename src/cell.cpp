@@ -1,4 +1,4 @@
-#include "bindings.hpp"
+#include "internal_access.hpp"
 
 void init_cell(py::module_& m) {
     // Bind XLMergeCells
@@ -50,31 +50,15 @@ void init_cell(py::module_& m) {
     py::class_<XLCell>(m, "XLCell")
         .def_prop_rw(
             "value",
+            // FIX: Use CellData intermediate struct for safe GIL management.
+            // Previous code had nested gil_scoped_release/acquire which was fragile.
             [](const XLCell& self) -> py::object {
-                py::gil_scoped_release release;
-                const auto& valProxy = self.value();
-                XLValueType type = valProxy.type();
-
-                if (type == XLValueType::Boolean) {
-                    bool val = valProxy.get<bool>();
-                    py::gil_scoped_acquire acquire;
-                    return py::cast(val);
-                } else if (type == XLValueType::Integer) {
-                    int64_t val = valProxy.get<int64_t>();
-                    py::gil_scoped_acquire acquire;
-                    return py::cast(val);
-                } else if (type == XLValueType::Float) {
-                    double val = valProxy.get<double>();
-                    py::gil_scoped_acquire acquire;
-                    return py::cast(val);
-                } else if (type == XLValueType::String) {
-                    std::string val = valProxy.get<std::string>();
-                    py::gil_scoped_acquire acquire;
-                    return py::cast(val);
-                } else {
-                    py::gil_scoped_acquire acquire;
-                    return py::none();
+                CellData data;
+                {
+                    py::gil_scoped_release release;
+                    data = CellData::from(self.value());
                 }
+                return data.to_python();
             },
             [](XLCell& self, py::object value) {
                 if (value.is_none()) {
