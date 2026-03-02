@@ -2,7 +2,7 @@ import pytest
 import openpyxl
 import asyncio
 import numpy as np
-import psutil
+psutil = pytest.importorskip("psutil")
 import os
 import time
 from pyopenxlsx import Workbook as PyWorkbook, load_workbook_async

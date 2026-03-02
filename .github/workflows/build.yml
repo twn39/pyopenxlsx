@@ -2,24 +2,34 @@ name: Build and Publish
 
 on:
   push:
-    branches: ["main"]
-    tags: ["v*"]
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  run_tests:
-    name: Test on ${{ matrix.os }}
+  # 0. Code Coverage
+  # Runs on every push to main and every PR to collect coverage data.
+  test_and_coverage:
+    name: Code Coverage
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.11']
-
+        os: [ubuntu-latest, windows-latest, macos-14]
+        python-version: ["3.12"]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -31,15 +41,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
-
-      - name: Install dependencies and project
-        run: uv pip install --system -e ".[test]"
+      - name: Install dependencies
+        run: uv sync --all-groups
 
       - name: Run tests with coverage
-        run: pytest tests --ignore=tests/test_benchmark.py -k "not benchmark" --cov-report=xml
+        run: uv run pytest tests --ignore=tests/test_benchmark.py -k "not benchmark" --cov=pyopenxlsx --cov-report=xml
 
       - name: Upload coverage to Codecov
         if: runner.os == 'Linux'
@@ -49,13 +55,14 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
 
+  # 1. Build and Test on 3 platforms (Ubuntu, macOS, Windows)
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build & Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-14]
 
     steps:
       - uses: actions/checkout@v4
@@ -66,19 +73,28 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+          cache-dependency-path: "pyproject.toml"
 
-      - name: Build wheels
+      - name: Build and Test Wheels
         uses: pypa/cibuildwheel@v3.3.1
+        with:
+          package-dir: .
+          output-dir: wheelhouse
+          extras: "uv"
         env:
           CIBW_BUILD_FRONTEND: "build[uv]"
+          CIBW_SKIP: "*-win32 *-musllinux_*"
+          CIBW_BUILD: "cp311-* cp312-* cp313-* cp314-*"
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Wheels as Artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
+  # 2. Build Source Distribution (SDist)
   build_sdist:
-    name: Build source distribution
+    name: Build SDist
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -94,24 +110,28 @@ jobs:
       - name: Build sdist
         run: uv build --sdist
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload SDist as Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  upload_pypi:
+  # 3. Publish to PyPI
+  publish:
+    name: Publish to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment: pypi
     permissions:
       id-token: write
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
           pattern: cibw-*
           path: dist
           merge-multiple: true
 
-      - name: Publish package distributions to PyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
