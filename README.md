@@ -371,6 +371,27 @@ Represents a sheet within an Excel file.
 | `unprotect_async()` | `Coroutine` | Asynchronously unprotect. |
 | `add_image(...)` | `None` | Insert an image. |
 | `add_image_async(...)` | `Coroutine` | Asynchronously insert an image. |
+| `get_rows_data()` | `list[list[Any]]` | Get all rows data (optimized bulk read). |
+| `get_rows_data_async()` | `Coroutine` | Asynchronously get all rows data. |
+| `get_row_values(row)` | `list[Any]` | Get a single row's values. |
+| `get_row_values_async(row)` | `Coroutine` | Asynchronously get a single row's values. |
+| `iter_row_values()` | `Iterator` | Iterate over rows, yielding each row's values. |
+| `get_range_data(start_row, start_col, end_row, end_col)` | `list[list[Any]]` | Get a range of cells as a 2D list. |
+| `get_range_data_async(...)` | `Coroutine` | Asynchronously get a range of cells. |
+| `get_cell_value(row, column)` | `Any` | Get a single cell's value directly. |
+| `get_cell_value_async(row, column)` | `Coroutine` | Asynchronously get a single cell's value. |
+| `write_range(start_row, start_col, data)` | `None` | Write a 2D numpy array or buffer to a range. |
+| `write_range_async(...)` | `Coroutine` | Asynchronously write a range. |
+| `get_range_values(start_row, start_col, end_row, end_col)` | `Any` | Read numeric cells into a 2D numpy array. |
+| `get_range_values_async(...)` | `Coroutine` | Asynchronously read numeric cells. |
+| `set_cell_value(row, column, value)` | `None` | Set a cell's value directly (high performance). |
+| `set_cell_value_async(...)` | `Coroutine` | Asynchronously set a cell's value. |
+| `write_rows(start_row, data, start_col=1)` | `None` | Write a 2D Python list to a range. |
+| `write_rows_async(...)` | `Coroutine` | Asynchronously write rows. |
+| `write_row(row, values, start_col=1)` | `None` | Write a single row of Python data. |
+| `write_row_async(...)` | `Coroutine` | Asynchronously write a row. |
+| `set_cells(cells)` | `None` | Batch set multiple cell values efficiently. |
+| `set_cells_async(cells)` | `Coroutine` | Asynchronously batch set cells. |
 
 #### `add_image` Method
 
@@ -498,6 +519,16 @@ Side(style="thin", color=None)
 Alignment(horizontal="center", vertical="center", wrap_text=True)
 ```
 **Options**: `"left"`, `"center"`, `"right"`, `"general"`, `"top"`, `"bottom"`
+
+#### `Style`
+```python
+Style(font=None, fill=None, border=None, alignment=None, number_format=None, protection=None)
+```
+
+#### `Protection`
+```python
+Protection(locked=True, hidden=False)
+```
 
 ---
 
