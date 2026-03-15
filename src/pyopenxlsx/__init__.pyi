@@ -53,6 +53,8 @@ XLAlignTop: XLAlignmentStyle
 XLAlignBottom: XLAlignmentStyle
 XLAlignVCenter: XLAlignmentStyle
 
+__version__: str
+
 __all__ = [
     "XLDocument",
     "Workbook",

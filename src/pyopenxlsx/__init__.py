@@ -51,6 +51,9 @@ XLAlignBottom = XLAlignmentStyle.Bottom
 XLAlignVCenter = XLAlignmentStyle.Center  # Alias for convenience
 
 
+__version__ = "0.4.0"
+
+
 __all__ = [
     "XLDocument",
     "Workbook",

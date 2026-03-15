@@ -2,6 +2,8 @@ from enum import Enum
 from typing import Any, List, Union, overload, Iterator, Optional
 import datetime
 
+__version__: str
+
 class XLContentType(Enum):
     Workbook: int
     Relationships: int
