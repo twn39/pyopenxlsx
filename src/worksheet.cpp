@@ -8,10 +8,10 @@
 void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::string& extension,
                             uint32_t row, uint16_t col, double width, double height) {
     // Use public APIs instead of Rob hack / reinterpret_cast
-    XLDocument& doc = ws.parentDoc();
+    XLDocument& doc = get_parent_doc(ws);
 
     // 1. Add image to document package
-    auto& archive = doc.archive();
+    auto& archive = get_archive(doc);
     int imgNum = 1;
     while (archive.hasEntry("xl/media/image" + std::to_string(imgNum) + "." + extension)) {
         ++imgNum;

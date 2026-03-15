@@ -45,6 +45,6 @@ def test_fill_and_merge_cells(tmp_path):
 
         # Verify sheet1.xml
         sheet_xml = z.read("xl/worksheets/sheet1.xml").decode("utf-8")
-        assert '<mergeCell ref="A1:C3"/>' in sheet_xml
+        assert '<mergeCell ref="A1:C3"/>' in sheet_xml or '<mergeCell ref="A1:C3" />' in sheet_xml
         assert 'r="A1"' in sheet_xml
         assert 'r="E1"' in sheet_xml

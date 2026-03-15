@@ -18,8 +18,23 @@
 #include <gsl/gsl>
 #include <headers/XLContentTypes.hpp>
 #include <headers/XLDrawing.hpp>
+#include <IZipArchive.hpp>
 
 #include "bindings.hpp"
+
+// ============================================================
+// OpenXLSX Internal Access (Using exposed APIs)
+// ============================================================
+
+// Helper functions for easy access
+inline IZipArchive& get_archive(XLDocument& doc) { return doc.archive(); }
+inline XLAppProperties& get_app_properties(XLDocument& doc) { return doc.appProperties(); }
+inline XLProperties& get_core_properties(XLDocument& doc) { return doc.coreProperties(); }
+
+inline XMLDocument& get_xml_doc(XLXmlFile& file) { return file.xmlDocument(); }
+inline const XMLDocument& get_xml_doc(const XLXmlFile& file) { return file.xmlDocument(); }
+inline XLDocument& get_parent_doc(XLXmlFile& file) { return file.parentDoc(); }
+inline std::string get_xml_path(const XLXmlFile& file) { return file.getXmlPath(); }
 
 // ============================================================
 // Excel Limits (for precondition checks)

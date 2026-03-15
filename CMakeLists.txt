@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Ensure consistent visibility across all targets to prevent std::any_cast failures
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 # Enable Link Time Optimization (LTO/IPO)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
@@ -30,6 +34,12 @@ set(OPENXLSX_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
+# Configure GSL (Microsoft Guidelines Support Library)
+# OpenXLSX 1.1.0+ no longer provides this, but pyopenxlsx still uses it.
+include(FetchContent)
+FetchContent_Declare(GSL GIT_REPOSITORY https://github.com/microsoft/GSL.git GIT_TAG v4.2.1)
+FetchContent_MakeAvailable(GSL)
+
 # Configure Python and nanobind
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
@@ -48,7 +58,7 @@ nanobind_add_module(_openxlsx
 )
 
 # Link dependencies
-target_link_libraries(_openxlsx PRIVATE OpenXLSX::OpenXLSX)
+target_link_libraries(_openxlsx PRIVATE OpenXLSX::OpenXLSX Microsoft.GSL::GSL)
 
 # Install steps (handled by scikit-build-core)
 install(TARGETS _openxlsx DESTINATION pyopenxlsx)
