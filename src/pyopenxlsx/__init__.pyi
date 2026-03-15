@@ -16,6 +16,10 @@ from ._openxlsx import (
     XLProperties as XLProperties,
     XLAppProperties as XLAppProperties,
     ImageInfo as ImageInfo,
+    XLDataValidationType as XLDataValidationType,
+    XLDataValidationOperator as XLDataValidationOperator,
+    XLDataValidationErrorStyle as XLDataValidationErrorStyle,
+    XLIMEMode as XLIMEMode,
 )
 from .styles import (
     Font as Font,
@@ -84,4 +88,8 @@ __all__ = [
     "XLProperties",
     "XLAppProperties",
     "ImageInfo",
+    "XLDataValidationType",
+    "XLDataValidationOperator",
+    "XLDataValidationErrorStyle",
+    "XLIMEMode",
 ]

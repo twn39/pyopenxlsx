@@ -56,4 +56,43 @@ void init_constants(py::module_& m) {
         .value("Visible", XLSheetState::Visible)
         .value("Hidden", XLSheetState::Hidden)
         .value("VeryHidden", XLSheetState::VeryHidden);
+
+    // Bind Data Validation enums
+    py::enum_<XLDataValidationType>(m, "XLDataValidationType")
+        .value("None", XLDataValidationType::None)
+        .value("Custom", XLDataValidationType::Custom)
+        .value("Date", XLDataValidationType::Date)
+        .value("Decimal", XLDataValidationType::Decimal)
+        .value("List", XLDataValidationType::List)
+        .value("TextLength", XLDataValidationType::TextLength)
+        .value("Time", XLDataValidationType::Time)
+        .value("Whole", XLDataValidationType::Whole);
+
+    py::enum_<XLDataValidationOperator>(m, "XLDataValidationOperator")
+        .value("Between", XLDataValidationOperator::Between)
+        .value("Equal", XLDataValidationOperator::Equal)
+        .value("GreaterThan", XLDataValidationOperator::GreaterThan)
+        .value("GreaterThanOrEqual", XLDataValidationOperator::GreaterThanOrEqual)
+        .value("LessThan", XLDataValidationOperator::LessThan)
+        .value("LessThanOrEqual", XLDataValidationOperator::LessThanOrEqual)
+        .value("NotBetween", XLDataValidationOperator::NotBetween)
+        .value("NotEqual", XLDataValidationOperator::NotEqual);
+
+    py::enum_<XLDataValidationErrorStyle>(m, "XLDataValidationErrorStyle")
+        .value("Stop", XLDataValidationErrorStyle::Stop)
+        .value("Warning", XLDataValidationErrorStyle::Warning)
+        .value("Information", XLDataValidationErrorStyle::Information);
+
+    py::enum_<XLIMEMode>(m, "XLIMEMode")
+        .value("NoControl", XLIMEMode::NoControl)
+        .value("Off", XLIMEMode::Off)
+        .value("On", XLIMEMode::On)
+        .value("Disabled", XLIMEMode::Disabled)
+        .value("Hiragana", XLIMEMode::Hiragana)
+        .value("FullKatakana", XLIMEMode::FullKatakana)
+        .value("HalfKatakana", XLIMEMode::HalfKatakana)
+        .value("FullAlpha", XLIMEMode::FullAlpha)
+        .value("HalfAlpha", XLIMEMode::HalfAlpha)
+        .value("FullHangul", XLIMEMode::FullHangul)
+        .value("HalfHangul", XLIMEMode::HalfHangul);
 }

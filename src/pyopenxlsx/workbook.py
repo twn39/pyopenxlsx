@@ -510,6 +510,42 @@ class Workbook:
     def __contains__(self, key):
         return self.workbook.sheet_exists(key)
 
+    def get_archive_entries(self):
+        """
+        Get a list of all files/directories in the underlying zip archive.
+
+        Returns:
+            list[str]: List of entry paths.
+        """
+        return self._doc.get_archive_entries()
+
+    def has_archive_entry(self, path):
+        """
+        Check if the underlying zip archive contains an entry with the given path.
+
+        Args:
+            path: Path in the archive (e.g., 'xl/workbook.xml').
+
+        Returns:
+            bool: True if the entry exists.
+        """
+        return self._doc.has_archive_entry(path)
+
+    def get_archive_entry(self, path):
+        """
+        Get the raw bytes of an entry from the underlying zip archive.
+
+        Args:
+            path: Path in the archive (e.g., 'xl/workbook.xml').
+
+        Returns:
+            bytes: The raw binary data of the entry.
+
+        Raises:
+            RuntimeError: If the entry is not found in the archive.
+        """
+        return self._doc.get_archive_entry(path)
+
     def get_embedded_images(self):
         """
         Get a list of all embedded images in the workbook.

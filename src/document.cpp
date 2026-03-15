@@ -276,6 +276,34 @@ void init_document(py::module_& m) {
         .def("get_image_data", &get_image_data, py::arg("image_path"),
              "Get image data as bytes. image_path can be full path (e.g., 'xl/media/image1.png') "
              "or just filename (e.g., 'image1.png').")
+        .def("get_archive_entries",
+             [](XLDocument& self) {
+                 auto& archive = get_archive(self);
+                 return archive.entryNames();
+             },
+             "Get a list of all entries (files/directories) in the underlying zip archive.")
+        .def("has_archive_entry",
+             [](XLDocument& self, const std::string& path) {
+                 auto& archive = get_archive(self);
+                 return archive.hasEntry(path);
+             },
+             py::arg("path"),
+             "Check if the underlying zip archive contains an entry with the given path.")
+        .def("get_archive_entry",
+             [](XLDocument& self, const std::string& path) {
+                 auto& archive = get_archive(self);
+                 if (!archive.hasEntry(path)) {
+                     throw std::runtime_error("Entry not found in archive: " + path);
+                 }
+                 std::string data;
+                 {
+                     py::gil_scoped_release release;
+                     data = archive.getEntry(path);
+                 }
+                 return py::bytes(data.data(), data.size());
+             },
+             py::arg("path"),
+             "Get the raw bytes of an entry from the underlying zip archive.")
         .def(
             "__enter__", [](XLDocument& self) -> XLDocument& { return self; },
             py::rv_policy::reference)

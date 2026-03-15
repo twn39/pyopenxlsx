@@ -323,6 +323,25 @@ class Worksheet:
         """
         self._sheet.add_internal_hyperlink(cell_ref, location, tooltip)
 
+    def has_hyperlink(self, cell_ref):
+        """Check if a cell has a hyperlink."""
+        return self._sheet.has_hyperlink(cell_ref)
+
+    def get_hyperlink(self, cell_ref):
+        """Get the hyperlink target for a cell."""
+        return self._sheet.get_hyperlink(cell_ref)
+
+    def remove_hyperlink(self, cell_ref):
+        """Remove a hyperlink from a cell."""
+        self._sheet.remove_hyperlink(cell_ref)
+
+    @property
+    def data_validations(self):
+        """
+        Get the XLDataValidations object for this worksheet to manage data validation rules.
+        """
+        return self._sheet.data_validations()
+
     def get_rows_data(self):
         """
         Get all rows data as list[list[Any]].
