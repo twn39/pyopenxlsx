@@ -55,6 +55,8 @@ nanobind_add_module(_openxlsx
     src/workbook.cpp
     src/worksheet.cpp
     src/cell.cpp
+    src/rich_text.cpp
+    src/defined_names.cpp
 )
 
 # Link dependencies

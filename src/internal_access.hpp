@@ -48,12 +48,13 @@ constexpr uint16_t kExcelMaxCols = 16384;
 // ============================================================
 
 struct CellData {
-    enum class Type { Empty, Boolean, Integer, Float, String };
+    enum class Type { Empty, Boolean, Integer, Float, String, RichText };
     Type type = Type::Empty;
     bool boolVal = false;
     int64_t intVal = 0;
     double floatVal = 0.0;
     std::string strVal;
+    XLRichText richTextVal;
 
     // -- Read from C++ XLCellValue (no GIL needed) --
     static CellData from(const XLCellValue& val) {
@@ -74,6 +75,10 @@ struct CellData {
             case XLValueType::String:
                 data.type = Type::String;
                 data.strVal = val.get<std::string>();
+                break;
+            case XLValueType::RichText:
+                data.type = Type::RichText;
+                data.richTextVal = val.get<XLRichText>();
                 break;
             default:
                 data.type = Type::Empty;
@@ -99,10 +104,11 @@ struct CellData {
         } else if (py::isinstance<py::str>(obj)) {
             val.type = Type::String;
             val.strVal = py::cast<std::string>(obj);
+        } else if (py::isinstance<XLRichText>(obj)) {
+            val.type = Type::RichText;
+            val.richTextVal = py::cast<XLRichText>(obj);
         } else {
-            // Fallback: convert to string
-            val.type = Type::String;
-            val.strVal = py::cast<std::string>(py::str(obj));
+            throw py::type_error("Unsupported type for cell value");
         }
         return val;
     }
@@ -118,6 +124,8 @@ struct CellData {
                 return py::cast(floatVal);
             case Type::String:
                 return py::cast(strVal);
+            case Type::RichText:
+                return py::cast(richTextVal);
             default:
                 return py::none();
         }
@@ -134,6 +142,8 @@ struct CellData {
                 return XLCellValue(floatVal);
             case Type::String:
                 return XLCellValue(strVal);
+            case Type::RichText:
+                return XLCellValue(richTextVal);
             default:
                 return XLCellValue();
         }
@@ -156,6 +166,9 @@ struct CellData {
                 break;
             case Type::String:
                 cell.value() = strVal;
+                break;
+            case Type::RichText:
+                cell.value() = richTextVal;
                 break;
         }
     }

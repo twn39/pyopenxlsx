@@ -22,5 +22,7 @@ void init_document(py::module_& m);
 void init_workbook(py::module_& m);
 void init_worksheet(py::module_& m);
 void init_cell(py::module_& m);
+void init_rich_text(py::module_& m);
+void init_defined_names(py::module_& m);
 
 #endif  // PYOPENXLSX_BINDINGS_HPP

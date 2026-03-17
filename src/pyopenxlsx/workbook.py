@@ -237,6 +237,13 @@ class Workbook:
         return self._styles
 
     @property
+    def defined_names(self):
+        """
+        Access the collection of defined names (named ranges) in the workbook.
+        """
+        return self._wb.defined_names()
+
+    @property
     def properties(self):
         if not hasattr(self, "_properties"):
             self._properties = DocumentProperties(self._doc)

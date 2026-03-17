@@ -61,28 +61,9 @@ void init_cell(py::module_& m) {
                 return data.to_python();
             },
             [](XLCell& self, py::object value) {
-                if (value.is_none()) {
-                    py::gil_scoped_release release;
-                    self.value().clear();
-                } else if (py::isinstance<py::bool_>(value)) {
-                    bool val = py::cast<bool>(value);
-                    py::gil_scoped_release release;
-                    self.value() = val;
-                } else if (py::isinstance<py::int_>(value)) {
-                    int64_t val = py::cast<int64_t>(value);
-                    py::gil_scoped_release release;
-                    self.value() = val;
-                } else if (py::isinstance<py::float_>(value)) {
-                    double val = py::cast<double>(value);
-                    py::gil_scoped_release release;
-                    self.value() = val;
-                } else if (py::isinstance<py::str>(value)) {
-                    std::string val = py::cast<std::string>(value);
-                    py::gil_scoped_release release;
-                    self.value() = val;
-                } else {
-                    throw py::type_error("Unsupported type for cell value");
-                }
+                CellData data = CellData::from_python(value);
+                py::gil_scoped_release release;
+                data.apply_to(self);
             })
         .def("get_formula", [](XLCell& self) { return self.formula().get(); })
         .def("set_formula",

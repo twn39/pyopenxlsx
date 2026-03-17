@@ -20,6 +20,10 @@ from ._openxlsx import (
     XLDataValidationOperator,
     XLDataValidationErrorStyle,
     XLIMEMode,
+    XLRichText,
+    XLRichTextRun,
+    XLDefinedName,
+    XLDefinedNames,
 )
 from .styles import (
     Font,
@@ -93,4 +97,8 @@ __all__ = [
     "XLDataValidationOperator",
     "XLDataValidationErrorStyle",
     "XLIMEMode",
+    "XLRichText",
+    "XLRichTextRun",
+    "XLDefinedName",
+    "XLDefinedNames",
 ]

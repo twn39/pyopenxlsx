@@ -17,4 +17,4 @@ wheels/
 compile_commands.json
 .benchmarks
 htmlcov
-demo
+demoGEMINI.md
