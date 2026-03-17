@@ -10,6 +10,9 @@ NB_MODULE(_openxlsx, m) {
     init_workbook(m);
     init_worksheet(m);
     init_cell(m);
+    init_data_validation(m);
+    init_tables(m);
+    init_page_setup(m);
     init_rich_text(m);
     init_defined_names(m);
 }

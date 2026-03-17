@@ -441,52 +441,6 @@ void init_worksheet(py::module_& m) {
         .def("format", &XLColumn::format)
         .def("set_format", &XLColumn::setFormat, py::arg("cellFormatIndex"));
 
-    // Bind XLDataValidation
-    py::class_<XLDataValidation>(m, "XLDataValidation")
-        .def("empty", &XLDataValidation::empty)
-        .def("sqref", &XLDataValidation::sqref)
-        .def("type", &XLDataValidation::type)
-        .def("operator_", &XLDataValidation::operator_)
-        .def("allow_blank", &XLDataValidation::allowBlank)
-        .def("formula1", &XLDataValidation::formula1)
-        .def("formula2", &XLDataValidation::formula2)
-        .def("show_drop_down", &XLDataValidation::showDropDown)
-        .def("show_input_message", &XLDataValidation::showInputMessage)
-        .def("show_error_message", &XLDataValidation::showErrorMessage)
-        .def("ime_mode", &XLDataValidation::imeMode)
-        .def("prompt_title", &XLDataValidation::promptTitle)
-        .def("prompt", &XLDataValidation::prompt)
-        .def("error_title", &XLDataValidation::errorTitle)
-        .def("error", &XLDataValidation::error)
-        .def("error_style", &XLDataValidation::errorStyle)
-        .def("set_sqref", &XLDataValidation::setSqref)
-        .def("set_type", &XLDataValidation::setType)
-        .def("set_operator", &XLDataValidation::setOperator)
-        .def("set_allow_blank", &XLDataValidation::setAllowBlank)
-        .def("set_formula1", &XLDataValidation::setFormula1)
-        .def("set_formula2", &XLDataValidation::setFormula2)
-        .def("set_prompt", &XLDataValidation::setPrompt)
-        .def("set_error", &XLDataValidation::setError, py::arg("title"), py::arg("msg"), py::arg("style") = XLDataValidationErrorStyle::Stop)
-        .def("set_show_drop_down", &XLDataValidation::setShowDropDown)
-        .def("set_show_input_message", &XLDataValidation::setShowInputMessage)
-        .def("set_show_error_message", &XLDataValidation::setShowErrorMessage)
-        .def("set_ime_mode", &XLDataValidation::setIMEMode)
-        .def("set_whole_number_range", &XLDataValidation::setWholeNumberRange)
-        .def("set_decimal_range", &XLDataValidation::setDecimalRange)
-        .def("set_date_range", &XLDataValidation::setDateRange)
-        .def("set_time_range", &XLDataValidation::setTimeRange)
-        .def("set_text_length_range", &XLDataValidation::setTextLengthRange)
-        .def("set_list", &XLDataValidation::setList);
-
-    // Bind XLDataValidations
-    py::class_<XLDataValidations>(m, "XLDataValidations")
-        .def("empty", &XLDataValidations::empty)
-        .def("count", &XLDataValidations::count)
-        .def("append", &XLDataValidations::append)
-        .def("at", py::overload_cast<size_t>(&XLDataValidations::at))
-        .def("at", py::overload_cast<std::string_view>(&XLDataValidations::at))
-        .def("clear", &XLDataValidations::clear);
-
     // Bind XLWorksheet
     py::class_<XLWorksheet>(m, "XLWorksheet")
         .def("name", &XLWorksheet::name)
@@ -509,6 +463,11 @@ void init_worksheet(py::module_& m) {
         .def("get_hyperlink", &XLWorksheet::getHyperlink, py::arg("cellRef"))
         .def("remove_hyperlink", &XLWorksheet::removeHyperlink, py::arg("cellRef"))
         .def("data_validations", &XLWorksheet::dataValidations, py::rv_policy::reference_internal)
+        .def("page_setup", &XLWorksheet::pageSetup)
+        .def("page_margins", &XLWorksheet::pageMargins)
+        .def("print_options", &XLWorksheet::printOptions)
+        .def("tables", &XLWorksheet::tables, py::rv_policy::reference_internal)
+        .def("has_tables", &XLWorksheet::hasTables)
         .def(
             "cell",
             [](XLWorksheet& self, const std::string& ref) {

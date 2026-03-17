@@ -451,7 +451,7 @@ print(ws["A1"].is_date) # True
 
 #### Formulas
 
-**Note**: Formulas must be set via the `formula` property, not `value`.
+**Note**: Formulas must be set via the `formula` property, not `value`. Formulas in the `formula` property should **not** include the initial `=` sign.
 
 ```python
 # Correct
@@ -461,9 +461,149 @@ ws["A3"].formula = "SUM(A1:A2)"
 ws["A3"].value = "=SUM(A1:A2)"
 ```
 
----
+#### Defined Names (Named Ranges)
 
-### `Range` Class
+Access the collection of defined names via `wb.defined_names`.
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    ws.title = "Data"
+    ws["A1"].value = 100
+
+    # Add a global defined name
+    # Note: Formula should NOT start with '='
+    wb.defined_names.append("MyTotal", "'Data'!$A$1")
+
+    # Add a local defined name (sheet-specific)
+    # local_sheet_id is the 0-based index of the sheet
+    wb.defined_names.append("LocalName", "'Data'!$A$1", local_sheet_id=0)
+
+    wb.save("names.xlsx")
+```
+
+### Data Validation
+
+Support for dropdown lists, numeric ranges, and custom error messages.
+
+```python
+from pyopenxlsx import Workbook, XLDataValidationType, XLDataValidationOperator
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # 1. Dropdown list
+    ws.data_validations.add_validation(
+        "B1", 
+        type="list", 
+        formula1='"Apple,Banana,Orange"',
+        show_drop_down=True
+    )
+    
+    # 2. Numeric range with custom prompt and error
+    dv = ws.data_validations.append()
+    dv.sqref = "B2"
+    dv.type = XLDataValidationType.Whole
+    dv.operator = XLDataValidationOperator.Between
+    dv.formula1 = "1"
+    dv.formula2 = "100"
+    dv.set_prompt("Input Hint", "Please enter a value between 1 and 100")
+    dv.set_error("Invalid Value", "Must be 1-100!", style="stop")
+    
+    wb.save("validation.xlsx")
+```
+
+### Tables (ListObjects)
+
+Create formatted tables with sorting, filtering, and row stripes.
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    headers = ["ID", "Product", "Price"]
+    ws.write_row(1, headers)
+    ws.write_rows(2, [
+        [1, "Widget A", 19.99],
+        [2, "Widget B", 25.50]
+    ])
+    
+    table = ws.table
+    table.name = "ProductTable"
+    table.range = "A1:C3"
+    table.style = "TableStyleMedium2"
+    
+    # Define columns (required for valid OOXML)
+    for h in headers:
+        table.append_column(h)
+        
+    table.show_row_stripes = True
+    table.show_first_column = True
+    wb.save("table.xlsx")
+```
+
+### Page Setup & Margins
+
+Control print orientation, paper size, and margins.
+
+```python
+from pyopenxlsx import Workbook, XLPageOrientation
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # Orientation and Paper Size
+    ws.page_setup.orientation = XLPageOrientation.Landscape
+    ws.page_setup.paper_size = 9 # A4
+    
+    # Margins (in inches)
+    ws.page_margins.left = 0.5
+    ws.page_margins.right = 0.5
+    ws.page_margins.top = 0.75
+    
+    # Print Options
+    ws.print_options.grid_lines = True
+    ws.print_options.horizontal_centered = True
+    
+    wb.save("pagesetup.xlsx")
+```
+
+### Rich Text
+
+Support for multiple styles within a single cell.
+
+```python
+from pyopenxlsx import Workbook, XLRichText, XLRichTextRun, XLColor
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    rt = XLRichText()
+    rt.add_run(XLRichTextRun("Normal text, "))
+    
+    # Add a bold red run
+    bold_red = XLRichTextRun("Bold Red Text")
+    bold_red.bold = True
+    bold_red.font_color = XLColor(255, 0, 0)
+    rt.add_run(bold_red)
+    
+    # Add an italic blue run
+    italic_blue = XLRichTextRun(" and Italic Blue")
+    italic_blue.italic = True
+    italic_blue.font_color = XLColor(0, 0, 255)
+    rt.add_run(italic_blue)
+    
+    ws["A1"].value = rt
+    wb.save("richtext.xlsx")
+```
+
+### Insert Images
+
+
+### `Worksheet` Class
 
 Represents a rectangular area of cells.
 
@@ -586,7 +726,7 @@ Accessed via `ws.merges`. Represents the collection of merged ranges in a worksh
 | `delete(index)` | `None` | Remove a merged range by its index. |
 | `find(reference)` | `int` | Find the index of a merged range. Returns -1 if not found. |
 | `__len__()` | `int` | Return the number of merged ranges. |
-| `__getitem__(index)` | `XLMergeCell` | Get a merged range object by index. |
+| `__getitem__(index)` | `str` | Get a merged range address by index. |
 | `__iter__()` | `Iterator` | Iterate over all merged ranges. |
 | `__contains__(ref)` | `bool` | Check if a reference is within any merged range. |
 

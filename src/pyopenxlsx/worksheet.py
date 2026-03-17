@@ -6,6 +6,9 @@ from .cell import Cell
 from .range import Range
 from .merge import MergeCells
 from .column import Column
+from .data_validation import DataValidations
+from .table import Table
+from .page_setup import PageMargins, PrintOptions, PageSetup
 
 
 class Worksheet:
@@ -338,9 +341,41 @@ class Worksheet:
     @property
     def data_validations(self):
         """
-        Get the XLDataValidations object for this worksheet to manage data validation rules.
+        Get the DataValidations object for this worksheet to manage data validation rules.
         """
-        return self._sheet.data_validations()
+        return DataValidations(self._sheet.data_validations(), self)
+
+    @property
+    def table(self):
+        """
+        Get the Table object for this worksheet to manage the worksheet table.
+        Note: Currently OpenXLSX only supports one table per worksheet.
+        """
+        if not self._sheet.has_tables():
+            # The C++ tables() method will create the table XML if it doesn't exist
+            pass
+        return Table(self._sheet.tables(), self)
+
+    @property
+    def page_margins(self):
+        """
+        Get the PageMargins object for this worksheet.
+        """
+        return PageMargins(self._sheet.page_margins(), self)
+
+    @property
+    def print_options(self):
+        """
+        Get the PrintOptions object for this worksheet.
+        """
+        return PrintOptions(self._sheet.print_options(), self)
+
+    @property
+    def page_setup(self):
+        """
+        Get the PageSetup object for this worksheet.
+        """
+        return PageSetup(self._sheet.page_setup(), self)
 
     def get_rows_data(self):
         """

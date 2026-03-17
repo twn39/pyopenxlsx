@@ -54,7 +54,10 @@ nanobind_add_module(_openxlsx
     src/document.cpp
     src/workbook.cpp
     src/worksheet.cpp
+    src/tables.cpp
+    src/page_setup.cpp
     src/cell.cpp
+    src/data_validation.cpp
     src/rich_text.cpp
     src/defined_names.cpp
 )

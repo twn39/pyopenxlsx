@@ -22,6 +22,9 @@ void init_document(py::module_& m);
 void init_workbook(py::module_& m);
 void init_worksheet(py::module_& m);
 void init_cell(py::module_& m);
+void init_data_validation(py::module_& m);
+void init_tables(py::module_& m);
+void init_page_setup(py::module_& m);
 void init_rich_text(py::module_& m);
 void init_defined_names(py::module_& m);
 

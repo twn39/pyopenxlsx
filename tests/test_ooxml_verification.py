@@ -24,17 +24,18 @@ def test_ooxml_elements_verification(tmp_path):
     # 3. Add a Data Validation list
     validations = ws.data_validations
     v1 = validations.append()
-    v1.set_sqref("D1:D10")
-    v1.set_type(XLDataValidationType.List)
+    v1.sqref = "D1:D10"
+    v1.type = XLDataValidationType.List
     v1.set_list(["One", "Two", "Three"])
     v1.set_prompt("Select", "Choose a number")
     
     # 4. Add a Numeric Validation
     v2 = validations.append()
-    v2.set_sqref("E1:E10")
-    v2.set_type(XLDataValidationType.Whole)
-    v2.set_operator(XLDataValidationOperator.Between)
-    v2.set_whole_number_range(1, 100)
+    v2.sqref = "E1:E10"
+    v2.type = XLDataValidationType.Whole
+    v2.operator = XLDataValidationOperator.Between
+    v2.formula1 = "1"
+    v2.formula2 = "100"
     
     # Save the workbook to disk
     file_path = tmp_path / "ooxml_verify.xlsx"
