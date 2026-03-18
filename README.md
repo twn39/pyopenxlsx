@@ -346,6 +346,9 @@ Represents a sheet within an Excel file.
 | `drawing` | `XLDrawing` | Access underlying drawing object (advanced usage). |
 | `merges` | `MergeCells` | Access merged cells information. |
 | `protection` | `dict` | Get worksheet protection status (read-only). |
+| `has_panes` | `bool` | True if the worksheet has frozen or split panes. |
+| `auto_filter` | `str \| None` | Get or set the AutoFilter range (e.g., `"A1:C10"`). |
+| `zoom` | `int` | Get or set the worksheet zoom scale (percentage). |
 
 #### Methods
 
@@ -362,11 +365,14 @@ Represents a sheet within an Excel file.
 | `append_async(iterable)` | `Coroutine` | Asynchronously append a row. |
 | `add_hyperlink(ref, url, tooltip="")` | `None` | Add an external hyperlink to a cell. |
 | `add_internal_hyperlink(ref, loc, ...)` | `None` | Add an internal hyperlink (e.g., `"Sheet2!A1"`). |
+| `freeze_panes(ref_or_row, col=None)` | `None` | Freeze rows and columns. |
+| `split_panes(x, y, ref, active)` | `None` | Split panes at specific pixel coordinates. |
+| `clear_panes()` | `None` | Remove all frozen or split panes. |
 | `set_column_format(col, style_idx)` | `None` | Set default style for a column. `col` can be int or "A". |
 | `set_row_format(row, style_idx)` | `None` | Set default style for a row. |
 | `column(col)` | `Column` | Get column object for width adjustments. |
-| `protect(...)` | `None` | Protect the worksheet. |
-| `protect_async(...)` | `Coroutine` | Asynchronously protect the worksheet. |
+| `protect(password, **options)` | `None` | Protect the worksheet with granular permissions. |
+| `protect_async(password, **options)` | `Coroutine` | Asynchronously protect the worksheet. |
 | `unprotect()` | `None` | Unprotect the worksheet. |
 | `unprotect_async()` | `Coroutine` | Asynchronously unprotect. |
 | `add_image(...)` | `None` | Insert an image. |
@@ -482,6 +488,40 @@ with Workbook() as wb:
     wb.defined_names.append("LocalName", "'Data'!$A$1", local_sheet_id=0)
 
     wb.save("names.xlsx")
+```
+
+### Sheet Viewing and Protection
+
+Control how the worksheet is viewed and restrict user actions.
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # 1. Freeze Panes
+    # Freeze first row and first column (cell B2 is the first scrollable cell)
+    ws.freeze_panes("B2") 
+    
+    # 2. AutoFilter
+    # Add filtering arrows to a range
+    ws.auto_filter = "A1:D100"
+    
+    # 3. Zoom
+    # Set worksheet zoom to 150%
+    ws.zoom = 150
+    
+    # 4. Granular Protection
+    # Protect sheet with password, but allow certain actions
+    ws.protect(
+        password="secret_password",
+        format_cells=True,      # Allow formatting
+        insert_columns=False,   # Disallow inserting columns
+        delete_rows=False       # Disallow deleting rows
+    )
+    
+    wb.save("view_options.xlsx")
 ```
 
 ### Data Validation

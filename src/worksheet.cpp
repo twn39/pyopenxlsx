@@ -441,6 +441,19 @@ void init_worksheet(py::module_& m) {
         .def("format", &XLColumn::format)
         .def("set_format", &XLColumn::setFormat, py::arg("cellFormatIndex"));
 
+    // XLPaneState Enum
+    py::enum_<XLPaneState>(m, "XLPaneState")
+        .value("Split", XLPaneState::Split)
+        .value("Frozen", XLPaneState::Frozen)
+        .value("FrozenSplit", XLPaneState::FrozenSplit);
+
+    // XLPane Enum
+    py::enum_<XLPane>(m, "XLPane")
+        .value("BottomRight", XLPane::BottomRight)
+        .value("TopRight", XLPane::TopRight)
+        .value("BottomLeft", XLPane::BottomLeft)
+        .value("TopLeft", XLPane::TopLeft);
+
     // Bind XLWorksheet
     py::class_<XLWorksheet>(m, "XLWorksheet")
         .def("name", &XLWorksheet::name)
@@ -455,6 +468,22 @@ void init_worksheet(py::module_& m) {
         .def("column_count", &XLWorksheet::columnCount)
         .def("has_drawing", &XLWorksheet::hasDrawing)
         .def("drawing", &XLWorksheet::drawing, py::rv_policy::reference_internal)
+        .def("has_panes", &XLWorksheet::hasPanes)
+        .def("freeze_panes", py::overload_cast<uint16_t, uint32_t>(&XLWorksheet::freezePanes),
+             py::arg("column"), py::arg("row"))
+        .def("freeze_panes", py::overload_cast<std::string_view>(&XLWorksheet::freezePanes),
+             py::arg("cellRef"))
+        .def("split_panes", &XLWorksheet::splitPanes, py::arg("xSplit"), py::arg("ySplit"),
+             py::arg("topLeftCell") = "", py::arg("activePane") = XLPane::BottomRight)
+        .def("clear_panes", &XLWorksheet::clearPanes)
+        .def("has_auto_filter", &XLWorksheet::hasAutoFilter)
+        .def("auto_filter", &XLWorksheet::autoFilter)
+        .def("set_auto_filter", [](XLWorksheet& self, const std::string& range) {
+            self.setAutoFilter(self.range(range));
+        }, py::arg("range"))
+        .def("clear_auto_filter", &XLWorksheet::clearAutoFilter)
+        .def("set_zoom", &XLWorksheet::setZoom, py::arg("scale"))
+        .def("zoom", &XLWorksheet::zoom)
         .def("add_hyperlink", &XLWorksheet::addHyperlink, py::arg("cellRef"), py::arg("url"),
              py::arg("tooltip") = "")
         .def("add_internal_hyperlink", &XLWorksheet::addInternalHyperlink, py::arg("cellRef"),
@@ -570,6 +599,13 @@ void init_worksheet(py::module_& m) {
         .def("delete_rows_allowed", &XLWorksheet::deleteRowsAllowed)
         .def("select_locked_cells_allowed", &XLWorksheet::selectLockedCellsAllowed)
         .def("select_unlocked_cells_allowed", &XLWorksheet::selectUnlockedCellsAllowed)
+        .def("insert_hyperlinks_allowed", &XLWorksheet::insertHyperlinksAllowed)
+        .def("auto_filter_allowed", &XLWorksheet::autoFilterAllowed)
+        .def("sort_allowed", &XLWorksheet::sortAllowed)
+        .def("pivot_tables_allowed", &XLWorksheet::pivotTablesAllowed)
+        .def("format_cells_allowed", &XLWorksheet::formatCellsAllowed)
+        .def("format_columns_allowed", &XLWorksheet::formatColumnsAllowed)
+        .def("format_rows_allowed", &XLWorksheet::formatRowsAllowed)
         .def(
             "set_insert_columns_allowed",
             [](XLWorksheet& self, bool set) {
@@ -582,6 +618,13 @@ void init_worksheet(py::module_& m) {
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowInsertRows(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_insert_hyperlinks_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowInsertHyperlinks(set);
             },
             py::arg("set") = true)
         .def(
@@ -610,6 +653,48 @@ void init_worksheet(py::module_& m) {
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowSelectUnlockedCells(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_auto_filter_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowAutoFilter(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_sort_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowSort(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_pivot_tables_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowPivotTables(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_format_cells_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowFormatCells(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_format_columns_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowFormatColumns(set);
+            },
+            py::arg("set") = true)
+        .def(
+            "set_format_rows_allowed",
+            [](XLWorksheet& self, bool set) {
+                py::gil_scoped_release release;
+                self.allowFormatRows(set);
             },
             py::arg("set") = true)
         .def("comments", &XLWorksheet::comments, py::rv_policy::reference_internal)
