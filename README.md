@@ -298,6 +298,7 @@ The full API documentation has been split into individual modules for easier rea
 - [Streams I/O API](docs/11_streams.md)
 - [Charts API](docs/12_charts.md)
 - [Page Setup & Printing API](docs/13_page_setup.md)
+- [Images API](docs/14_images.md)
 
 ---
 
