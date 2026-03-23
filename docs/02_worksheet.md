@@ -88,3 +88,52 @@ Applies the autofilter dropdowns to the range specified in `ws.auto_filter`.
 ws.auto_filter = "A1:C10"
 ws.apply_auto_filter()
 ```
+
+## Hyperlinks & Comments
+
+### `add_hyperlink(ref: str, url: str, tooltip: str = "")`
+Adds an external hyperlink to a cell.
+
+### `add_internal_hyperlink(ref: str, location: str, tooltip: str = "")`
+Adds an internal link to another sheet or cell (e.g. `"Sheet2!A1"`).
+
+### `has_hyperlink(ref: str) -> bool` / `get_hyperlink(ref: str) -> str` / `remove_hyperlink(ref: str)`
+Helpers to check, retrieve, or remove hyperlinks.
+
+### `add_comment(cell_ref: str, text: str, author: str)`
+Adds a comment to a specific cell.
+
+---
+
+## Ranges & Merging
+
+### `merge_cells(address: str)`
+Merges a range of cells (e.g., `"A1:C3"`).
+
+### `unmerge_cells(address: str)`
+Unmerges a previously merged range.
+
+---
+
+## Tables & Shapes
+
+- **`table`** / **`tables`**: Properties to access the Worksheet's ListObjects.
+- **`add_table(name: str, range: str)`**: Creates a new Table.
+- **`has_drawing`** / **`drawing`**: Check or access the underlying drawing object.
+- **`add_sparkline(location: str, data_range: str, type)`**: Inserts a sparkline into a cell.
+
+---
+
+## Advanced I/O
+
+- **`get_row_values(row: int) -> list[Any]`**: Gets a single row's values.
+- **`iter_row_values()`**: Iterator yielding rows one by one.
+- **`get_range_data(r1, c1, r2, c2)`** / **`get_range_values(...)`**: Bulk reading.
+- **`write_range(r1, c1, data)`**: Optimized writing for numpy arrays/buffers.
+- **`set_cells(cells: list[tuple])`**: Batch updates using a list of `(row, col, value)` tuples.
+
+---
+
+## Documented in Other Modules
+- For conditional formatting: `add_conditional_formatting`, `remove_conditional_formatting`, `clear_all_conditional_formatting`.
+- For streams: `stream_writer`, `stream_reader`.

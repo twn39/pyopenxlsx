@@ -88,3 +88,16 @@ Creates a duplicate of an existing worksheet.
 Registers a new cell style in the workbook and returns its integer index.
 - **Parameters:** `font`, `fill`, `border`, `alignment`, `number_format`, `protection`
 - **Returns:** `int` (Style ID)
+
+### Advanced/Internal Methods
+
+- **`get_embedded_images() -> list[ImageInfo]`**: Gets a list of all images embedded in the workbook archive.
+- **`get_image_data(name_or_path: str) -> bytes`**: Gets the binary data for an embedded image.
+- **`extract_images(out_dir: str) -> list[str]`**: Extracts all embedded images to the given directory.
+- **`get_archive_entries() -> list[str]`**: Lists all files within the underlying `.xlsx` zip archive.
+- **`has_archive_entry(path: str) -> bool`**: Checks if a specific file exists within the archive.
+- **`get_archive_entry(path: str) -> bytes`**: Reads the raw binary content of a file within the archive.
+
+### Advanced Properties
+- **`styles`**: Access the underlying `XLStyles` object.
+- **`workbook`**: Access the underlying C++ `XLWorkbook` object.
