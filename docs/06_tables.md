@@ -28,10 +28,7 @@ table = ws.add_table("StudentTable", "A1:C4")
 table.style_name = "TableStyleMedium2"
 table.show_row_stripes = True
 
-# 4. Mandatory: Add columns to match the headers
-# OpenXLSX requires columns to be explicitly appended to match the width of the range.
-for h in headers:
-    table.append_column(h)
+# 4. (Optional) Columns are auto-populated from worksheet headers when add_table is called.
 
 wb.save("tables.xlsx")
 ```
@@ -49,10 +46,10 @@ wb.save("tables.xlsx")
 
 ## Table Columns
 
-For a table to be correctly parsed by Excel, it must have columns explicitly defined.
+When `add_table()` is called, OpenXLSX automatically reads the first row of your specified range and creates columns matching those text values. You usually do not need to call `append_column` manually unless you are building a table structure programmatically before writing data to the worksheet.
 
 ### `append_column(name: str)`
-Adds a column definition to the table. **Must be called** once for each column in your table's `range` (e.g., if range is `A1:C10`, call it 3 times).
+Manually appends a new column to the table definition.
 
 ## Advanced Table Properties
 
