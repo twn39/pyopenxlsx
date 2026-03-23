@@ -281,6 +281,52 @@ wb.save("comments.xlsx")
 
 ---
 
+
+### Conditional Formatting
+
+Highlight specific data using visual rules like color scales and data bars.
+
+```python
+from pyopenxlsx import Workbook
+from pyopenxlsx._openxlsx import XLColorScaleRule, XLDataBarRule, XLColor
+
+wb = Workbook()
+ws = wb.active
+ws.write_rows(1, [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+# 1. Color Scale Rule (Red to Green)
+scale_rule = XLColorScaleRule(XLColor(255, 0, 0), XLColor(0, 255, 0))
+ws.add_conditional_formatting("A1:C1", scale_rule)
+
+# 2. Data Bar Rule (Blue bars)
+bar_rule = XLDataBarRule(XLColor(0, 0, 255), show_value_text=True)
+ws.add_conditional_formatting("A2:C2", bar_rule)
+
+wb.save("conditional_formatting.xlsx")
+```
+
+### High Performance Streams (Low Memory I/O)
+
+For writing massive datasets without consuming memory for Python objects, use the direct stream writer.
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # Open a direct XML stream writer
+    writer = ws.stream_writer()
+    
+    writer.append_row(["ID", "Timestamp", "Value"])
+    for i in range(1_000_000):
+        # Writes directly to disk/archive; highly memory efficient
+        writer.append_row([i, "2023-01-01", 99.9])
+        
+    writer.close()
+    wb.save("massive_data.xlsx")
+```
+
 ## API Documentation
 
 The full API documentation has been split into individual modules for easier reading. Please refer to the `docs/` directory:
