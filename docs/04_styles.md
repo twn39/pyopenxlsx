@@ -66,3 +66,8 @@ my_style_id = wb.add_style(
 ws["A1"].value = 0.85
 ws["A1"].style_index = my_style_id
 ```
+
+---
+
+## Advanced Properties & Getters/Setters
+*Note: Under the hood, these classes act as proxies to C++ OpenXLSX objects. While it's best to initialize them via `__init__`, they also expose native getter/setter methods (e.g., `set_name()`, `set_size()`, `set_color()`, `set_pattern_type()`, `set_bold()`, `set_italic()`, `set_left()`, `set_right()`, `set_top()`, `set_bottom()`, `set_horizontal()`, `set_vertical()`, `set_wrap_text()`) for fine-grained manipulation.*

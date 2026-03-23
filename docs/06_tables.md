@@ -46,3 +46,15 @@ wb.save("tables.xlsx")
 - **`show_column_stripes`** (`bool`): Alternating column colors.
 - **`show_first_column`** / **`show_last_column`** (`bool`): Emphasize the first or last column.
 - **`show_totals_row`** (`bool`): Display a totals row at the bottom.
+
+## Table Columns
+
+For a table to be correctly parsed by Excel, it must have columns explicitly defined.
+
+### `append_column(name: str)`
+Adds a column definition to the table. **Must be called** once for each column in your table's `range` (e.g., if range is `A1:C10`, call it 3 times).
+
+## Advanced Table Properties
+
+- **`range`**: Alias for `range_reference`.
+- **`style`**: Alias for `style_name`.

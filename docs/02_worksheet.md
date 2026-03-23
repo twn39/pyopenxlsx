@@ -137,3 +137,13 @@ Unmerges a previously merged range.
 ## Documented in Other Modules
 - For conditional formatting: `add_conditional_formatting`, `remove_conditional_formatting`, `clear_all_conditional_formatting`.
 - For streams: `stream_writer`, `stream_reader`.
+
+### Missing Methods & Properties (Internal/Proxy)
+
+- **`column(col)`**: Used internally to fetch a specific column.
+- **`unprotect()`**: Disables worksheet protection.
+- **`set_print_area(sqref: str)`**, **`set_print_title_rows(start: int, end: int)`**, **`set_print_title_cols(start: int, end: int)`**: Configures print properties directly on the worksheet.
+- **`clear_panes()`**: Clears any existing split or frozen panes.
+- **`rows`**: Yields an iterator for all rows containing data.
+- **`data_validations`**: Property returning a `DataValidations` collection.
+- **`protection`**: Property returning the current worksheet protection status in a dictionary.

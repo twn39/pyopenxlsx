@@ -55,3 +55,20 @@ dv.set_error("Invalid Input", "Value must be strictly greater than 0.", style="s
 
 ### `XLDataValidationOperator`
 - `Between`, `NotBetween`, `Equal`, `NotEqual`, `GreaterThan`, `LessThan`, `GreaterThanOrEqual`, `LessThanOrEqual`
+
+---
+
+## Properties and Methods of `DataValidation`
+
+Once a validation rule is created, you can interact with its underlying C++ properties directly:
+- **Properties/Methods**: `sqref`, `type`, `operator`, `allow_blank`, `show_drop_down`, `show_input_message`, `show_error_message`, `ime_mode`, `formula1`, `formula2`.
+- **String Getters**: `prompt_title`, `prompt`, `error_title`, `error`, `error_style`.
+- **Helper Methods**: `add_cell(ref)`, `add_range(ref)`, `set_list(["a", "b"])`, `set_reference_drop_list("Sheet", "A1:A3")`, `set_prompt(title, msg)`, `set_error(title, msg, style)`.
+
+## `DataValidations` Collection
+
+The `ws.data_validations` property provides a list-like collection.
+- **`append()`**: Adds an empty validation and returns it.
+- **`add_validation(...)`**: Quick-adds a populated validation.
+- **`remove(index_or_sqref)`**: Deletes a specific validation.
+- **`clear()`**: Deletes all validations on the sheet.
