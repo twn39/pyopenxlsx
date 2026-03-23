@@ -1,5 +1,4 @@
-import pytest
-from pyopenxlsx import Workbook, XLDataValidationType, XLDataValidationOperator, XLDataValidationErrorStyle
+from pyopenxlsx import Workbook, XLDataValidationType, XLDataValidationOperator
 
 def test_list_validation(tmp_path):
     path = tmp_path / "test_dv.xlsx"

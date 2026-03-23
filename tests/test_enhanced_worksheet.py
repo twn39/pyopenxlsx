@@ -1,6 +1,4 @@
-import pytest
-from pyopenxlsx import Workbook, XLPane, XLPaneState
-import os
+from pyopenxlsx import Workbook
 
 def test_freeze_panes(tmp_path):
     file_path = tmp_path / "test_freeze.xlsx"
@@ -15,18 +13,18 @@ def test_freeze_panes(tmp_path):
         
         # 1. Freeze first row and first column
         ws.freeze_panes("B2")
-        assert ws.has_panes == True
+        assert ws.has_panes
         
         wb.save(file_path)
     
     # Reload and verify
     with Workbook(file_path) as wb:
         ws = wb.active
-        assert ws.has_panes == True
+        assert ws.has_panes
         
         # 2. Clear panes
         ws.clear_panes()
-        assert ws.has_panes == False
+        assert not ws.has_panes
         wb.save(file_path)
 
 def test_split_panes(tmp_path):
@@ -36,7 +34,7 @@ def test_split_panes(tmp_path):
         
         # Split panes at some pixel-like coordinates
         ws.split_panes(2000, 2000, "C3", active_pane="bottomRight")
-        assert ws.has_panes == True
+        assert ws.has_panes
         
         wb.save(file_path)
 
@@ -98,12 +96,12 @@ def test_protection_options(tmp_path):
         )
         
         p = ws.protection
-        assert p["protected"] == True
-        assert p["password_set"] == True
-        assert p["insert_columns"] == True
-        assert p["insert_rows"] == True
-        assert p["format_cells"] == True
-        assert p["sort"] == False
+        assert p["protected"]
+        assert p["password_set"]
+        assert p["insert_columns"]
+        assert p["insert_rows"]
+        assert p["format_cells"]
+        assert not p["sort"]
         
         wb.save(file_path)
     
@@ -111,9 +109,9 @@ def test_protection_options(tmp_path):
     with Workbook(file_path) as wb:
         ws = wb.active
         p = ws.protection
-        assert p["protected"] == True
-        assert p["insert_columns"] == True
-        assert p["format_cells"] == True
+        assert p["protected"]
+        assert p["insert_columns"]
+        assert p["format_cells"]
         
         ws.unprotect()
-        assert ws.protection["protected"] == False
+        assert not ws.protection["protected"]

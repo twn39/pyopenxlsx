@@ -1,10 +1,7 @@
 import xml.etree.ElementTree as ET
-import pytest
 from pyopenxlsx import (
     Workbook,
     XLDataValidationType,
-    XLDataValidationOperator,
-    XLDataValidationErrorStyle,
     XLIMEMode,
 )
 
@@ -35,7 +32,7 @@ def test_data_validation_ooxml_full(tmp_path):
     dv1.set_error("Invalid Value", "Value must be outside 10-20 range", style="warning")
     
     # 2. List validation with drop down disabled
-    dv2 = ws.data_validations.add_validation(
+    ws.data_validations.add_validation(
         "B1",
         type="list",
         formula1='"Yes,No,Maybe"',
@@ -46,7 +43,7 @@ def test_data_validation_ooxml_full(tmp_path):
     )
     
     # 3. Decimal validation
-    dv3 = ws.data_validations.add_validation(
+    ws.data_validations.add_validation(
         "C1",
         type="decimal",
         operator="greater_than",

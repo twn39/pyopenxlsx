@@ -1,4 +1,3 @@
-import pytest
 from pyopenxlsx import Workbook, XLRichText, XLRichTextRun, XLColor
 
 def test_rich_text_basic():

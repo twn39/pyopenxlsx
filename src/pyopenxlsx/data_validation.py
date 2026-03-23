@@ -3,7 +3,6 @@ from ._openxlsx import (
     XLDataValidationType,
     XLDataValidationOperator,
     XLDataValidationErrorStyle,
-    XLIMEMode,
     XLDataValidationConfig,
 )
 

@@ -60,6 +60,11 @@ nanobind_add_module(_openxlsx
     src/data_validation.cpp
     src/rich_text.cpp
     src/defined_names.cpp
+    src/autofilter.cpp
+    src/chart.cpp
+    src/pivot_table.cpp
+    src/streams.cpp
+    src/conditional_formatting.cpp
 )
 
 # Link dependencies

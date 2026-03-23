@@ -1,5 +1,4 @@
-import pytest
-from pyopenxlsx import Workbook, XLDefinedName
+from pyopenxlsx import Workbook
 
 def test_defined_names_basic():
     wb = Workbook()
@@ -20,8 +19,7 @@ def test_defined_names_basic():
 
 def test_defined_names_local():
     wb = Workbook()
-    ws1 = wb.active
-    ws2 = wb.create_sheet("Sheet2")
+    wb.create_sheet("Sheet2")
     
     dns = wb.defined_names
     # Local names use 0-based index for sheet

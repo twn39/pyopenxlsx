@@ -13,7 +13,7 @@ void init_types(py::module_& m) {
     py::class_<XLContentTypes>(m, "XLContentTypes")
         .def("add_override", &XLContentTypes::addOverride)
         .def("delete_override",
-             py::overload_cast<const std::string&>(&XLContentTypes::deleteOverride))
+             py::overload_cast<std::string_view>(&XLContentTypes::deleteOverride))
         .def("delete_override",
              py::overload_cast<const XLContentItem&>(&XLContentTypes::deleteOverride))
         .def("content_item", &XLContentTypes::contentItem)
@@ -54,9 +54,13 @@ void init_types(py::module_& m) {
         .def("count", &XLComments::count)
         .def("get", py::overload_cast<size_t>(&XLComments::get, py::const_))
         .def("get", py::overload_cast<const std::string&>(&XLComments::get, py::const_))
-        .def("set", &XLComments::set, py::arg("cellRef"), py::arg("comment"),
-             py::arg("author_id") = 0)
-        .def("shape", &XLComments::shape)
+        .def(
+            "set",
+            py::overload_cast<const std::string&, const std::string&, uint16_t, uint16_t, uint16_t>(
+                &XLComments::set),
+            py::arg("cellRef"), py::arg("comment"), py::arg("author_id") = 0,
+            py::arg("widthCols") = 4, py::arg("heightRows") = 6)
+        .def("shape", py::overload_cast<const std::string&>(&XLComments::shape))
         .def("delete_comment", &XLComments::deleteComment)
         .def("author_count", &XLComments::authorCount)
         .def("author", &XLComments::author)
@@ -78,4 +82,28 @@ void init_types(py::module_& m) {
             return datetime(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min,
                             t.tm_sec);
         });
+
+    // Bind XLSparklineType
+    py::enum_<XLSparklineType>(m, "XLSparklineType")
+        .value("Line", XLSparklineType::Line)
+        .value("Column", XLSparklineType::Column)
+        .value("Stacked", XLSparklineType::Stacked);
+
+    // Bind XLImagePositioning
+    py::enum_<XLImagePositioning>(m, "XLImagePositioning")
+        .value("OneCell", XLImagePositioning::OneCell)
+        .value("TwoCell", XLImagePositioning::TwoCell)
+        .value("Absolute", XLImagePositioning::Absolute);
+
+    // Bind XLImageOptions
+    py::class_<XLImageOptions>(m, "XLImageOptions")
+        .def(py::init<>())
+        .def_rw("scale_x", &XLImageOptions::scaleX)
+        .def_rw("scale_y", &XLImageOptions::scaleY)
+        .def_rw("offset_x", &XLImageOptions::offsetX)
+        .def_rw("offset_y", &XLImageOptions::offsetY)
+        .def_rw("positioning", &XLImageOptions::positioning)
+        .def_rw("bottom_right_cell", &XLImageOptions::bottomRightCell)
+        .def_rw("print_with_sheet", &XLImageOptions::printWithSheet)
+        .def_rw("locked", &XLImageOptions::locked);
 }

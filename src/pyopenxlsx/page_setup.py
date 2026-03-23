@@ -1,5 +1,4 @@
 from weakref import ref as weakref
-from ._openxlsx import XLPageOrientation
 
 
 class PageMargins:

@@ -427,7 +427,7 @@ void init_worksheet(py::module_& m) {
         .def("image", &XLDrawing::image, py::arg("index"))
         .def("add_image", &XLDrawing::addImage, py::arg("r_id"), py::arg("name"),
              py::arg("description"), py::arg("row"), py::arg("col"), py::arg("width"),
-             py::arg("height"))
+             py::arg("height"), py::arg("options") = XLImageOptions())
         .def("add_scaled_image", &XLDrawing::addScaledImage, py::arg("r_id"), py::arg("name"),
              py::arg("description"), py::arg("data"), py::arg("row"), py::arg("col"),
              py::arg("scaling_factor") = 1.0);
@@ -471,16 +471,20 @@ void init_worksheet(py::module_& m) {
         .def("has_panes", &XLWorksheet::hasPanes)
         .def("freeze_panes", py::overload_cast<uint16_t, uint32_t>(&XLWorksheet::freezePanes),
              py::arg("column"), py::arg("row"))
-        .def("freeze_panes", py::overload_cast<std::string_view>(&XLWorksheet::freezePanes),
+        .def("freeze_panes", py::overload_cast<const std::string&>(&XLWorksheet::freezePanes),
              py::arg("cellRef"))
         .def("split_panes", &XLWorksheet::splitPanes, py::arg("xSplit"), py::arg("ySplit"),
              py::arg("topLeftCell") = "", py::arg("activePane") = XLPane::BottomRight)
         .def("clear_panes", &XLWorksheet::clearPanes)
         .def("has_auto_filter", &XLWorksheet::hasAutoFilter)
         .def("auto_filter", &XLWorksheet::autoFilter)
-        .def("set_auto_filter", [](XLWorksheet& self, const std::string& range) {
-            self.setAutoFilter(self.range(range));
-        }, py::arg("range"))
+        .def(
+            "set_auto_filter",
+            [](XLWorksheet& self, const std::string& range) {
+                self.setAutoFilter(self.range(range));
+            },
+            py::arg("range"))
+        .def("autofilter_object", &XLWorksheet::autofilterObject)
         .def("clear_auto_filter", &XLWorksheet::clearAutoFilter)
         .def("set_zoom", &XLWorksheet::setZoom, py::arg("scale"))
         .def("zoom", &XLWorksheet::zoom)
@@ -733,5 +737,53 @@ void init_worksheet(py::module_& m) {
              py::arg("values"), "Write a single row of Python data")
         .def("set_cells_batch", &set_cells_batch, py::arg("cells"),
              "Batch set multiple cell values: [(row, col, value), ...]. "
-             "Efficient for non-contiguous cell updates");
+             "Efficient for non-contiguous cell updates")
+        .def("stream_writer", &XLWorksheet::streamWriter)
+        .def("stream_reader", &XLWorksheet::streamReader)
+        .def("peek_cell", py::overload_cast<const std::string&>(&XLWorksheet::peekCell, py::const_),
+             py::arg("ref"))
+        .def("peek_cell", py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::peekCell, py::const_),
+             py::arg("row"), py::arg("col"))
+        .def("auto_fit_column", &XLWorksheet::autoFitColumn, py::arg("column_number"))
+        .def("add_sort_condition", &XLWorksheet::addSortCondition, py::arg("ref"),
+             py::arg("col_id"), py::arg("descending") = false)
+        .def("apply_auto_filter", &XLWorksheet::applyAutoFilter)
+        .def("add_conditional_formatting",
+             py::overload_cast<const std::string&, const XLCfRule&>(
+                 &XLWorksheet::addConditionalFormatting),
+             py::arg("sqref"), py::arg("rule"))
+        .def("add_conditional_formatting_dxf",
+             py::overload_cast<const std::string&, const XLCfRule&, const XLDxf&>(
+                 &XLWorksheet::addConditionalFormatting),
+             py::arg("sqref"), py::arg("rule"), py::arg("dxf"))
+        .def("remove_conditional_formatting",
+             py::overload_cast<const std::string&>(&XLWorksheet::removeConditionalFormatting),
+             py::arg("sqref"))
+        .def("clear_all_conditional_formatting", &XLWorksheet::clearAllConditionalFormatting)
+        .def("header_footer", &XLWorksheet::headerFooter)
+        .def("set_print_area", &XLWorksheet::setPrintArea, py::arg("sqref"))
+        .def("set_print_title_rows", &XLWorksheet::setPrintTitleRows, py::arg("first_row"),
+             py::arg("last_row"))
+        .def("set_print_title_cols", &XLWorksheet::setPrintTitleCols, py::arg("first_col"),
+             py::arg("last_col"))
+        .def("add_sparkline", &XLWorksheet::addSparkline, py::arg("location"),
+             py::arg("data_range"), py::arg("type") = XLSparklineType::Line)
+        .def("insert_image",
+             py::overload_cast<const std::string&, const std::string&>(&XLWorksheet::insertImage),
+             py::arg("cell_reference"), py::arg("image_path"))
+        .def("insert_image_opt",
+             py::overload_cast<const std::string&, const std::string&, const XLImageOptions&>(
+                 &XLWorksheet::insertImage),
+             py::arg("cell_reference"), py::arg("image_path"), py::arg("options"))
+        .def("add_chart",
+             py::overload_cast<XLChartType, std::string_view, uint32_t, uint32_t, uint32_t,
+                               uint32_t>(&XLWorksheet::addChart),
+             py::arg("type"), py::arg("name"), py::arg("row"), py::arg("col"), py::arg("width"),
+             py::arg("height"))
+        .def("add_chart_anchor",
+             py::overload_cast<XLChartType, const XLChartAnchor&>(&XLWorksheet::addChart),
+             py::arg("type"), py::arg("anchor"))
+        .def("add_pivot_table", &XLWorksheet::addPivotTable, py::arg("options"))
+        .def("add_comment", &XLWorksheet::addComment, py::arg("cell_ref"), py::arg("text"),
+             py::arg("author") = "");
 }

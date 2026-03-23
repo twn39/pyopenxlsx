@@ -71,7 +71,6 @@ class Cell:
             comments.delete_comment(addr)
         else:
             val_str = str(value)
-            comments.set(addr, val_str)
 
             # --- Auto-size Logic ---
             try:
@@ -96,29 +95,9 @@ class Cell:
                 if row_span < 3:
                     row_span = 3  # Minimum height
 
-                # Get current cell coordinates (1-based)
-                ref = self._cell.cell_reference()
-                row = ref.row()
-                col = ref.column()
-
-                # Calculate anchor positions
-                start_col = col + 1
-                start_row = row - 1  # Align closer to the top of the cell
-                if start_row < 1:
-                    start_row = 1
-
-                end_col = start_col + col_span
-                end_row = start_row + row_span
-
-                # Apply anchor: "col1, offset1, row1, offset1, col2, offset2, row2, offset2"
-                # Using smaller offsets for a cleaner look
-                anchor_str = (
-                    f"{start_col}, 10, {start_row}, 5, {end_col}, 10, {end_row}, 5"
-                )
-
-                comments.shape(addr).client_data().set_anchor(anchor_str)
+                comments.set(addr, val_str, 0, col_span, row_span)
             except Exception:
-                pass
+                comments.set(addr, val_str)
 
     @property
     def value(self):

@@ -3,7 +3,6 @@ from pyopenxlsx import (
     Workbook,
     XLDataValidationType,
     XLDataValidationOperator,
-    XLDataValidationErrorStyle,
 )
 
 def test_ooxml_elements_verification(tmp_path):

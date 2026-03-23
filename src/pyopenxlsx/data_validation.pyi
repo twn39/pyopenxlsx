@@ -2,8 +2,6 @@ from typing import Any, List, Union, Optional, Iterator
 from ._openxlsx import (
     XLDataValidationType,
     XLDataValidationOperator,
-    XLDataValidationErrorStyle,
-    XLIMEMode,
 )
 
 class DataValidation:

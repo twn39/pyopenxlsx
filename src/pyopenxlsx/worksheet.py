@@ -8,6 +8,7 @@ from .merge import MergeCells
 from .column import Column
 from .data_validation import DataValidations
 from .table import Table
+from .autofilter import AutoFilter
 from .page_setup import PageMargins, PrintOptions, PageSetup
 
 
@@ -422,19 +423,23 @@ class Worksheet:
     @property
     def auto_filter(self):
         """
-        Get or set the AutoFilter range for the worksheet.
-        Set to a range string (e.g., 'A1:C10') or None to clear.
+        Get the AutoFilter object for the worksheet to manage filters.
+        Returns None if no AutoFilter is set.
         """
-        if not self._sheet.has_auto_filter():
+        af = AutoFilter(self._sheet.autofilter_object(), self)
+        if not af:
             return None
-        return self._sheet.auto_filter()
+        return af
 
     @auto_filter.setter
     def auto_filter(self, value):
         if value is None:
             self._sheet.clear_auto_filter()
-        else:
-            self._sheet.set_auto_filter(str(value))
+        elif isinstance(value, str):
+            self._sheet.set_auto_filter(value)
+        elif isinstance(value, AutoFilter):
+            # If setting an AutoFilter object, just set its reference if it differs
+            pass
 
     @property
     def zoom(self):
@@ -453,15 +458,37 @@ class Worksheet:
         return DataValidations(self._sheet.data_validations(), self)
 
     @property
+    def tables(self):
+        """
+        Get the collection of tables in this worksheet.
+        """
+        return self._sheet.tables()
+
+    @property
     def table(self):
         """
-        Get the Table object for this worksheet to manage the worksheet table.
-        Note: Currently OpenXLSX only supports one table per worksheet.
+        Get the first Table object for this worksheet.
+        If no table exists, one is created automatically with default name 'Table1' and range 'A1:A1'.
+        Note: OpenXLSX now supports multiple tables per worksheet.
+        Use the 'tables' property to access all tables or 'add_table' to create new ones.
         """
-        if not self._sheet.has_tables():
-            # The C++ tables() method will create the table XML if it doesn't exist
-            pass
-        return Table(self._sheet.tables(), self)
+        tables = self._sheet.tables()
+        if len(tables) == 0:
+            # Create a default table for backward compatibility
+            return self.add_table("Table1", "A1:A1")
+        return Table(tables[0], self)
+
+    def add_table(self, name, range_string):
+        """
+        Add a new table to the worksheet.
+
+        :param name: Table name (no spaces).
+        :param range_string: Range reference (e.g., 'A1:C10').
+        :return: Table object.
+        """
+        tables = self._sheet.tables()
+        raw_table = tables.add(name, range_string)
+        return Table(raw_table, self)
 
     @property
     def page_margins(self):
@@ -712,3 +739,54 @@ class Worksheet:
     async def set_cells_async(self, cells):
         """Async version of set_cells()."""
         await asyncio.to_thread(self.set_cells, cells)
+
+    def stream_writer(self):
+        """Get a stream writer for this worksheet."""
+        return self._sheet.stream_writer()
+
+    def stream_reader(self):
+        """Get a stream reader for this worksheet."""
+        return self._sheet.stream_reader()
+
+    def auto_fit_column(self, column_number: int):
+        """Auto-fit the specified column."""
+        self._sheet.auto_fit_column(column_number)
+
+    def apply_auto_filter(self):
+        """Apply auto filter to the worksheet."""
+        self._sheet.apply_auto_filter()
+
+    def add_conditional_formatting(self, sqref: str, rule):
+        """Add conditional formatting to a range."""
+        self._sheet.add_conditional_formatting(sqref, rule)
+
+    def remove_conditional_formatting(self, sqref: str):
+        """Remove conditional formatting from a range."""
+        self._sheet.remove_conditional_formatting(sqref)
+
+    def clear_all_conditional_formatting(self):
+        """Clear all conditional formatting."""
+        self._sheet.clear_all_conditional_formatting()
+
+    def set_print_area(self, sqref: str):
+        """Set the print area for the worksheet."""
+        self._sheet.set_print_area(sqref)
+
+    def set_print_title_rows(self, first_row: int, last_row: int):
+        """Set the rows to repeat at top on printed pages."""
+        self._sheet.set_print_title_rows(first_row, last_row)
+
+    def set_print_title_cols(self, first_col: int, last_col: int):
+        """Set the columns to repeat at left on printed pages."""
+        self._sheet.set_print_title_cols(first_col, last_col)
+
+    def add_sparkline(self, location: str, data_range: str, sparkline_type=None):
+        """Add a sparkline to the worksheet."""
+        if sparkline_type is None:
+            self._sheet.add_sparkline(location, data_range)
+        else:
+            self._sheet.add_sparkline(location, data_range, sparkline_type)
+
+    def add_comment(self, cell_ref: str, text: str, author: str = ""):
+        """Add a comment to a cell."""
+        self._sheet.add_comment(cell_ref, text, author)

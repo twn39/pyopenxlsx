@@ -255,4 +255,16 @@ void init_styles(py::module_& m) {
         .def("__getitem__", &XLNumberFormats::operator[], py::keep_alive<0, 1>())
         .def("create", &XLNumberFormats::create, py::arg("copyFrom") = XLNumberFormat{},
              py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+
+    // Bind XLDxf
+    py::class_<XLDxf>(m, "XLDxf")
+        .def(py::init<>())
+        .def("empty", &XLDxf::empty)
+        .def("font", &XLDxf::font)
+        .def("num_fmt", &XLDxf::numFmt)
+        .def("fill", &XLDxf::fill)
+        .def("alignment", &XLDxf::alignment)
+        .def("border", &XLDxf::border)
+        .def("has_font", &XLDxf::hasFont)
+        .def("summary", &XLDxf::summary);
 }
