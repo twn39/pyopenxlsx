@@ -37,8 +37,12 @@ class FilterColumn:
         if logic is None:
             self._column.set_custom_filter(str(op), str(val))
         else:
-            logic_enum = XLFilterLogic.And if logic.lower() == "and" else XLFilterLogic.Or
-            self._column.set_custom_filter(str(op), str(val), logic_enum, str(op2), str(val2))
+            logic_enum = (
+                XLFilterLogic.And if logic.lower() == "and" else XLFilterLogic.Or
+            )
+            self._column.set_custom_filter(
+                str(op), str(val), logic_enum, str(op2), str(val2)
+            )
 
     def set_top10(self, value, percent=False, top=True):
         """
@@ -83,6 +87,7 @@ class AutoFilter:
 
     def __getitem__(self, col_id):
         return self.filter_column(col_id)
+
     def __eq__(self, other):
         if isinstance(other, str):
             return self.ref == other

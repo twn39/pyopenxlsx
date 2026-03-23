@@ -62,7 +62,7 @@ def test_page_setup(tmp_path):
 
     setup = ws.page_setup
     setup.orientation = XLPageOrientation.Landscape
-    setup.paper_size = 9 # A4
+    setup.paper_size = 9  # A4
     setup.scale = 80
     setup.black_and_white = True
 

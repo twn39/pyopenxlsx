@@ -29,7 +29,7 @@ def test_fill_properties():
     """Test Fill class property accessors and enum mapping."""
     fill = Fill(pattern_type="solid", color="00FF00", background_color="000000")
     assert fill.pattern_type() == XLPatternType.Solid
-    assert fill.color().hex().lower() == "ff00ff00"
+    assert fill.color().hex().lower() == "ff00ff00"  # type: ignore
 
     fill.set_pattern_type(XLPatternType.MediumGray)
     assert fill.pattern_type() == XLPatternType.MediumGray

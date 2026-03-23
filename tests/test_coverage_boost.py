@@ -11,7 +11,7 @@ def test_document_properties_deletion():
     assert props.title == "Test Title"
 
     # Delete by XLProperty
-    del props[XLProperty.Title]
+    del props[XLProperty.Title]  # type: ignore
     assert props.title == ""
 
     # Delete by string
@@ -49,7 +49,7 @@ def test_workbook_active_setter():
     assert wb.active.title == "Sheet2"
 
     with pytest.raises(TypeError, match="Must be a Worksheet object"):
-        wb.active = "Not a worksheet"
+        wb.active = "Not a worksheet"  # type: ignore
 
 
 def test_workbook_create_sheet_index():
@@ -217,11 +217,11 @@ def test_worksheet_more_coverage(tmp_path):
 
     # Line 79: TypeError in __getitem__
     with pytest.raises(TypeError):
-        _ = ws[123]
+        _ = ws[123]  # type: ignore
 
     # Line 108: TypeError in range
     with pytest.raises(TypeError):
-        ws.range(1, 2, 3)
+        ws.range(1, 2, 3)  # type: ignore
 
     # Line 98 in worksheet.py: Cache hit in _get_cached_cell
     # Triggered via Range

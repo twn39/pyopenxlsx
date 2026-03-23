@@ -229,7 +229,7 @@ def test_write_openpyxl_read_pyopenxlsx_datatypes_and_images(tmp_path):
     with open(img_path, "wb") as f:
         f.write(img_data)
 
-    xl_img = openpyxl.drawing.image.Image(img_path)
+    xl_img = openpyxl.drawing.image.Image(img_path)  # type: ignore
     # Anchor to D4
     ws_xl.add_image(xl_img, "D4")
 
@@ -397,11 +397,11 @@ def test_write_openpyxl_read_pyopenxlsx_protection(tmp_path):
 
     # Unlock A1
     ws_xl["A1"] = "Unlocked"
-    ws_xl["A1"].protection = openpyxl.styles.Protection(locked=False)
+    ws_xl["A1"].protection = openpyxl.styles.Protection(locked=False)  # type: ignore
 
     # Lock B1
     ws_xl["B1"] = "Locked"
-    ws_xl["B1"].protection = openpyxl.styles.Protection(locked=True)
+    ws_xl["B1"].protection = openpyxl.styles.Protection(locked=True)  # type: ignore
 
     wb_xl.save(filename)
 

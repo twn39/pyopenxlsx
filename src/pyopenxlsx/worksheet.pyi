@@ -52,68 +52,78 @@ class Worksheet:
     def merges(self) -> MergeCells: ...
     def column(self, col: Union[int, str]) -> Column: ...
     def protect(
-    self,
-    password: Optional[str] = None,
-    objects: bool = True,
-    scenarios: bool = True,
-    insert_columns: bool = False,
-    insert_rows: bool = False,
-    insert_hyperlinks: bool = False,
-    delete_columns: bool = False,
-    delete_rows: bool = False,
-    select_locked_cells: bool = True,
-    select_unlocked_cells: bool = True,
-    auto_filter: bool = False,
-    sort: bool = False,
-    pivot_tables: bool = False,
-    format_cells: bool = False,
-    format_columns: bool = False,
-    format_rows: bool = False,
+        self,
+        password: Optional[str] = None,
+        objects: bool = True,
+        scenarios: bool = True,
+        insert_columns: bool = False,
+        insert_rows: bool = False,
+        insert_hyperlinks: bool = False,
+        delete_columns: bool = False,
+        delete_rows: bool = False,
+        select_locked_cells: bool = True,
+        select_unlocked_cells: bool = True,
+        auto_filter: bool = False,
+        sort: bool = False,
+        pivot_tables: bool = False,
+        format_cells: bool = False,
+        format_columns: bool = False,
+        format_rows: bool = False,
     ) -> None: ...
     async def protect_async(
-    self,
-    password: Optional[str] = None,
-    objects: bool = True,
-    scenarios: bool = True,
-    insert_columns: bool = False,
-    insert_rows: bool = False,
-    insert_hyperlinks: bool = False,
-    delete_columns: bool = False,
-    delete_rows: bool = False,
-    select_locked_cells: bool = True,
-    select_unlocked_cells: bool = True,
-    auto_filter: bool = False,
-    sort: bool = False,
-    pivot_tables: bool = False,
-    format_cells: bool = False,
-    format_columns: bool = False,
-    format_rows: bool = False,
+        self,
+        password: Optional[str] = None,
+        objects: bool = True,
+        scenarios: bool = True,
+        insert_columns: bool = False,
+        insert_rows: bool = False,
+        insert_hyperlinks: bool = False,
+        delete_columns: bool = False,
+        delete_rows: bool = False,
+        select_locked_cells: bool = True,
+        select_unlocked_cells: bool = True,
+        auto_filter: bool = False,
+        sort: bool = False,
+        pivot_tables: bool = False,
+        format_cells: bool = False,
+        format_columns: bool = False,
+        format_rows: bool = False,
     ) -> None: ...
     def unprotect(self) -> None: ...
     async def unprotect_async(self) -> None: ...
     @property
     def protection(self) -> Dict[str, Any]: ...
     def add_image(
-    self,
-    img_path: str,
-    anchor: str = "A1",
-    width: Optional[int] = None,
-    height: Optional[int] = None,
+        self,
+        img_path: str,
+        anchor: str = "A1",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
     ) -> None: ...
     async def add_image_async(
-    self,
-    img_path: str,
-    anchor: str = "A1",
-    width: Optional[int] = None,
-    height: Optional[int] = None,
+        self,
+        img_path: str,
+        anchor: str = "A1",
+        width: Optional[int] = None,
+        height: Optional[int] = None,
     ) -> None: ...
     def add_hyperlink(self, cell_ref: str, url: str, tooltip: str = "") -> None: ...
-    def add_internal_hyperlink(self, cell_ref: str, location: str, tooltip: str = "") -> None: ...
+    def add_internal_hyperlink(
+        self, cell_ref: str, location: str, tooltip: str = ""
+    ) -> None: ...
     def has_hyperlink(self, cell_ref: str) -> bool: ...
     def get_hyperlink(self, cell_ref: str) -> str: ...
     def remove_hyperlink(self, cell_ref: str) -> None: ...
-    def freeze_panes(self, row_or_ref: Union[int, str], col: Optional[int] = None) -> None: ...
-    def split_panes(self, x_split: float, y_split: float, top_left_cell: str = "", active_pane: str = "bottomRight") -> None: ...
+    def freeze_panes(
+        self, row_or_ref: Union[int, str], col: Optional[int] = None
+    ) -> None: ...
+    def split_panes(
+        self,
+        x_split: float,
+        y_split: float,
+        top_left_cell: str = "",
+        active_pane: str = "bottomRight",
+    ) -> None: ...
     def clear_panes(self) -> None: ...
     @property
     def has_panes(self) -> bool: ...
@@ -164,3 +174,27 @@ class Worksheet:
     ) -> None: ...
     def set_cells(self, cells: Iterable[Tuple[int, int, Any]]) -> None: ...
     async def set_cells_async(self, cells: Iterable[Tuple[int, int, Any]]) -> None: ...
+
+    @property
+    def table(self) -> Any: ...
+    @property
+    def tables(self) -> Any: ...
+    @property
+    def page_margins(self) -> Any: ...
+    @property
+    def print_options(self) -> Any: ...
+    @property
+    def page_setup(self) -> Any: ...
+    def add_table(self, name: str, range_string: str) -> Any: ...
+    def stream_writer(self) -> Any: ...
+    def stream_reader(self) -> Any: ...
+    def auto_fit_column(self, col: int) -> None: ...
+    def apply_auto_filter(self) -> None: ...
+    def set_print_area(self, sqref: str) -> None: ...
+    def set_print_title_rows(self, start: int, end: int) -> None: ...
+    def set_print_title_cols(self, start: int, end: int) -> None: ...
+    def add_sparkline(self, location: str, data_range: str, type: Any = ...) -> None: ...
+    def add_comment(self, cell_ref: str, text: str, author: str = ...) -> None: ...
+    def add_conditional_formatting(self, sqref: str, rule: Any) -> None: ...
+    def remove_conditional_formatting(self, sqref: str) -> None: ...
+    def clear_all_conditional_formatting(self) -> None: ...

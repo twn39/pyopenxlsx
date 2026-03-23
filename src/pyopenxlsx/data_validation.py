@@ -113,11 +113,17 @@ class DataValidation:
         # Allow setting by string or enum
         if isinstance(value, str):
             if value.lower() == "stop":
-                self._dv.set_error(self.error_title, self.error, XLDataValidationErrorStyle.Stop)
+                self._dv.set_error(
+                    self.error_title, self.error, XLDataValidationErrorStyle.Stop
+                )
             elif value.lower() == "warning":
-                self._dv.set_error(self.error_title, self.error, XLDataValidationErrorStyle.Warning)
+                self._dv.set_error(
+                    self.error_title, self.error, XLDataValidationErrorStyle.Warning
+                )
             elif value.lower() == "information":
-                self._dv.set_error(self.error_title, self.error, XLDataValidationErrorStyle.Information)
+                self._dv.set_error(
+                    self.error_title, self.error, XLDataValidationErrorStyle.Information
+                )
         else:
             self._dv.set_error(self.error_title, self.error, value)
 
@@ -215,7 +221,9 @@ class DataValidations:
         """Append a new empty data validation rule."""
         return DataValidation(self._dvs.append(), self._worksheet)
 
-    def add_validation(self, sqref, type="none", operator="between", formula1="", formula2="", **kwargs):
+    def add_validation(
+        self, sqref, type="none", operator="between", formula1="", formula2="", **kwargs
+    ):
         """
         Convenience method to add a data validation rule.
         """
@@ -244,7 +252,7 @@ class DataValidations:
             "not_between": XLDataValidationOperator.NotBetween,
             "not_equal": XLDataValidationOperator.NotEqual,
         }
-        config.operator_ = ops.get(operator.lower(), XLDataValidationOperator.Between)
+        config.operator_ = ops.get(operator.lower(), XLDataValidationOperator.Between)  # type: ignore
 
         config.formula1 = str(formula1)
         config.formula2 = str(formula2)
@@ -267,7 +275,9 @@ class DataValidations:
         if "error" in kwargs:
             config.error = str(kwargs["error"])
 
-        return DataValidation(self._dvs.add_validation(config, str(sqref)), self._worksheet)
+        return DataValidation(
+            self._dvs.add_validation(config, str(sqref)), self._worksheet
+        )
 
     def remove(self, index_or_sqref):
         """Remove a data validation rule by index or sqref."""

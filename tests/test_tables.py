@@ -41,9 +41,9 @@ def test_table_append_column():
     ws = wb.active
     table = ws.table
     table.range = "A1:B2"
-    
+
     table.append_column("NewCol")
-    # OpenXLSX doesn't currently provide a way to list columns, 
+    # OpenXLSX doesn't currently provide a way to list columns,
     # but we can verify it doesn't crash.
     # We could check the XML if we wanted to be sure.
     assert table.name.startswith("Table")

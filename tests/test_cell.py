@@ -99,7 +99,7 @@ def test_cell_comment_errors():
     class MockRawCell:
         pass
 
-    cell = Cell(MockRawCell(), worksheet=None)
+    cell = Cell(MockRawCell(), worksheet=None)  # type: ignore
     assert cell.comment is None
 
     with pytest.raises(

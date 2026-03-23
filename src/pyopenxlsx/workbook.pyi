@@ -1,5 +1,5 @@
 from typing import Any, List, Optional, Union, Dict, Iterator
-from ._openxlsx import XLDocument, XLWorkbook, XLStyles, XLProperty
+from ._openxlsx import XLDocument, XLWorkbook, XLStyles, XLProperty, XLDefinedNames
 from .worksheet import Worksheet
 from .styles import Font, Fill, Border, Alignment, Style, Protection
 
@@ -51,6 +51,10 @@ class CustomProperties:
 class Workbook:
     _doc: XLDocument
     _sheets: Dict[str, Worksheet]
+    
+    @property
+    def defined_names(self) -> XLDefinedNames: ...
+    
     def __init__(
         self, filename: Optional[str] = None, force_overwrite: bool = True
     ) -> None: ...

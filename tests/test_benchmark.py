@@ -2,10 +2,11 @@ import pytest
 import openpyxl
 import asyncio
 import numpy as np
-psutil = pytest.importorskip("psutil")
 import os
 import time
 from pyopenxlsx import Workbook as PyWorkbook, load_workbook_async
+
+psutil = pytest.importorskip("psutil")
 
 
 class ResourceMonitor:
@@ -33,7 +34,9 @@ class ResourceMonitor:
         print(f"\n[Resource: {self.name}]")
         print(f"  Time: {duration:.4f}s")
         print(f"  Memory Delta: {mem_diff:+.2f} MB (End: {self.end_mem:.2f} MB)")
-        print(f"  CPU Usage: User {cpu_user:.4f}s, System {cpu_sys:.4f}s, Total {cpu_total:.4f}s")
+        print(
+            f"  CPU Usage: User {cpu_user:.4f}s, System {cpu_sys:.4f}s, Total {cpu_total:.4f}s"
+        )
         if duration > 0:
             print(f"  CPU Load: {(cpu_total / duration) * 100:.1f}%")
 

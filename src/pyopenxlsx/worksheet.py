@@ -391,7 +391,9 @@ class Worksheet:
         else:
             raise TypeError("row_or_ref must be an int or a string reference")
 
-    def split_panes(self, x_split, y_split, top_left_cell="", active_pane="bottomRight"):
+    def split_panes(
+        self, x_split, y_split, top_left_cell="", active_pane="bottomRight"
+    ):
         """
         Split the worksheet panes at given pixel coordinates.
 
