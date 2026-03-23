@@ -147,3 +147,38 @@ Unmerges a previously merged range.
 - **`rows`**: Yields an iterator for all rows containing data.
 - **`data_validations`**: Property returning a `DataValidations` collection.
 - **`protection`**: Property returning the current worksheet protection status in a dictionary.
+
+## Advanced Example: Data Parsing and High-Speed Bulk Write
+```python
+from pyopenxlsx import Workbook
+import datetime
+
+with Workbook() as wb:
+    ws = wb.active
+    ws.title = "HighSpeedData"
+    
+    # 1. Formatting columns before data arrives
+    # Apply a date format (14 is the built-in mm-dd-yy format index)
+    style_date = wb.add_style(number_format=14)
+    ws.set_column_format("C", style_date)
+    
+    # 2. Bulk Write using write_rows (Ultra-Fast)
+    # write_rows bypasses Python Cell object creation
+    data = [
+        ["ID", "Name", "Join Date", "Score"],
+        [1, "Alice", datetime.date(2023, 1, 15), 95.5],
+        [2, "Bob", datetime.date(2023, 2, 20), 88.0],
+        [3, "Charlie", datetime.date(2023, 3, 5), 92.2]
+    ]
+    ws.write_rows(1, data) # Start at Row 1
+    
+    # 3. View manipulations
+    ws.auto_filter = "A1:D4"
+    ws.apply_auto_filter()
+    ws.auto_fit_column(2) # Auto-fit the "Name" column
+    
+    # 4. Sheet Level Protections
+    ws.protect("my_secret", format_cells=True, sort=True)
+    
+    wb.save("bulk_data.xlsx")
+```

@@ -72,3 +72,43 @@ The `ws.data_validations` property provides a list-like collection.
 - **`add_validation(...)`**: Quick-adds a populated validation.
 - **`remove(index_or_sqref)`**: Deletes a specific validation.
 - **`clear()`**: Deletes all validations on the sheet.
+
+## Advanced Example: Dependent Dropdowns (Cascading Validation)
+*Note: Excel evaluates formulas in data validation contextually. To do dependent dropdowns, we use the `INDIRECT` function pointing to another cell.*
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # Setup lookup lists using Defined Names
+    # 'Fruits' list
+    ws["X1"].value = "Apple"
+    ws["X2"].value = "Banana"
+    wb.defined_names.append("Fruits", "Sheet1!$X$1:$X$2")
+    
+    # 'Cars' list
+    ws["Y1"].value = "Toyota"
+    ws["Y2"].value = "Ford"
+    wb.defined_names.append("Cars", "Sheet1!$Y$1:$Y$2")
+    
+    # 1. Primary Dropdown in A1
+    ws.data_validations.add_validation(
+        "A1", 
+        type="list", 
+        formula1='"Fruits,Cars"', # The literal string list
+        show_drop_down=True
+    )
+    
+    # 2. Dependent Dropdown in B1
+    # Reads the text in A1, and uses INDIRECT to find the defined name
+    ws.data_validations.add_validation(
+        "B1",
+        type="list",
+        formula1="INDIRECT($A$1)", 
+        show_drop_down=True
+    )
+    
+    wb.save("dependent_dropdown.xlsx")
+```

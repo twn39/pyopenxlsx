@@ -101,3 +101,29 @@ Registers a new cell style in the workbook and returns its integer index.
 ### Advanced Properties
 - **`styles`**: Access the underlying `XLStyles` object.
 - **`workbook`**: Access the underlying C++ `XLWorkbook` object.
+
+## Advanced Example: Modifying Document Metadata
+```python
+from pyopenxlsx import load_workbook
+
+# Use context manager to ensure proper cleanup of C++ bindings
+with load_workbook("existing.xlsx") as wb:
+    # Update standard properties
+    wb.properties.title = "Q4 Financial Report"
+    wb.properties.creator = "Finance Bot v2"
+    
+    # Iterate and print existing custom properties
+    print("Previous Custom Properties:")
+    for key, value in wb.custom_properties.items():
+        print(f"  {key}: {value}")
+        
+    # Set a new custom property
+    wb.custom_properties["Approval_Status"] = "Pending"
+    
+    # Extract embedded images and zip contents
+    images = wb.get_embedded_images()
+    if images:
+        print(f"Found {len(images)} images in this workbook.")
+        
+    wb.save("existing_updated.xlsx")
+```
