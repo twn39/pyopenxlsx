@@ -88,6 +88,15 @@ class Table:
     def show_last_column(self, value):
         self._table.set_show_last_column(bool(value))
 
+    @property
+    def show_totals_row(self):
+        """Whether the totals row is shown."""
+        return self._table.show_totals_row()
+
+    @show_totals_row.setter
+    def show_totals_row(self, value):
+        self._table.set_show_totals_row(bool(value))
+
     def append_column(self, name):
         """Append a new column to the table."""
         self._table.append_column(str(name))

@@ -51,6 +51,28 @@ When `add_table()` is called, OpenXLSX automatically reads the first row of your
 ### `append_column(name: str)`
 Manually appends a new column to the table definition.
 
+## Totals Row
+
+When you enable the totals row (`show_totals_row = True`), you must also ensure you manually write the corresponding labels or `SUBTOTAL` formulas into the worksheet cells for that row, as Excel does not automatically populate the cell contents based purely on the table definition.
+
+```python
+from pyopenxlsx._openxlsx import XLTotalsRowFunction
+
+# Enable totals row
+table.show_totals_row = True
+
+# 1. Set the label in the first column definition and the worksheet cell
+date_col = table._table.column("Date")
+date_col.set_totals_row_label("Grand Total:")
+ws.set_cell_value(8, 1, "Grand Total:") # Assuming the totals row is on row 8
+
+# 2. Set the function in the column definition and the formula in the worksheet cell
+sales_col = table._table.column("Total Sales")
+sales_col.set_totals_row_function(XLTotalsRowFunction.Sum)
+# 109 is the function_num for SUM in SUBTOTAL
+ws.cell(8, 6).formula = "=SUBTOTAL(109,SalesTable[Total Sales])"
+```
+
 ## Advanced Table Properties
 
 - **`range`**: Alias for `range_reference`.
