@@ -193,6 +193,57 @@ ws["A1"].style_index = style_idx
 wb.save("styles.xlsx")
 ```
 
+### Pivot Tables
+
+Create dynamic pivot tables based on worksheet data.
+
+```python
+from pyopenxlsx import Workbook
+from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotField, XLPivotSubtotal
+
+with Workbook() as wb:
+    # 1. Write source data
+    ws = wb.active
+    ws.title = "SalesData"
+    ws.write_row(1, ["Region", "Product", "Sales"])
+    ws.write_rows(2, [
+        ["North", "Apples", 100],
+        ["South", "Bananas", 300],
+        ["North", "Oranges", 150]
+    ])
+    
+    # 2. Create a separate sheet for the Pivot Table
+    ws_pivot = wb.create_sheet("PivotSheet")
+    
+    # 3. Configure options
+    options = XLPivotTableOptions()
+    options.name = "SalesPivot"
+    options.source_range = "SalesData!A1:C4"
+    options.target_cell = "A3" # Note: Target cell must NOT include sheet name
+    
+    # 4. Define fields
+    r = XLPivotField()
+    r.name = "Region"
+    r.subtotal = XLPivotSubtotal.Sum
+    options.rows = [r]
+
+    c = XLPivotField()
+    c.name = "Product"
+    c.subtotal = XLPivotSubtotal.Sum
+    options.columns = [c]
+
+    d = XLPivotField()
+    d.name = "Sales"
+    d.subtotal = XLPivotSubtotal.Sum
+    d.custom_name = "Total Sales"
+    options.data = [d]
+    
+    # 5. Add to the new sheet
+    ws_pivot._sheet.add_pivot_table(options)
+    
+    wb.save("pivot.xlsx")
+```
+
 ### Insert Images
 
 ```python
