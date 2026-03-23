@@ -75,3 +75,16 @@ Inserts an image into the worksheet.
 
 ### `protect(password: str, **options)`
 Protects the worksheet. Options include `format_cells`, `insert_columns`, `sort`, etc.
+
+### `auto_fit_column(col: int)`
+Automatically adjusts the width of the specified column to fit its contents.
+```python
+ws.auto_fit_column(1) # Auto-fit column A
+```
+
+### `apply_auto_filter()`
+Applies the autofilter dropdowns to the range specified in `ws.auto_filter`.
+```python
+ws.auto_filter = "A1:C10"
+ws.apply_auto_filter()
+```
