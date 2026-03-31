@@ -54,6 +54,15 @@ void init_tables(py::module_& m) {
         .def("column", py::overload_cast<std::string_view>(&XLTable::column, py::const_))
         .def("column", py::overload_cast<uint32_t>(&XLTable::column, py::const_));
 
+    py::class_<XLSlicerOptions>(m, "XLSlicerOptions")
+        .def(py::init<>())
+        .def_rw("name", &XLSlicerOptions::name)
+        .def_rw("caption", &XLSlicerOptions::caption)
+        .def_rw("width", &XLSlicerOptions::width)
+        .def_rw("height", &XLSlicerOptions::height)
+        .def_rw("offset_x", &XLSlicerOptions::offsetX)
+        .def_rw("offset_y", &XLSlicerOptions::offsetY);
+
     py::class_<XLTables>(m, "XLTables")
         .def(py::init<>())
         .def("count", &XLTables::count)

@@ -63,6 +63,7 @@ from .styles import (
 )
 from .cell import Cell
 from .formula import Formula
+from .formula_engine import FormulaEngine
 from .range import Range
 from .worksheet import Worksheet
 from .column import Column
@@ -99,6 +100,7 @@ __all__ = [
     "PrintOptions",
     "PageSetup",
     "Formula",
+    "FormulaEngine",
     "Cell",
     "Range",
     "Column",

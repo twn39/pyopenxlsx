@@ -32,5 +32,6 @@ void init_chart(py::module_& m);
 void init_pivot_table(py::module_& m);
 void init_streams(py::module_& m);
 void init_conditional_formatting(py::module_& m);
+void init_formula_engine(py::module_& m);
 
 #endif  // PYOPENXLSX_BINDINGS_HPP

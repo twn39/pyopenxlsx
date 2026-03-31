@@ -1,0 +1,6 @@
+from typing import Optional, Any
+from pyopenxlsx.worksheet import Worksheet
+
+class FormulaEngine:
+    def __init__(self) -> None: ...
+    def evaluate(self, formula: str, worksheet: Optional[Worksheet] = None) -> Any: ...

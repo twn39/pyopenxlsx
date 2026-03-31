@@ -65,6 +65,7 @@ nanobind_add_module(_openxlsx
     src/pivot_table.cpp
     src/streams.cpp
     src/conditional_formatting.cpp
+    src/formula_engine.cpp
 )
 
 # Link dependencies

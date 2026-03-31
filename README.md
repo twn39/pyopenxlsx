@@ -12,9 +12,9 @@
 </div>
 
 > [!IMPORTANT]
-> `pyopenxlsx` currently uses a specialized **fork** of the [OpenXLSX](https://github.com/twn39/OpenXLSX) library (v1.0.0+), which includes critical performance optimizations and functional enhancements (such as custom properties and improved hyperlink handling) not currently available in the upstream repository.
+> `pyopenxlsx` currently uses a specialized **fork** of the [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) library (v1.0.0+), which includes critical performance optimizations and functional enhancements (such as custom properties and improved hyperlink handling) not currently available in the upstream repository.
 
-`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/troldal/OpenXLSX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
+`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
 
 ## Core Features
 
@@ -30,7 +30,7 @@
 
 | Component | Technology |
 | :--- | :--- |
-| **C++ Core** | [OpenXLSX](https://github.com/troldal/OpenXLSX) |
+| **C++ Core** | [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) |
 | **Bindings** | [nanobind](https://github.com/wjakob/nanobind) |
 | **Build System** | [scikit-build-core](https://github.com/scikit-build/scikit-build-core) & [CMake](https://cmake.org/) |
 
@@ -356,19 +356,21 @@ The full API documentation has been split into individual modules for easier rea
 
 | Scenario | pyopenxlsx | openpyxl | Speedup |
 | :--- | :--- | :--- | :--- |
-| **Read** (20,000 cells) | **~7.2ms** | ~145ms | **20.2x** |
-| **Write** (1,000 cells) | **~4.8ms** | ~8.1ms | **1.7x** |
-| **Write** (50,000 cells) | **~169ms** | ~305ms | **1.8x** |
-| **Bulk Write** (50,000 cells) | **~74ms** | N/A | **4.1x** |
-| **Iteration** (20,000 cells) | **~80ms** | ~150ms | **1.9x** |
-| **Bulk Write** (1,000,000 cells) | **~1.5s** | ~6.2s | **4.1x** |
+| **Load File** (20,000 cells) | **~0.95ms** | ~154.3ms | **162x** |
+| **Single Read** (1 cell in large doc) | **~2.6ms** | ~139.8ms | **53.7x** |
+| **Bulk Read** (20,000 cells via values_only) | **~7.8ms** | ~131.6ms | **16.8x** |
+| **Write Small** (1,000 cells) | **~4.7ms** | ~8.3ms | **1.7x** |
+| **Write Large** (50,000 cells) | **~124.4ms** | ~338.3ms | **2.7x** |
+| **Bulk Write Large** (50,000 cells, numpy/range) | **~39.8ms** | N/A | **8.5x** |
+| **Extreme Write** (1,000,000 cells) | **~1,539ms** | ~6,635ms | **4.3x** |
+| **Bulk Write Extreme** (1,000,000 cells, numpy) | **~649ms** | N/A | **10.2x** |
 
 ### Resource Usage (1,000,000 cells)
 
 | Library | Execution Time | Memory Delta | CPU Load |
 | :--- | :--- | :--- | :--- |
-| **pyopenxlsx** | **~1.5s** | ~400 MB | ~99% |
-| **openpyxl** | ~6.2s | ~600 MB* | ~99% |
+| **pyopenxlsx** (bulk write) | **~0.65s** | ~200 MB | ~99% |
+| **openpyxl** | ~6.6s | ~600 MB* | ~99% |
 
 > [!NOTE]
 > *Memory delta for `openpyxl` can be misleading due to Python's garbage collection timing during the benchmark. However, `pyopenxlsx` consistently shows lower memory pressure for bulk operations as data is handled primarily in C++.

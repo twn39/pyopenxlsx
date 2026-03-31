@@ -50,126 +50,127 @@ def temp_xlsx_file(tmp_path):
 # --- Write Benchmarks ---
 
 
-def write_pyopenxlsx(rows, cols, filepath):
+def write_pyopenxlsx(data, filepath):
     wb = PyWorkbook()
     ws = wb.active
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            ws.cell(row=r, column=c).value = f"R{r}C{c}"
+    for r, row in enumerate(data, 1):
+        for c, val in enumerate(row, 1):
+            ws.cell(row=r, column=c).value = val
     wb.save(filepath)
     wb.close()
 
 
-def write_openpyxl(rows, cols, filepath):
+def write_openpyxl(data, filepath):
     wb = openpyxl.Workbook()
     ws = wb.active
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            ws.cell(row=r, column=c, value=f"R{r}C{c}")
+    for r, row in enumerate(data, 1):
+        for c, val in enumerate(row, 1):
+            ws.cell(row=r, column=c, value=val)
     wb.save(filepath)
 
 
-@pytest.mark.benchmark(group="write_small")
-def test_write_small_pyopenxlsx(benchmark, temp_xlsx_file):
-    benchmark(write_pyopenxlsx, 100, 10, temp_xlsx_file)
-
-
-@pytest.mark.benchmark(group="write_small")
-def test_write_small_openpyxl(benchmark, temp_xlsx_file):
-    benchmark(write_openpyxl, 100, 10, temp_xlsx_file)
-
-
-@pytest.mark.benchmark(group="write_large")
-def test_write_large_pyopenxlsx(benchmark, temp_xlsx_file):
-    benchmark(write_pyopenxlsx, 1000, 50, temp_xlsx_file)
-
-
-@pytest.mark.benchmark(group="write_large")
-def test_write_large_openpyxl(benchmark, temp_xlsx_file):
-    benchmark(write_openpyxl, 1000, 50, temp_xlsx_file)
-
-
-# --- Optimized Write Methods ---
-
-
-def write_pyopenxlsx_set_cell_value(rows, cols, filepath):
-    """Use set_cell_value() - bypasses Python Cell object creation"""
+def write_pyopenxlsx_set_cell_value(data, filepath):
     wb = PyWorkbook()
     ws = wb.active
-    for r in range(1, rows + 1):
-        for c in range(1, cols + 1):
-            ws.set_cell_value(r, c, f"R{r}C{c}")
+    for r, row in enumerate(data, 1):
+        for c, val in enumerate(row, 1):
+            ws.set_cell_value(r, c, val)
     wb.save(filepath)
     wb.close()
 
 
-def write_pyopenxlsx_write_rows(rows, cols, filepath):
-    """Use write_rows() - batch write Python lists"""
+def write_pyopenxlsx_write_rows(data, filepath):
     wb = PyWorkbook()
     ws = wb.active
-    data = [[f"R{r}C{c}" for c in range(1, cols + 1)] for r in range(1, rows + 1)]
     ws.write_rows(1, data)
     wb.save(filepath)
     wb.close()
 
 
-@pytest.mark.benchmark(group="write_large")
-def test_write_large_set_cell_value(benchmark, temp_xlsx_file):
-    """Test optimized set_cell_value() method"""
-    benchmark(write_pyopenxlsx_set_cell_value, 1000, 50, temp_xlsx_file)
-
-
-@pytest.mark.benchmark(group="write_large")
-def test_write_large_write_rows(benchmark, temp_xlsx_file):
-    """Test optimized write_rows() method with string data"""
-    benchmark(write_pyopenxlsx_write_rows, 1000, 50, temp_xlsx_file)
-
-
-def write_pyopenxlsx_bulk(rows, cols, filepath):
+def write_pyopenxlsx_bulk(np_data, filepath):
     wb = PyWorkbook()
     ws = wb.active
-    # Create a numpy array of strings (or numbers, depending on support)
-    # The original test used strings "R{r}C{c}".
-    # Let's see if write_range supports string arrays or just numeric.
-    # The docstring says "2D numpy array of doubles" for get_range_values (read),
-    # but for write_range it says "2D numpy array or any object supporting the buffer protocol".
-    # String arrays in numpy can be tricky for C++ buffer protocols unless handled specifically.
-    # Let's try numeric first as it's the standard use case for "high performance",
-    # or creates a numeric array.
-    data = np.arange(rows * cols, dtype=np.float64).reshape(rows, cols)
-    ws.write_range(1, 1, data)
+    ws.write_range(1, 1, np_data)
     wb.save(filepath)
     wb.close()
 
 
+@pytest.fixture(scope="session")
+def small_data():
+    return [[f"R{r}C{c}" for c in range(1, 11)] for r in range(1, 101)]
+
+
+@pytest.fixture(scope="session")
+def large_data():
+    return [[f"R{r}C{c}" for c in range(1, 51)] for r in range(1, 1001)]
+
+
+@pytest.fixture(scope="session")
+def large_np_data():
+    return np.arange(1000 * 50, dtype=np.float64).reshape(1000, 50)
+
+
+@pytest.fixture(scope="session")
+def extreme_data():
+    return [[f"R{r}C{c}" for c in range(1, 101)] for r in range(1, 10001)]
+
+
+@pytest.fixture(scope="session")
+def extreme_np_data():
+    return np.arange(10000 * 100, dtype=np.float64).reshape(10000, 100)
+
+
+@pytest.mark.benchmark(group="write_small")
+def test_write_small_pyopenxlsx(benchmark, temp_xlsx_file, small_data):
+    benchmark(write_pyopenxlsx, small_data, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_small")
+def test_write_small_openpyxl(benchmark, temp_xlsx_file, small_data):
+    benchmark(write_openpyxl, small_data, temp_xlsx_file)
+
+
 @pytest.mark.benchmark(group="write_large")
-def test_write_large_bulk_pyopenxlsx(benchmark, temp_xlsx_file):
-    benchmark(write_pyopenxlsx_bulk, 1000, 50, temp_xlsx_file)
+def test_write_large_pyopenxlsx(benchmark, temp_xlsx_file, large_data):
+    benchmark(write_pyopenxlsx, large_data, temp_xlsx_file)
 
 
-# --- Extreme Volume Benchmarks (1,000,000 cells) ---
+@pytest.mark.benchmark(group="write_large")
+def test_write_large_openpyxl(benchmark, temp_xlsx_file, large_data):
+    benchmark(write_openpyxl, large_data, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_large")
+def test_write_large_set_cell_value(benchmark, temp_xlsx_file, large_data):
+    benchmark(write_pyopenxlsx_set_cell_value, large_data, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_large")
+def test_write_large_write_rows(benchmark, temp_xlsx_file, large_data):
+    benchmark(write_pyopenxlsx_write_rows, large_data, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_large")
+def test_write_large_bulk_pyopenxlsx(benchmark, temp_xlsx_file, large_np_data):
+    benchmark(write_pyopenxlsx_bulk, large_np_data, temp_xlsx_file)
 
 
 @pytest.mark.benchmark(group="write_extreme")
-def test_write_extreme_bulk_pyopenxlsx(benchmark, temp_xlsx_file):
-    """Extreme volume test: 1,000,000 cells using numpy bulk write"""
+def test_write_extreme_bulk_pyopenxlsx(benchmark, temp_xlsx_file, extreme_np_data):
     with ResourceMonitor("pyopenxlsx_bulk_1M"):
-        # 10,000 rows x 100 columns = 1,000,000 cells
-        benchmark(write_pyopenxlsx_bulk, 10000, 100, temp_xlsx_file)
+        benchmark(write_pyopenxlsx_bulk, extreme_np_data, temp_xlsx_file)
 
 
 @pytest.mark.benchmark(group="write_extreme")
-def test_write_extreme_write_rows_pyopenxlsx(benchmark, temp_xlsx_file):
-    """Extreme volume test: 1,000,000 cells using write_rows"""
+def test_write_extreme_write_rows_pyopenxlsx(benchmark, temp_xlsx_file, extreme_data):
     with ResourceMonitor("pyopenxlsx_rows_1M"):
-        benchmark(write_pyopenxlsx_write_rows, 10000, 100, temp_xlsx_file)
+        benchmark(write_pyopenxlsx_write_rows, extreme_data, temp_xlsx_file)
 
 
 @pytest.mark.benchmark(group="write_extreme")
-def test_write_extreme_openpyxl(benchmark, temp_xlsx_file):
-    """Extreme volume test: 1,000,000 cells using openpyxl"""
+def test_write_extreme_openpyxl(benchmark, temp_xlsx_file, extreme_data):
     with ResourceMonitor("openpyxl_1M"):
-        benchmark(write_openpyxl, 10000, 100, temp_xlsx_file)
+        benchmark(write_openpyxl, extreme_data, temp_xlsx_file)
 
 
 # --- Read Benchmarks ---
@@ -247,6 +248,67 @@ def test_iterate_pyopenxlsx(benchmark, large_file):
 @pytest.mark.benchmark(group="iterate")
 def test_iterate_openpyxl(benchmark, large_file):
     benchmark(iterate_openpyxl, large_file)
+
+
+# --- Load Workbook Benchmarks ---
+
+
+@pytest.mark.benchmark(group="load")
+def test_load_pyopenxlsx(benchmark, large_file):
+    def load():
+        wb = PyWorkbook(large_file)
+        wb.close()
+
+    benchmark(load)
+
+
+@pytest.mark.benchmark(group="load")
+def test_load_openpyxl(benchmark, large_file):
+    def load():
+        wb = openpyxl.load_workbook(large_file)
+        wb.close()
+
+    benchmark(load)
+
+
+@pytest.mark.benchmark(group="load")
+def test_load_openpyxl_readonly(benchmark, large_file):
+    def load():
+        wb = openpyxl.load_workbook(large_file, read_only=True)
+        wb.close()
+
+    benchmark(load)
+
+
+# --- Optimized Read Benchmarks ---
+
+
+def iterate_pyopenxlsx_bulk(filepath):
+    wb = PyWorkbook(filepath)
+    ws = wb.active
+    data = ws.get_rows_data()
+    count = sum(len(row) for row in data)
+    return count
+
+
+def iterate_openpyxl_values_only(filepath):
+    wb = openpyxl.load_workbook(filepath, read_only=True)
+    ws = wb.active
+    count = 0
+    for row in ws.iter_rows(values_only=True):
+        count += len(row)
+    wb.close()
+    return count
+
+
+@pytest.mark.benchmark(group="iterate")
+def test_iterate_bulk_pyopenxlsx(benchmark, large_file):
+    benchmark(iterate_pyopenxlsx_bulk, large_file)
+
+
+@pytest.mark.benchmark(group="iterate")
+def test_iterate_values_only_openpyxl(benchmark, large_file):
+    benchmark(iterate_openpyxl_values_only, large_file)
 
 
 # --- Async/Concurrent Benchmarks ---
@@ -341,28 +403,28 @@ def test_write_concurrent_async(benchmark, output_dir):
     run_async_benchmark(benchmark, write_files_async, output_dir)
 
 
-def write_files_loop_sync(output_dir):
+def write_files_loop_sync(output_dir, small_data):
     # Sequential loop write
     for i in range(5):  # Reduce count as loop write is slow
         fp = str(output_dir / f"loop_sync_{i}.xlsx")
-        write_pyopenxlsx(100, 50, fp)
+        write_pyopenxlsx(small_data, fp)
 
 
-async def write_files_loop_async(output_dir):
+async def write_files_loop_async(output_dir, small_data):
     # Concurrent loop write using threads
     async def write_one(i):
         fp = str(output_dir / f"loop_async_{i}.xlsx")
         # Run the synchronous loop write in a thread
-        await asyncio.to_thread(write_pyopenxlsx, 100, 50, fp)
+        await asyncio.to_thread(write_pyopenxlsx, small_data, fp)
 
     await asyncio.gather(*(write_one(i) for i in range(5)))
 
 
 @pytest.mark.benchmark(group="async_loop_write")
-def test_write_loop_concurrent_sync(benchmark, output_dir):
-    benchmark(write_files_loop_sync, output_dir)
+def test_write_loop_concurrent_sync(benchmark, output_dir, small_data):
+    benchmark(write_files_loop_sync, output_dir, small_data)
 
 
 @pytest.mark.benchmark(group="async_loop_write")
-def test_write_loop_concurrent_async(benchmark, output_dir):
-    run_async_benchmark(benchmark, write_files_loop_async, output_dir)
+def test_write_loop_concurrent_async(benchmark, output_dir, small_data):
+    run_async_benchmark(benchmark, write_files_loop_async, output_dir, small_data)

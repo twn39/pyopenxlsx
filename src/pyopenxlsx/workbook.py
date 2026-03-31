@@ -194,6 +194,11 @@ class Workbook:
         self._styles = None
         self._date_format_cache = {}
 
+    @property
+    def has_macro(self):
+        """Check if the loaded document contains a VBA macro project."""
+        return self._doc.has_macro()
+
     def save(self, filename=None, force_overwrite=True):
         if filename:
             self._doc.save_as(str(filename), force_overwrite)

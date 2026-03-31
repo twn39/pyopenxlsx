@@ -51,13 +51,14 @@ class CustomProperties:
 class Workbook:
     _doc: XLDocument
     _sheets: Dict[str, Worksheet]
-    
+
     @property
     def defined_names(self) -> XLDefinedNames: ...
-    
     def __init__(
         self, filename: Optional[str] = None, force_overwrite: bool = True
     ) -> None: ...
+    @property
+    def has_macro(self) -> bool: ...
     def save(
         self, filename: Optional[str] = None, force_overwrite: bool = True
     ) -> None: ...

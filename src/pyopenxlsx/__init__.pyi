@@ -36,6 +36,7 @@ from .styles import (
 )
 from .cell import Cell as Cell
 from .formula import Formula as Formula
+from .formula_engine import FormulaEngine as FormulaEngine
 from .range import Range as Range
 from .worksheet import Worksheet as Worksheet
 from .column import Column as Column
@@ -64,6 +65,7 @@ __all__ = [
     "Worksheet",
     "MergeCells",
     "Formula",
+    "FormulaEngine",
     "Cell",
     "Range",
     "Column",

@@ -195,6 +195,7 @@ void init_document(py::module_& m) {
                  self.close();
              })
         .def("is_open", &XLDocument::isOpen)
+        .def("has_macro", &XLDocument::hasMacro)
         .def("name", &XLDocument::name)
         .def("path", &XLDocument::path)
         .def("save",

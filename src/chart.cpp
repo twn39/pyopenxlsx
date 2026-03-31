@@ -1,4 +1,5 @@
 #include "bindings.hpp"
+#include <nanobind/stl/optional.h>
 
 void init_chart(py::module_& m) {
     py::enum_<XLChartType>(m, "XLChartType")
@@ -74,17 +75,17 @@ void init_chart(py::module_& m) {
 
     py::class_<XLChart>(m, "XLChart")
         .def("add_series",
-             py::overload_cast<const XLWorksheet&, const XLCellRange&, std::string_view>(
+             py::overload_cast<const XLWorksheet&, const XLCellRange&, std::string_view, std::optional<XLChartType>, bool>(
                  &XLChart::addSeries),
-             py::arg("wks"), py::arg("values"), py::arg("title") = "")
+             py::arg("wks"), py::arg("values"), py::arg("title") = "", py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
         .def("add_series",
              py::overload_cast<const XLWorksheet&, const XLCellRange&, const XLCellRange&,
-                               std::string_view>(&XLChart::addSeries),
-             py::arg("wks"), py::arg("values"), py::arg("categories"), py::arg("title") = "")
+                               std::string_view, std::optional<XLChartType>, bool>(&XLChart::addSeries),
+             py::arg("wks"), py::arg("values"), py::arg("categories"), py::arg("title") = "", py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
         .def("add_series_ref",
-             py::overload_cast<std::string_view, std::string_view, std::string_view>(
+             py::overload_cast<std::string_view, std::string_view, std::string_view, std::optional<XLChartType>, bool>(
                  &XLChart::addSeries),
-             py::arg("values_ref"), py::arg("title") = "", py::arg("categories_ref") = "")
+             py::arg("values_ref"), py::arg("title") = "", py::arg("categories_ref") = "", py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
         .def("set_title", &XLChart::setTitle)
         .def("set_style", &XLChart::setStyle)
         .def("set_legend_position", &XLChart::setLegendPosition)

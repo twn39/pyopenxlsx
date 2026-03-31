@@ -540,6 +540,11 @@ void init_worksheet(py::module_& m) {
                 self.mergeCells(rangeReference, emptyHiddenCells);
             },
             py::arg("rangeReference"), py::arg("emptyHiddenCells") = false)
+        .def("insert_row", &XLWorksheet::insertRow, py::arg("row_number"), py::arg("count") = 1)
+        .def("delete_row", py::overload_cast<uint32_t>(&XLWorksheet::deleteRow), py::arg("row_number"))
+        .def("delete_row", py::overload_cast<uint32_t, uint32_t>(&XLWorksheet::deleteRow), py::arg("row_number"), py::arg("count"))
+        .def("insert_column", &XLWorksheet::insertColumn, py::arg("col_number"), py::arg("count") = 1)
+        .def("delete_column", &XLWorksheet::deleteColumn, py::arg("col_number"), py::arg("count") = 1)
         .def(
             "unmerge_cells",
             [](XLWorksheet& self, const std::string& rangeReference) {
@@ -784,6 +789,8 @@ void init_worksheet(py::module_& m) {
              py::overload_cast<XLChartType, const XLChartAnchor&>(&XLWorksheet::addChart),
              py::arg("type"), py::arg("anchor"))
         .def("add_pivot_table", &XLWorksheet::addPivotTable, py::arg("options"))
+        .def("add_table_slicer", &XLWorksheet::addTableSlicer, py::arg("cell_reference"), py::arg("table"), py::arg("column_name"), py::arg("options") = XLSlicerOptions())
+        .def("add_pivot_slicer", &XLWorksheet::addPivotSlicer, py::arg("cell_reference"), py::arg("pivot_table"), py::arg("column_name"), py::arg("options") = XLSlicerOptions())
         .def("add_comment", &XLWorksheet::addComment, py::arg("cell_ref"), py::arg("text"),
              py::arg("author") = "");
 }

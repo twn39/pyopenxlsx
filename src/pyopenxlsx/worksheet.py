@@ -154,6 +154,24 @@ class Worksheet:
     def set_row_format(self, row, style_index):
         self._sheet.set_row_format(row, style_index)
 
+    def insert_row(self, row_number, count=1):
+        """Insert one or more rows at the given row number (1-based)."""
+        return self._sheet.insert_row(row_number, count)
+
+    def delete_row(self, row_number, count=1):
+        """Delete one or more rows starting at the given row number (1-based)."""
+        if count == 1:
+            return self._sheet.delete_row(row_number)
+        return self._sheet.delete_row(row_number, count)
+
+    def insert_column(self, col_number, count=1):
+        """Insert one or more columns at the given column number (1-based)."""
+        return self._sheet.insert_column(col_number, count)
+
+    def delete_column(self, col_number, count=1):
+        """Delete one or more columns starting at the given column number (1-based)."""
+        return self._sheet.delete_column(col_number, count)
+
     @property
     def merges(self):
         return MergeCells(self._sheet.merges())
