@@ -18,3 +18,5 @@ compile_commands.json
 .benchmarks
 htmlcov
 demoGEMINI.md
+
+/docs/_build

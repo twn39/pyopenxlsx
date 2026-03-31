@@ -674,7 +674,8 @@ class Worksheet:
         :param column: Column number (1-indexed)
         :param value: Value to set (str, int, float, bool, or None)
 
-        Example:
+        Example::
+
             # Fast bulk write
             for r in range(1, 1001):
                 for c in range(1, 51):
@@ -697,7 +698,8 @@ class Worksheet:
         :param data: 2D list/tuple of values [[row1_val1, row1_val2, ...], [row2_val1, ...], ...]
         :param start_col: Starting column number (1-indexed), defaults to 1
 
-        Example:
+        Example::
+
             data = [
                 ["Name", "Age", "City"],
                 ["Alice", 30, "New York"],
@@ -744,7 +746,8 @@ class Worksheet:
 
         :param cells: Iterable of (row, col, value) tuples
 
-        Example:
+        Example::
+
             ws.set_cells([
                 (1, 1, "Header A"),
                 (1, 5, "Header B"),

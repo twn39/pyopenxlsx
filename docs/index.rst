@@ -22,3 +22,9 @@ pyopenxlsx documentation
    13_page_setup.md
    14_images.md
    15_formula_engine.md
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
+   api_reference.rst
