@@ -6,6 +6,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/pyopenxlsx.svg)](https://pypi.org/project/pyopenxlsx/)
 [![Downloads](https://img.shields.io/pypi/dm/pyopenxlsx)](https://pypi.org/project/pyopenxlsx/)
 [![Build Status](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml/badge.svg)](https://github.com/twn39/pyopenxlsx/actions/workflows/build.yml)
+[![Docs Status](https://github.com/twn39/pyopenxlsx/actions/workflows/docs.yml/badge.svg)](https://twn39.github.io/pyopenxlsx/)
 [![Codecov](https://img.shields.io/codecov/c/github/twn39/pyopenxlsx)](https://codecov.io/gh/twn39/pyopenxlsx)
 [![License](https://img.shields.io/pypi/l/pyopenxlsx.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
