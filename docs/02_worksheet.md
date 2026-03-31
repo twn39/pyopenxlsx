@@ -64,6 +64,21 @@ Sets the default style for an entire column.
 ### `set_row_format(row: int, style_idx: int)`
 Sets the default style for an entire row.
 
+### `insert_row(row_number: int, count: int = 1)`
+Inserts one or more rows at the given row number (1-based index).
+```python
+ws.insert_row(5, count=2)  # Inserts 2 empty rows at row 5
+```
+
+### `delete_row(row_number: int, count: int = 1)`
+Deletes one or more rows starting at the given row number.
+
+### `insert_column(col_number: int, count: int = 1)`
+Inserts one or more columns at the given column number (1-based index).
+
+### `delete_column(col_number: int, count: int = 1)`
+Deletes one or more columns starting at the given column number.
+
 ### `freeze_panes(ref_or_row, col=None)`
 Freezes the view. `ws.freeze_panes("B2")` freezes row 1 and column A.
 

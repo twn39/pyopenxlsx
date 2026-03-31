@@ -73,6 +73,22 @@ sales_col.set_totals_row_function(XLTotalsRowFunction.Sum)
 ws.cell(8, 6).formula = "=SUBTOTAL(109,SalesTable[Total Sales])"
 ```
 
+## Table Slicers
+
+Slicers provide a visual way to filter tables in Excel. You can add them programmatically.
+
+```python
+from pyopenxlsx._openxlsx import XLSlicerOptions
+
+# Assume `table` is already created from the steps above
+slicer_opts = XLSlicerOptions()
+slicer_opts.name = "ScoreSlicer"
+slicer_opts.caption = "Filter by Score"
+
+# Add a slicer for the "Score" column, positioning its top-left corner at E1
+ws._sheet.add_table_slicer("E1", table._table, "Score", slicer_opts)
+```
+
 ## Advanced Table Properties
 
 - **`range`**: Alias for `range_reference`.

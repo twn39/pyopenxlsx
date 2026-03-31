@@ -36,6 +36,10 @@ Asynchronous version of `load_workbook`.
 - **Type:** `list[str]`
 - **Description:** Returns a list of all worksheet names in the workbook.
 
+### `has_macro`
+- **Type:** `bool`
+- **Description:** Returns `True` if the loaded document contains a VBA macro project (e.g., `vbaProject.bin`). Note: Saving changes to a `.xlsm` file preserves macros losslessly.
+
 ### `properties`
 - **Type:** `DocumentProperties`
 - **Description:** Access standard document properties like `title`, `creator`, `subject`, etc.

@@ -21,3 +21,4 @@ pyopenxlsx documentation
    12_charts.md
    13_page_setup.md
    14_images.md
+   15_formula_engine.md

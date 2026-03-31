@@ -1,6 +1,6 @@
 # Pivot Tables API
 
-`pyopenxlsx` provides bindings to generate Data Pivot Tables directly from source data. 
+`pyopenxlsx` provides bindings to generate Data Pivot Tables directly from source data. It also supports adding **Slicers** to dynamically filter pivot tables or standard tables.
 
 > **Important Setup Rule:** When generating a pivot table from scratch using this API, it is highly recommended to place the pivot table on a **different worksheet** from the source data, and you must ensure the `target_cell` does NOT contain the worksheet name.
 
@@ -8,7 +8,7 @@
 
 ```python
 from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotField, XLPivotSubtotal
+from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotField, XLPivotSubtotal, XLSlicerOptions
 
 with Workbook() as wb:
     # 1. Write source data to a sheet
@@ -56,6 +56,15 @@ with Workbook() as wb:
     
     # 5. Add the pivot table to the new sheet
     ws_pivot._sheet.add_pivot_table(options)
+
+    # 6. Add a Pivot Slicer for the "Region" column
+    slicer_opts = XLSlicerOptions()
+    slicer_opts.name = "RegionSlicer"
+    slicer_opts.caption = "Filter by Region"
+    
+    # Access the newly created pivot table object by name
+    pivot_table = ws_pivot._sheet.get_pivot_table("SalesPivot")
+    ws_pivot._sheet.add_pivot_slicer("E3", pivot_table, "Region", slicer_opts)
     
     wb.save("pivot_demo.xlsx")
 ```
@@ -64,3 +73,9 @@ with Workbook() as wb:
 - `name`: Must exactly match the column header in the source data.
 - `subtotal`: The aggregation type (e.g., `XLPivotSubtotal.Sum`, `XLPivotSubtotal.Count`, `XLPivotSubtotal.Average`).
 - `custom_name`: Overrides the default "Sum of X" text in the UI (only applies to data fields).
+
+## `XLSlicerOptions` Configuration
+- `name`: Internal unique name for the slicer cache.
+- `caption`: The visible title displayed on the slicer UI.
+- `width` / `height`: Dimensions of the slicer bounding box.
+- `offset_x` / `offset_y`: Fine-tune the position relative to the target cell.
