@@ -20,8 +20,9 @@ pyopenxlsx documentation
    11_streams.md
    12_charts.md
    13_page_setup.md
-   14_images.md
+   14_images_and_shapes.md
    15_formula_engine.md
+   16_comments.md
 
 .. toctree::
    :maxdepth: 2
