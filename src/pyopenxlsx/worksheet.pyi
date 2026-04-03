@@ -105,11 +105,7 @@ class Worksheet:
         height: Optional[int] = None,
     ) -> None: ...
     def add_shape(
-        self,
-        row: int = 1,
-        col: int = 1,
-        shape_type: str = "Rectangle",
-        **kwargs: Any
+        self, row: int = 1, col: int = 1, shape_type: str = "Rectangle", **kwargs: Any
     ) -> None: ...
     async def add_image_async(
         self,

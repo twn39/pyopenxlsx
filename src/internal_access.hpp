@@ -108,7 +108,17 @@ struct CellData {
             val.type = Type::RichText;
             val.richTextVal = py::cast<XLRichText>(obj);
         } else {
-            throw py::type_error("Unsupported type for cell value");
+            // Attempt to check if it's a datetime or date via attributes/duck typing
+            // This avoids a hard dependency on datetime.h in nanobind unless we pull it in
+            if (py::hasattr(obj, "toordinal")) {
+                // It's likely a datetime.date or datetime.datetime
+                py::module_ cell_module = py::module_::import_("pyopenxlsx.cell");
+                py::object serial = cell_module.attr("datetime_to_serial")(obj);
+                val.type = Type::Float;
+                val.floatVal = py::cast<double>(serial);
+            } else {
+                throw py::type_error("Unsupported type for cell value");
+            }
         }
         return val;
     }

@@ -671,6 +671,134 @@ class Worksheet:
         """Async version of get_cell_value()."""
         return await asyncio.to_thread(self.get_cell_value, row, column)
 
+    def write_dataframe(self, df, start_row=1, start_col=1, header=True, index=False):
+        """
+        Export a pandas DataFrame to the worksheet.
+
+        Args:
+            df: The pandas DataFrame.
+            start_row (int): The starting 1-based row index.
+            start_col (int): The starting 1-based column index.
+            header (bool): Whether to write the DataFrame columns as a header row.
+            index (bool): Whether to write the DataFrame index as the first column(s).
+        """
+        import pandas as pd
+        import numpy as np
+        import datetime
+
+        if index:
+            df = df.reset_index()
+
+        if header:
+            # Write column names
+            headers = df.columns.tolist()
+            self.write_row(start_row, headers)
+            start_row += 1
+
+        # Try to clean up NaNs to None to avoid TypeError in C++ extension
+        df = df.replace({np.nan: None})
+
+        # If dates are pandas Timestamps, convert them to standard datetime
+        for col in df.select_dtypes(include=["datetime64", "datetimetz"]).columns:
+            df[col] = df[col].dt.to_pydatetime()
+
+        # Clean numpy/pandas specific types to standard Python types
+        data_list = []
+        for row in df.itertuples(index=False, name=None):
+            cleaned_row = []
+            for item in row:
+                if pd.isna(item) or item is None:
+                    cleaned_row.append(None)
+                elif isinstance(item, (bool, np.bool_)):
+                    cleaned_row.append(bool(item))
+                elif isinstance(item, (int, np.integer)):
+                    cleaned_row.append(int(item))
+                elif isinstance(item, (float, np.floating)):
+                    cleaned_row.append(float(item))
+                elif isinstance(item, datetime.datetime):
+                    cleaned_row.append(item)
+                elif isinstance(item, datetime.date):
+                    cleaned_row.append(item)
+                elif isinstance(item, str):
+                    cleaned_row.append(item)
+                else:
+                    raise TypeError(
+                        f"Unsupported type for cell value: {type(item)} value: {item}"
+                    )
+            data_list.append(cleaned_row)
+
+        self.write_rows(start_row, data_list, start_col=start_col)
+
+    async def write_dataframe_async(
+        self, df, start_row=1, start_col=1, header=True, index=False
+    ):
+        import asyncio
+
+        await asyncio.to_thread(
+            self.write_dataframe, df, start_row, start_col, header, index
+        )
+
+    def read_dataframe(
+        self, start_row=1, start_col=1, end_row=None, end_col=None, header=True
+    ):
+        """
+        Import a range from the worksheet to a pandas DataFrame.
+
+        Args:
+            start_row (int): The starting 1-based row index.
+            start_col (int): The starting 1-based column index.
+            end_row (int): The ending 1-based row index. If None, uses max_row.
+            end_col (int): The ending 1-based column index. If None, uses max_column.
+            header (bool): Whether the first row of the range should be used as column names.
+
+        Returns:
+            A pandas DataFrame.
+        """
+        import pandas as pd
+
+        if end_row is None:
+            end_row = self.max_row
+        if end_col is None:
+            end_col = self.max_column
+
+        data = []
+        columns = None
+
+        # Fallback to DOM access since stream_reader reads from the underlying XML file,
+        # which might not reflect recent uncommitted changes.
+        # It's safer to read from DOM if we want a reliable in-memory representation.
+        for r in range(start_row, end_row + 1):
+            full_row = self._sheet.get_row_values(r)
+
+            # Slice row to the requested columns
+            # Convert 1-based index to 0-based for list slicing
+            sliced_row = (
+                full_row[start_col - 1 : end_col]
+                if end_col <= len(full_row)
+                else full_row[start_col - 1 :]
+            )
+            # Pad with None if the row is shorter than requested
+            if len(sliced_row) < (end_col - start_col + 1):
+                sliced_row.extend(
+                    [None] * ((end_col - start_col + 1) - len(sliced_row))
+                )
+
+            if header and columns is None:
+                columns = sliced_row
+            else:
+                data.append(sliced_row)
+
+        return pd.DataFrame(data, columns=columns)
+
+    async def read_dataframe_async(
+        self, start_row=1, start_col=1, end_row=None, end_col=None, header=True
+    ):
+        import asyncio
+
+        return await asyncio.to_thread(
+            self.read_dataframe, start_row, start_col, end_row, end_col, header
+        )
+
     def write_range(self, start_row: int, start_col: int, data):
         """
         Write a 2D numpy array or any object supporting the buffer protocol to a worksheet range.
@@ -867,5 +995,13 @@ class Worksheet:
             self._sheet.add_sparkline(location, data_range, sparkline_type)
 
     def add_comment(self, cell_ref: str, text: str, author: str = ""):
-        """Add a comment to a cell."""
+        """Add a simple (legacy) comment."""
         self._sheet.add_comment(cell_ref, text, author)
+
+    def add_threaded_comment(self, cell_ref: str, text: str, author: str = ""):
+        """Add a modern threaded comment."""
+        return self._sheet.add_threaded_comment(cell_ref, text, author)
+
+    def add_threaded_reply(self, parent_id: str, text: str, author: str = ""):
+        """Add a reply to a threaded comment."""
+        return self._sheet.add_threaded_reply(parent_id, text, author)

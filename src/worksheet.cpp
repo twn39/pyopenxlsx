@@ -884,5 +884,8 @@ void init_worksheet(py::module_& m) {
         .def("add_pivot_slicer", &XLWorksheet::addPivotSlicer, py::arg("cell_reference"),
              py::arg("pivot_table"), py::arg("column_name"), py::arg("options") = XLSlicerOptions())
         .def("add_comment", &XLWorksheet::addComment, py::arg("cell_ref"), py::arg("text"),
-             py::arg("author") = "");
+             py::arg("author") = "")
+        .def("add_threaded_comment", &XLWorksheet::addThreadedComment, py::arg("cell_ref"), py::arg("text"), py::arg("author") = "")
+        .def("add_threaded_reply", &XLWorksheet::addThreadedReply, py::arg("parent_id"), py::arg("text"), py::arg("author") = "")
+        .def("delete_threaded_comment", &XLWorksheet::deleteThreadedComment, py::arg("cell_ref"));
 }
