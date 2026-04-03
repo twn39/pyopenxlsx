@@ -455,6 +455,26 @@ void init_worksheet(py::module_& m) {
         .value("BottomLeft", XLPane::BottomLeft)
         .value("TopLeft", XLPane::TopLeft);
 
+    // Bind XLSheetProtectionOptions
+    py::class_<XLSheetProtectionOptions>(m, "XLSheetProtectionOptions")
+        .def(py::init<>())
+        .def_rw("sheet", &XLSheetProtectionOptions::sheet)
+        .def_rw("objects", &XLSheetProtectionOptions::objects)
+        .def_rw("scenarios", &XLSheetProtectionOptions::scenarios)
+        .def_rw("format_cells", &XLSheetProtectionOptions::formatCells)
+        .def_rw("format_columns", &XLSheetProtectionOptions::formatColumns)
+        .def_rw("format_rows", &XLSheetProtectionOptions::formatRows)
+        .def_rw("insert_columns", &XLSheetProtectionOptions::insertColumns)
+        .def_rw("insert_rows", &XLSheetProtectionOptions::insertRows)
+        .def_rw("insert_hyperlinks", &XLSheetProtectionOptions::insertHyperlinks)
+        .def_rw("delete_columns", &XLSheetProtectionOptions::deleteColumns)
+        .def_rw("delete_rows", &XLSheetProtectionOptions::deleteRows)
+        .def_rw("sort", &XLSheetProtectionOptions::sort)
+        .def_rw("auto_filter", &XLSheetProtectionOptions::autoFilter)
+        .def_rw("pivot_tables", &XLSheetProtectionOptions::pivotTables)
+        .def_rw("select_locked_cells", &XLSheetProtectionOptions::selectLockedCells)
+        .def_rw("select_unlocked_cells", &XLSheetProtectionOptions::selectUnlockedCells);
+
     // Bind XLWorksheet
     py::class_<XLWorksheet>(m, "XLWorksheet")
         .def("name", &XLWorksheet::name)
@@ -566,6 +586,13 @@ void init_worksheet(py::module_& m) {
         .def("set_row_format", &XLWorksheet::setRowFormat, py::arg("row"),
              py::arg("cellFormatIndex"))
         .def(
+            "protect",
+            [](XLWorksheet& self, const XLSheetProtectionOptions& options, const std::string& password) {
+                py::gil_scoped_release release;
+                return self.protect(options, password);
+            },
+            py::arg("options"), py::arg("password") = "")
+        .def(
             "protect_sheet",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
@@ -589,6 +616,7 @@ void init_worksheet(py::module_& m) {
         .def("sheet_protected", &XLWorksheet::sheetProtected)
         .def("objects_protected", &XLWorksheet::objectsProtected)
         .def("scenarios_protected", &XLWorksheet::scenariosProtected)
+        .def("threaded_comments", &XLWorksheet::threadedComments, py::rv_policy::reference_internal)
         .def(
             "set_password",
             [](XLWorksheet& self, const std::string& password) {

@@ -62,6 +62,7 @@ nanobind_add_module(_openxlsx
     src/defined_names.cpp
     src/autofilter.cpp
     src/chart.cpp
+    src/comments.cpp
     src/pivot_table.cpp
     src/streams.cpp
     src/conditional_formatting.cpp

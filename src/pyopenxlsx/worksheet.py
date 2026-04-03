@@ -187,8 +187,9 @@ class Worksheet:
     def protect(
         self,
         password=None,
-        objects=True,
-        scenarios=True,
+        sheet=True,
+        objects=False,
+        scenarios=False,
         insert_columns=False,
         insert_rows=False,
         insert_hyperlinks=False,
@@ -206,30 +207,32 @@ class Worksheet:
         """
         Protect the worksheet.
         """
-        if password:
-            self._sheet.set_password(password)
-        self._sheet.protect_sheet(True)
-        self._sheet.protect_objects(objects)
-        self._sheet.protect_scenarios(scenarios)
-        self._sheet.set_insert_columns_allowed(insert_columns)
-        self._sheet.set_insert_rows_allowed(insert_rows)
-        self._sheet.set_insert_hyperlinks_allowed(insert_hyperlinks)
-        self._sheet.set_delete_columns_allowed(delete_columns)
-        self._sheet.set_delete_rows_allowed(delete_rows)
-        self._sheet.set_select_locked_cells_allowed(select_locked_cells)
-        self._sheet.set_select_unlocked_cells_allowed(select_unlocked_cells)
-        self._sheet.set_auto_filter_allowed(auto_filter)
-        self._sheet.set_sort_allowed(sort)
-        self._sheet.set_pivot_tables_allowed(pivot_tables)
-        self._sheet.set_format_cells_allowed(format_cells)
-        self._sheet.set_format_columns_allowed(format_columns)
-        self._sheet.set_format_rows_allowed(format_rows)
+        options = _openxlsx.XLSheetProtectionOptions()
+        options.sheet = sheet
+        options.objects = objects
+        options.scenarios = scenarios
+        options.format_cells = format_cells
+        options.format_columns = format_columns
+        options.format_rows = format_rows
+        options.insert_columns = insert_columns
+        options.insert_rows = insert_rows
+        options.insert_hyperlinks = insert_hyperlinks
+        options.delete_columns = delete_columns
+        options.delete_rows = delete_rows
+        options.sort = sort
+        options.auto_filter = auto_filter
+        options.pivot_tables = pivot_tables
+        options.select_locked_cells = select_locked_cells
+        options.select_unlocked_cells = select_unlocked_cells
+        
+        return self._sheet.protect(options, password or "")
 
     async def protect_async(
         self,
         password=None,
-        objects=True,
-        scenarios=True,
+        sheet=True,
+        objects=False,
+        scenarios=False,
         insert_columns=False,
         insert_rows=False,
         insert_hyperlinks=False,
@@ -244,24 +247,25 @@ class Worksheet:
         format_columns=False,
         format_rows=False,
     ):
-        await asyncio.to_thread(
+        return await asyncio.to_thread(
             self.protect,
-            password,
-            objects,
-            scenarios,
-            insert_columns,
-            insert_rows,
-            insert_hyperlinks,
-            delete_columns,
-            delete_rows,
-            select_locked_cells,
-            select_unlocked_cells,
-            auto_filter,
-            sort,
-            pivot_tables,
-            format_cells,
-            format_columns,
-            format_rows,
+            password=password,
+            sheet=sheet,
+            objects=objects,
+            scenarios=scenarios,
+            insert_columns=insert_columns,
+            insert_rows=insert_rows,
+            insert_hyperlinks=insert_hyperlinks,
+            delete_columns=delete_columns,
+            delete_rows=delete_rows,
+            select_locked_cells=select_locked_cells,
+            select_unlocked_cells=select_unlocked_cells,
+            auto_filter=auto_filter,
+            sort=sort,
+            pivot_tables=pivot_tables,
+            format_cells=format_cells,
+            format_columns=format_columns,
+            format_rows=format_rows,
         )
 
     def unprotect(self):

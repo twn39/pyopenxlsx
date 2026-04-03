@@ -29,6 +29,7 @@ void init_rich_text(py::module_& m);
 void init_defined_names(py::module_& m);
 void init_autofilter(py::module_& m);
 void init_chart(py::module_& m);
+void init_comments(py::module_& m);
 void init_pivot_table(py::module_& m);
 void init_streams(py::module_& m);
 void init_conditional_formatting(py::module_& m);

@@ -17,6 +17,7 @@ NB_MODULE(_openxlsx, m) {
     init_defined_names(m);
     init_autofilter(m);
     init_chart(m);
+    init_comments(m);
     init_pivot_table(m);
     init_streams(m);
     init_conditional_formatting(m);

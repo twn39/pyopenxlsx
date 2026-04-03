@@ -261,8 +261,9 @@ void init_document(py::module_& m) {
              },
              py::arg("name"), "Delete a custom document property by name")
         .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
+        .def("persons", &XLDocument::persons, py::rv_policy::reference_internal)
         .def(
-            "add_image",
+            "__enter__",
             [](XLDocument& self, const std::string& name, py::bytes data) {
                 std::string imgData(static_cast<const char*>(data.data()), data.size());
                 py::gil_scoped_release release;
