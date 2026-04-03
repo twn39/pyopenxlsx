@@ -633,9 +633,65 @@ class XLDrawingItem:
     def height(self) -> int: ...
     def relationship_id(self) -> str: ...
 
+
+class XLVectorShapeType(Enum):
+    Rectangle: int
+    Ellipse: int
+    Line: int
+    Triangle: int
+    RightTriangle: int
+    Arrow: int
+    Diamond: int
+    Parallelogram: int
+    Hexagon: int
+    Star4: int
+    Star5: int
+    Star16: int
+    Star24: int
+    Heart: int
+    SmileyFace: int
+    Cloud: int
+    Donut: int
+    Ribbon: int
+    Sun: int
+    Moon: int
+    LightningBolt: int
+    FlowChartProcess: int
+    FlowChartDecision: int
+    FlowChartDocument: int
+    FlowChartData: int
+
+class XLVectorShapeOptions:
+    def __init__(self) -> None: ...
+    type: XLVectorShapeType
+    name: str
+    text: str
+    fill_color: str
+    line_color: str
+    line_width: float
+    width: int
+    height: int
+    offset_x: int
+    offset_y: int
+    end_row: Optional[int]
+    end_col: Optional[int]
+    end_offset_x: int
+    end_offset_y: int
+    rotation: int
+    flip_h: bool
+    flip_v: bool
+    line_dash: str
+    arrow_start: str
+    arrow_end: str
+    rich_text: Optional[XLRichText]
+    horz_align: str
+    vert_align: str
+    macro: str
+
 class XLDrawing:
     def image_count(self) -> int: ...
     def image(self, index: int) -> XLDrawingItem: ...
+    def add_shape(self, row: int, col: int, options: XLVectorShapeOptions = ...) -> None: ...
     def add_image(
         self,
         r_id: str,

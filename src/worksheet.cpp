@@ -411,6 +411,62 @@ void set_cells_batch(XLWorksheet& ws, py::list cells) {
 }
 
 void init_worksheet(py::module_& m) {
+
+    // Bind XLVectorShapeType
+    py::enum_<XLVectorShapeType>(m, "XLVectorShapeType")
+        .value("Rectangle", XLVectorShapeType::Rectangle)
+        .value("Ellipse", XLVectorShapeType::Ellipse)
+        .value("Line", XLVectorShapeType::Line)
+        .value("Triangle", XLVectorShapeType::Triangle)
+        .value("RightTriangle", XLVectorShapeType::RightTriangle)
+        .value("Arrow", XLVectorShapeType::Arrow)
+        .value("Diamond", XLVectorShapeType::Diamond)
+        .value("Parallelogram", XLVectorShapeType::Parallelogram)
+        .value("Hexagon", XLVectorShapeType::Hexagon)
+        .value("Star4", XLVectorShapeType::Star4)
+        .value("Star5", XLVectorShapeType::Star5)
+        .value("Star16", XLVectorShapeType::Star16)
+        .value("Star24", XLVectorShapeType::Star24)
+        .value("Heart", XLVectorShapeType::Heart)
+        .value("SmileyFace", XLVectorShapeType::SmileyFace)
+        .value("Cloud", XLVectorShapeType::Cloud)
+        .value("Donut", XLVectorShapeType::Donut)
+        .value("Ribbon", XLVectorShapeType::Ribbon)
+        .value("Sun", XLVectorShapeType::Sun)
+        .value("Moon", XLVectorShapeType::Moon)
+        .value("LightningBolt", XLVectorShapeType::LightningBolt)
+        .value("FlowChartProcess", XLVectorShapeType::FlowChartProcess)
+        .value("FlowChartDecision", XLVectorShapeType::FlowChartDecision)
+        .value("FlowChartDocument", XLVectorShapeType::FlowChartDocument)
+        .value("FlowChartData", XLVectorShapeType::FlowChartData);
+
+    py::class_<XLVectorShapeOptions>(m, "XLVectorShapeOptions")
+        .def(py::init<>())
+        .def_rw("type", &XLVectorShapeOptions::type)
+        .def_rw("name", &XLVectorShapeOptions::name)
+        .def_rw("text", &XLVectorShapeOptions::text)
+        .def_rw("fill_color", &XLVectorShapeOptions::fillColor)
+        .def_rw("line_color", &XLVectorShapeOptions::lineColor)
+        .def_rw("line_width", &XLVectorShapeOptions::lineWidth)
+        .def_rw("width", &XLVectorShapeOptions::width)
+        .def_rw("height", &XLVectorShapeOptions::height)
+        .def_rw("offset_x", &XLVectorShapeOptions::offsetX)
+        .def_rw("offset_y", &XLVectorShapeOptions::offsetY)
+        .def_rw("end_row", &XLVectorShapeOptions::endRow)
+        .def_rw("end_col", &XLVectorShapeOptions::endCol)
+        .def_rw("end_offset_x", &XLVectorShapeOptions::endOffsetX)
+        .def_rw("end_offset_y", &XLVectorShapeOptions::endOffsetY)
+        .def_rw("rotation", &XLVectorShapeOptions::rotation)
+        .def_rw("flip_h", &XLVectorShapeOptions::flipH)
+        .def_rw("flip_v", &XLVectorShapeOptions::flipV)
+        .def_rw("line_dash", &XLVectorShapeOptions::lineDash)
+        .def_rw("arrow_start", &XLVectorShapeOptions::arrowStart)
+        .def_rw("arrow_end", &XLVectorShapeOptions::arrowEnd)
+        .def_rw("rich_text", &XLVectorShapeOptions::richText)
+        .def_rw("horz_align", &XLVectorShapeOptions::horzAlign)
+        .def_rw("vert_align", &XLVectorShapeOptions::vertAlign)
+        .def_rw("macro", &XLVectorShapeOptions::macro);
+
     // Bind XLDrawingItem
     py::class_<XLDrawingItem>(m, "XLDrawingItem")
         .def("name", &XLDrawingItem::name)
@@ -430,7 +486,8 @@ void init_worksheet(py::module_& m) {
              py::arg("height"), py::arg("options") = XLImageOptions())
         .def("add_scaled_image", &XLDrawing::addScaledImage, py::arg("r_id"), py::arg("name"),
              py::arg("description"), py::arg("data"), py::arg("row"), py::arg("col"),
-             py::arg("scaling_factor") = 1.0);
+             py::arg("scaling_factor") = 1.0)
+        .def("add_shape", &XLDrawing::addShape, py::arg("row"), py::arg("col"), py::arg("options") = XLVectorShapeOptions());
 
     // Bind XLColumn
     py::class_<XLColumn>(m, "XLColumn")

@@ -303,6 +303,56 @@ class Worksheet:
             "format_rows": self._sheet.format_rows_allowed(),
         }
 
+
+    def add_shape(self, row=1, col=1, shape_type="Rectangle", **kwargs):
+        """
+        Add a vector shape to the worksheet.
+        
+        Args:
+            row (int): The 1-based row index to place the top-left corner.
+            col (int): The 1-based column index to place the top-left corner.
+            shape_type (str): The type of the shape (e.g., "Rectangle", "Ellipse", "Arrow").
+            **kwargs: Shape options including:
+                - name (str): Shape name.
+                - text (str): Text inside the shape.
+                - fill_color (str): ARGB fill color.
+                - line_color (str): ARGB line color.
+                - line_width (float): Line width.
+                - width (int): Width in pixels.
+                - height (int): Height in pixels.
+                - offset_x (int): Offset X in pixels.
+                - offset_y (int): Offset Y in pixels.
+                - end_row (int): End row for two-cell anchor.
+                - end_col (int): End column for two-cell anchor.
+                - end_offset_x (int): End offset X.
+                - end_offset_y (int): End offset Y.
+                - rotation (int): Rotation in degrees.
+                - flip_h (bool): Flip horizontally.
+                - flip_v (bool): Flip vertically.
+                - line_dash (str): Line dash style (e.g., "dash", "sysDash").
+                - arrow_start (str): Arrow start style.
+                - arrow_end (str): Arrow end style.
+                - horz_align (str): Horizontal text alignment ("l", "ctr", "r").
+                - vert_align (str): Vertical text alignment ("t", "ctr", "b").
+        """
+        from . import _openxlsx
+        options = _openxlsx.XLVectorShapeOptions()
+        
+        # Resolve shape type enum
+        shape_enum = getattr(_openxlsx.XLVectorShapeType, shape_type, None)
+        if shape_enum is None:
+            raise ValueError(f"Unknown shape type: {shape_type}")
+        options.type = shape_enum
+        
+        for k, v in kwargs.items():
+            if hasattr(options, k):
+                setattr(options, k, v)
+            else:
+                raise ValueError(f"Unknown shape option: {k}")
+                
+        drawing = self._sheet.drawing()
+        drawing.add_shape(row, col, options)
+
     def add_image(self, img_path, anchor="A1", width=None, height=None):
         """
         Add an image to the worksheet.
