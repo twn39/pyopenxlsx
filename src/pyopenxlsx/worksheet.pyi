@@ -104,6 +104,13 @@ class Worksheet:
         width: Optional[int] = None,
         height: Optional[int] = None,
     ) -> None: ...
+    def add_shape(
+        self,
+        row: int = 1,
+        col: int = 1,
+        shape_type: str = "Rectangle",
+        **kwargs: Any
+    ) -> None: ...
     async def add_image_async(
         self,
         img_path: str,
