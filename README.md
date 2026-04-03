@@ -364,6 +364,26 @@ The full API documentation has been split into individual modules for easier rea
 - [Comments & Threaded Comments API](docs/16_comments.md)
 - [Encryption & Protection API](docs/17_encryption.md)
 
+## pyopenxlsx vs openpyxl: Feature Comparison
+
+While `openpyxl` is a great pure-Python library, `pyopenxlsx` is designed to solve critical performance bottlenecks and add modern enterprise features by leveraging a C++ engine.
+
+| Feature / Capability | `pyopenxlsx` (OpenXLSX-NX) | `openpyxl` | Notes |
+| :--- | :--- | :--- | :--- |
+| **Underlying Engine** | **C++17** (`nanobind` wrapped) | Pure Python | `pyopenxlsx` is heavily optimized for low-level memory management. |
+| **Execution Speed** | **Extremely Fast** (Up to 160x) | Slower | Pure Python loop overhead makes parsing large files sluggish. |
+| **Memory Footprint** | **Minimal** (C++ Memory Mapping) | High | Parsing large files in `openpyxl` often leads to OOM errors. |
+| **Asyncio Support** | ✅ **Native** (`await load_workbook_async`) | ❌ No | `pyopenxlsx` offloads heavy I/O to a threadpool, perfect for Web APIs (FastAPI/Django). |
+| **Agile Encryption (Passwords)** | ✅ **Native Read & Write** | ❌ No | `openpyxl` cannot read/write password-protected `.xlsx` files without 3rd-party decryption tools. |
+| **Threaded Comments** | ✅ **Full Support** (Conversations/Replies) | ❌ No / Can be lost | `pyopenxlsx` supports modern Excel conversational comments and resolution states. |
+| **Vector Shapes** | ✅ **Native Support** (20+ Shapes) | ❌ No | Draw complex vector shapes (Arrows, Flowcharts, etc.) directly. |
+| **Formula Evaluation** | ✅ **Built-in C++ Engine** | ❌ No | `pyopenxlsx` can statically evaluate simple formulas without Excel installed. |
+| **Streaming I/O** | ✅ **Direct to disk with Styles** | ⚠️ Partial (WriteOnly) | `pyopenxlsx` can stream styled data directly to the archive, bypassing the DOM. |
+| **Granular Sheet Protection** | ✅ **Deep Control** (20+ specific flags) | ✅ Yes | `pyopenxlsx` exposes extensive ECMA-376 locking options. |
+| **Styles Architecture** | ✅ **Declarative (Index-based)** | ⚠️ Object-based | `pyopenxlsx` reuses style indices, saving massive amounts of memory on huge datasets. |
+| **Charts** | ⚠️ Basic (Bar, Line, etc.) | ✅ **Highly Advanced** | `openpyxl` currently has more mature support for extremely complex/3D charts. |
+| **Environment** | Pre-compiled Wheels required | Any Python env | `pyopenxlsx` provides wheels for major OS/Architectures via CI. |
+
 ---
 
 ## Performance
