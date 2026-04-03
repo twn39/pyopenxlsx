@@ -439,7 +439,8 @@ void init_worksheet(py::module_& m) {
         .def("is_hidden", &XLColumn::isHidden)
         .def("set_hidden", &XLColumn::setHidden, py::arg("state"))
         .def("format", &XLColumn::format)
-        .def("set_format", &XLColumn::setFormat, py::arg("cellFormatIndex"));
+        .def("set_format", &XLColumn::setFormat, py::arg("cellFormatIndex"))
+        .def("auto_fit", &XLColumn::autoFit);
 
     // XLPaneState Enum
     py::enum_<XLPaneState>(m, "XLPaneState")

@@ -173,11 +173,14 @@ class Workbook:
     of Worksheet objects when they are no longer referenced elsewhere.
     """
 
-    def __init__(self, filename=None, force_overwrite=True):
+    def __init__(self, filename=None, force_overwrite=True, password=None):
         self._doc = _openxlsx.XLDocument()
         self._temp_file = None  # Track temp file for cleanup
         if filename:
-            self._doc.open(str(filename))
+            if password is not None:
+                self._doc.open(str(filename), password)
+            else:
+                self._doc.open(str(filename))
             self._filename = str(filename)
         else:
             # Use a temporary file to avoid polluting the current directory
@@ -199,16 +202,23 @@ class Workbook:
         """Check if the loaded document contains a VBA macro project."""
         return self._doc.has_macro()
 
-    def save(self, filename=None, force_overwrite=True):
+    def save(self, filename=None, force_overwrite=True, password=None):
         if filename:
-            self._doc.save_as(str(filename), force_overwrite)
+            if password is not None:
+                self._doc.save_as(str(filename), force_overwrite, password)
+            else:
+                self._doc.save_as(str(filename), force_overwrite)
         elif self._filename:
-            self._doc.save()
+            # OpenXLSX's save() doesn't take a password, but save_as does
+            if password is not None:
+                self._doc.save_as(self._filename, force_overwrite, password)
+            else:
+                self._doc.save()
         else:
             raise ValueError("No filename specified")
 
-    async def save_async(self, filename=None, force_overwrite=True):
-        await asyncio.to_thread(self.save, filename, force_overwrite)
+    async def save_async(self, filename=None, force_overwrite=True, password=None):
+        await asyncio.to_thread(self.save, filename, force_overwrite, password)
 
     def close(self):
         self._doc.close()
@@ -642,9 +652,9 @@ class Workbook:
                 pass
 
 
-def load_workbook(filename):
-    return Workbook(filename)
+def load_workbook(filename, password=None):
+    return Workbook(filename, password=password)
 
 
-async def load_workbook_async(filename):
-    return await asyncio.to_thread(load_workbook, filename)
+async def load_workbook_async(filename, password=None):
+    return await asyncio.to_thread(load_workbook, filename, password)

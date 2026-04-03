@@ -5,11 +5,20 @@ void init_streams(py::module_& m) {
     py::class_<XLStreamWriter>(m, "XLStreamWriter")
         .def("is_stream_active", &XLStreamWriter::isStreamActive)
         .def("append_row", [](XLStreamWriter& self, py::list values) {
-            std::vector<XLCellValue> data;
+            std::vector<XLStreamCell> data;
             data.reserve(py::len(values));
             for (auto val : values) {
+                if (py::isinstance<py::tuple>(val)) {
+                    py::tuple t = py::cast<py::tuple>(val);
+                    if (py::len(t) == 2) {
+                        CellData cd = CellData::from_python(t[0]);
+                        uint32_t styleIndex = py::cast<uint32_t>(t[1]);
+                        data.push_back(XLStreamCell(cd.to_xlcellvalue(), styleIndex));
+                        continue;
+                    }
+                }
                 CellData cd = CellData::from_python(val);
-                data.push_back(cd.to_xlcellvalue());
+                data.push_back(XLStreamCell(cd.to_xlcellvalue()));
             }
             {
                 py::gil_scoped_release release;
