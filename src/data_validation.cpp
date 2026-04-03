@@ -43,11 +43,14 @@ void init_data_validation(py::module_& m) {
         .def("set_sqref", &XLDataValidation::setSqref)
         .def("add_cell", py::overload_cast<const XLCellReference&>(&XLDataValidation::addCell))
         .def("add_cell", py::overload_cast<const std::string&>(&XLDataValidation::addCell))
-        .def("add_range", py::overload_cast<const XLCellReference&, const XLCellReference&>(&XLDataValidation::addRange))
+        .def("add_range", py::overload_cast<const XLCellReference&, const XLCellReference&>(
+                              &XLDataValidation::addRange))
         .def("add_range", py::overload_cast<const std::string&>(&XLDataValidation::addRange))
-        .def("remove_cell", py::overload_cast<const XLCellReference&>(&XLDataValidation::removeCell))
+        .def("remove_cell",
+             py::overload_cast<const XLCellReference&>(&XLDataValidation::removeCell))
         .def("remove_cell", py::overload_cast<const std::string&>(&XLDataValidation::removeCell))
-        .def("remove_range", py::overload_cast<const XLCellReference&, const XLCellReference&>(&XLDataValidation::removeRange))
+        .def("remove_range", py::overload_cast<const XLCellReference&, const XLCellReference&>(
+                                 &XLDataValidation::removeRange))
         .def("remove_range", py::overload_cast<const std::string&>(&XLDataValidation::removeRange))
         .def("set_type", &XLDataValidation::setType)
         .def("set_operator", &XLDataValidation::setOperator)
@@ -55,7 +58,8 @@ void init_data_validation(py::module_& m) {
         .def("set_formula1", &XLDataValidation::setFormula1)
         .def("set_formula2", &XLDataValidation::setFormula2)
         .def("set_prompt", &XLDataValidation::setPrompt)
-        .def("set_error", &XLDataValidation::setError, py::arg("title"), py::arg("msg"), py::arg("style") = XLDataValidationErrorStyle::Stop)
+        .def("set_error", &XLDataValidation::setError, py::arg("title"), py::arg("msg"),
+             py::arg("style") = XLDataValidationErrorStyle::Stop)
         .def("set_show_drop_down", &XLDataValidation::setShowDropDown)
         .def("set_show_input_message", &XLDataValidation::setShowInputMessage)
         .def("set_show_error_message", &XLDataValidation::setShowErrorMessage)
@@ -85,7 +89,11 @@ void init_data_validation(py::module_& m) {
         .def("set_x_window", &XLDataValidations::setXWindow)
         .def("y_window", &XLDataValidations::yWindow)
         .def("set_y_window", &XLDataValidations::setYWindow)
-        .def("__iter__", [](const XLDataValidations& self) {
-            return py::make_iterator(py::type<XLDataValidations>(), "Iterator", self.begin(), self.end());
-        }, py::keep_alive<0, 1>());
+        .def(
+            "__iter__",
+            [](const XLDataValidations& self) {
+                return py::make_iterator(py::type<XLDataValidations>(), "Iterator", self.begin(),
+                                         self.end());
+            },
+            py::keep_alive<0, 1>());
 }

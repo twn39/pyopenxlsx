@@ -9,14 +9,17 @@ void init_comments(py::module_& m) {
         .def_prop_ro("parent_id", &XLThreadedComment::parentId)
         .def_prop_ro("person_id", &XLThreadedComment::personId)
         .def_prop_ro("text", &XLThreadedComment::text)
-        .def_prop_rw("is_resolved", &XLThreadedComment::isResolved, &XLThreadedComment::setResolved);
+        .def_prop_rw("is_resolved", &XLThreadedComment::isResolved,
+                     &XLThreadedComment::setResolved);
 
     py::class_<XLThreadedComments>(m, "XLThreadedComments")
         .def(py::init<>())
         .def("comment", &XLThreadedComments::comment, py::arg("ref"))
         .def("replies", &XLThreadedComments::replies, py::arg("parent_id"))
-        .def("add_comment", &XLThreadedComments::addComment, py::arg("ref"), py::arg("person_id"), py::arg("text"))
-        .def("add_reply", &XLThreadedComments::addReply, py::arg("parent_id"), py::arg("person_id"), py::arg("text"))
+        .def("add_comment", &XLThreadedComments::addComment, py::arg("ref"), py::arg("person_id"),
+             py::arg("text"))
+        .def("add_reply", &XLThreadedComments::addReply, py::arg("parent_id"), py::arg("person_id"),
+             py::arg("text"))
         .def("delete_comment", &XLThreadedComments::deleteComment, py::arg("ref"));
 
     py::class_<XLPerson>(m, "XLPerson")

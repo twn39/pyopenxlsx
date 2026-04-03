@@ -15,10 +15,10 @@
  * - XLXmlFile::parentDoc(), xmlDocument(), getXmlPath()
  */
 
+#include <IZipArchive.hpp>
 #include <gsl/gsl>
 #include <headers/XLContentTypes.hpp>
 #include <headers/XLDrawing.hpp>
-#include <IZipArchive.hpp>
 
 #include "bindings.hpp"
 
