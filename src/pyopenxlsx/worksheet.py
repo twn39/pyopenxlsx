@@ -684,7 +684,6 @@ class Worksheet:
         """
         import pandas as pd
         import numpy as np
-        import datetime
 
         if index:
             df = df.reset_index()
@@ -692,42 +691,19 @@ class Worksheet:
         if header:
             # Write column names
             headers = df.columns.tolist()
-            self.write_row(start_row, headers)
+            self.write_row(start_row, headers, start_col=start_col)
             start_row += 1
 
-        # Try to clean up NaNs to None to avoid TypeError in C++ extension
+        # Replace NaT/NaN with None for C++
         df = df.replace({np.nan: None})
 
         # If dates are pandas Timestamps, convert them to standard datetime
         for col in df.select_dtypes(include=["datetime64", "datetimetz"]).columns:
             df[col] = df[col].dt.to_pydatetime()
 
-        # Clean numpy/pandas specific types to standard Python types
-        data_list = []
-        for row in df.itertuples(index=False, name=None):
-            cleaned_row = []
-            for item in row:
-                if pd.isna(item) or item is None:
-                    cleaned_row.append(None)
-                elif isinstance(item, (bool, np.bool_)):
-                    cleaned_row.append(bool(item))
-                elif isinstance(item, (int, np.integer)):
-                    cleaned_row.append(int(item))
-                elif isinstance(item, (float, np.floating)):
-                    cleaned_row.append(float(item))
-                elif isinstance(item, datetime.datetime):
-                    cleaned_row.append(item)
-                elif isinstance(item, datetime.date):
-                    cleaned_row.append(item)
-                elif isinstance(item, str):
-                    cleaned_row.append(item)
-                else:
-                    raise TypeError(
-                        f"Unsupported type for cell value: {type(item)} value: {item}"
-                    )
-            data_list.append(cleaned_row)
-
-        self.write_rows(start_row, data_list, start_col=start_col)
+        # Since C++ handles numpy types now, we can just pass the fast DataFrame list view directly.
+        # df.values.tolist() operates at C speed within pandas.
+        self.write_rows(start_row, df.values.tolist(), start_col=start_col)
 
     async def write_dataframe_async(
         self, df, start_row=1, start_col=1, header=True, index=False
@@ -764,18 +740,26 @@ class Worksheet:
         data = []
         columns = None
 
-        # We use fast DOM access which returns raw serial floats for dates.
-        # To maintain exact data fidelity without sacrificing 100x performance, we fetch via get_row_values
-        # and then identify date columns via pandas heuristic or explicit conversion later.
-        # OpenXLSX serial dates can be converted natively in Pandas if required by the user, or 
-        # we do a quick check on the first row if we really want to auto-convert.
-        for r in range(start_row, end_row + 1):
-            full_row = self._sheet.get_row_values(r)
+        # Use highly efficient stream_reader to bypass DOM allocation overhead.
+        # Note: stream_reader reads from the underlying saved XML file, so uncommitted 
+        # changes (data written but not yet saved via wb.save()) won't be reflected.
+        reader = self.stream_reader()
+
+        # Advance to start_row
+        while reader.has_next():
+            row_vals = reader.next_row()
+            curr_row = reader.current_row()
             
+            if curr_row < start_row:
+                continue
+                
+            if curr_row > end_row:
+                break
+
             sliced_row = (
-                full_row[start_col - 1 : end_col]
-                if end_col <= len(full_row)
-                else full_row[start_col - 1 :]
+                row_vals[start_col - 1 : end_col]
+                if end_col <= len(row_vals)
+                else row_vals[start_col - 1 :]
             )
             if len(sliced_row) < (end_col - start_col + 1):
                 sliced_row.extend(

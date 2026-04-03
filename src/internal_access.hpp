@@ -108,6 +108,13 @@ struct CellData {
             val.type = Type::RichText;
             val.richTextVal = py::cast<XLRichText>(obj);
         } else {
+            // Handle numpy scalars like np.int64, np.float64, np.bool_ efficiently
+            // They expose an .item() method that converts them to Python native types
+            if (py::hasattr(obj, "item")) {
+                py::object native_obj = obj.attr("item")();
+                return from_python(native_obj);
+            }
+            
             // Attempt to check if it's a datetime or date via attributes/duck typing
             // This avoids a hard dependency on datetime.h in nanobind unless we pull it in
             if (py::hasattr(obj, "toordinal")) {

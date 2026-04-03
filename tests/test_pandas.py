@@ -1,6 +1,6 @@
 import pytest
 import datetime
-from pyopenxlsx import Workbook
+from pyopenxlsx import Workbook, load_workbook
 
 pytest.importorskip("pandas")
 import pandas as pd
@@ -62,6 +62,11 @@ async def test_pandas_write_read_async(tmp_path):
     df = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
     await ws.write_dataframe_async(df)
 
-    df_read = await ws.read_dataframe_async(end_row=3, end_col=2)
+    file_path = tmp_path / "pandas_test_async.xlsx"
+    await wb.save_async(str(file_path))
+
+    wb2 = load_workbook(str(file_path))
+    ws2 = wb2.active
+    df_read = await ws2.read_dataframe_async(end_row=3, end_col=2)
     assert len(df_read) == 2
     assert df_read.iloc[0]["B"] == 3
