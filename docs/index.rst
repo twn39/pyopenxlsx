@@ -23,6 +23,7 @@ pyopenxlsx documentation
    14_images_and_shapes.md
    15_formula_engine.md
    16_comments.md
+   17_encryption.md
 
 .. toctree::
    :maxdepth: 2

@@ -21,10 +21,12 @@
 
 -   **High Performance**: Powered by the modern C++17 OpenXLSX library.
 -   **Pythonic API**: Intuitive interface with properties, iterators, and context managers.
+-   **Streaming I/O**: Bypass the DOM entirely with `XLStreamWriter` and `XLStreamReader` for memory-efficient bulk data processing.
+-   **Security**: Full support for ECMA-376 Standard and Agile Encryption (read/write password-protected files) and granular worksheet protection.
 -   **Async Support**: `async/await` support for key I/O operations.
 -   **Rich Styling**: Comprehensive support for fonts, fills, borders, alignments, and number formats.
 -   **Extended Metadata**: Support for both standard and **custom document properties**.
--   **Advanced Content**: Support for **images**, **hyperlinks** (external/internal), and **comments**.
+-   **Advanced Content**: Support for **images**, **vector shapes**, **hyperlinks** (external/internal), and modern **threaded comments**.
 -   **Memory Safety**: Combines C++ efficiency with Python's automatic memory management.
 
 ## Tech Stack
