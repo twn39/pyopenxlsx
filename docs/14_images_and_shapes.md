@@ -1,4 +1,4 @@
-# Images API
+# Images and Shapes API
 
 `pyopenxlsx` allows you to embed images directly into worksheets. The image anchoring and scaling logic relies on the Pillow (`PIL`) library, which must be installed for auto-sizing to work.
 
@@ -55,3 +55,45 @@ for img in wb.get_embedded_images():
     raw_bytes = wb.get_image_data(img.path)
     # Process raw_bytes...
 ```
+
+---
+
+## Inserting Vector Shapes
+
+`pyopenxlsx` provides support for adding native Excel vector shapes (like Rectangles, Arrows, Diamonds, etc.) using `add_shape()`. Unlike raster images, shapes are drawn natively by Excel and scale perfectly.
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    
+    # 1. Add an Arrow pointing right
+    ws.add_shape(
+        row=2, col=2, 
+        shape_type="Arrow", 
+        name="MyArrow", text="Important!", 
+        fill_color="FF0000", line_width=2.5,
+        rotation=90
+    )
+    
+    # 2. Add a styled Cloud
+    ws.add_shape(
+        row=5, col=5, 
+        shape_type="Cloud",
+        name="Cloudy", text="Data",
+        width=200, height=150,
+        flip_h=True
+    )
+    
+    wb.save("shapes.xlsx")
+```
+
+### Supported Shape Options (`**kwargs`)
+You can extensively configure your shape using the following arguments:
+- **Dimensions & Anchor**: `row`, `col`, `width`, `height`, `offset_x`, `offset_y`.
+- **Two-Cell Anchor**: `end_row`, `end_col`, `end_offset_x`, `end_offset_y` (allow the shape to resize automatically as cells scale).
+- **Appearance**: `fill_color` (ARGB without `#`), `line_color` (ARGB without `#`), `line_width` (float).
+- **Transformations**: `rotation` (degrees), `flip_h` (bool), `flip_v` (bool).
+- **Outline Styles**: `line_dash` ("dash", "sysDash", "dot", etc.), `arrow_start`, `arrow_end` ("triangle", "stealth", "diamond").
+- **Text & Alignment**: `text` (str), `horz_align` ("l", "ctr", "r"), `vert_align` ("t", "ctr", "b").

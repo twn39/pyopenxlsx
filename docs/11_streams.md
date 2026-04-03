@@ -18,8 +18,17 @@ with Workbook("large_output.xlsx") as wb:
     # Open a stream writer for this worksheet
     writer = ws.stream_writer()
     
-    # Append rows one by one
+    # 1. Append rows of plain values
     writer.append_row(["ID", "Name", "Score"])
+    
+    # 2. Append rows with styles (using tuples: (value, style_index))
+    bold_style = wb.add_style(font=wb.styles.fonts().create(bold=True))
+    writer.append_row([
+        (1, bold_style), 
+        ("Alice", bold_style), 
+        99.9  # Plain value, inherits default style
+    ])
+
     for i in range(1000000):
         # Appends a row immediately to the XML stream
         writer.append_row([i, f"User_{i}", 99.9])

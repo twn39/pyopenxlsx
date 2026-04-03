@@ -4,24 +4,28 @@ The `Workbook` class is the main entry point for creating, modifying, and saving
 
 ## Creating and Loading
 
-### `Workbook(filename=None, force_overwrite=True)`
+### `Workbook(filename=None, force_overwrite=True, password=None)`
 Creates a new workbook or opens an existing one.
 - **Parameters:**
   - `filename` (`str`, optional): Path to an existing `.xlsx` file. If `None`, creates a blank workbook.
   - `force_overwrite` (`bool`): If `True`, allows overwriting existing files when saving.
+  - `password` (`str`, optional): Password to open an encrypted workbook.
 - **Example:**
   ```python
   from pyopenxlsx import Workbook
   wb = Workbook() # New
   wb_existing = Workbook("data.xlsx") # Load existing
+  wb_encrypted = Workbook("secure.xlsx", password="secret") # Load encrypted
   ```
 
-### `load_workbook(filename)`
+### `load_workbook(filename, password=None)`
 Alternative function to load a workbook.
-- **Parameters:** `filename` (`str`)
+- **Parameters:** 
+  - `filename` (`str`)
+  - `password` (`str`, optional)
 - **Returns:** `Workbook`
 
-### `load_workbook_async(filename)`
+### `load_workbook_async(filename, password=None)`
 Asynchronous version of `load_workbook`.
 
 ---
@@ -65,12 +69,13 @@ Asynchronous version of `load_workbook`.
 
 ## Methods
 
-### `save(filename=None, force_overwrite=True)`
+### `save(filename=None, force_overwrite=True, password=None)`
 Saves the workbook to disk.
 - **Parameters:**
   - `filename` (`str`, optional): The path to save to. If `None`, saves over the original file.
+  - `password` (`str`, optional): If provided, the workbook is saved with Agile Encryption.
 
-### `save_async(filename=None, force_overwrite=True)`
+### `save_async(filename=None, force_overwrite=True, password=None)`
 Asynchronously saves the workbook.
 
 ### `close()` / `close_async()`

@@ -88,14 +88,18 @@ Splits the view into scrollable panes.
 ### `add_image(img_path: str, anchor: str, width=None, height=None)`
 Inserts an image into the worksheet.
 
+### `add_shape(row: int, col: int, shape_type: str, **kwargs)`
+Adds a vector shape to the worksheet. Supports over 20 shape types (e.g. `"Rectangle"`, `"Arrow"`, `"Cloud"`, `"FlowChartProcess"`) and configurable appearance options (like `fill_color`, `line_color`, `rotation`, `text`).
+
 ### `protect(password: str, **options)`
-Protects the worksheet. Options include `format_cells`, `insert_columns`, `sort`, etc.
+Protects the worksheet. Supports highly granular protection options (e.g. `format_cells`, `insert_columns`, `sort`, `auto_filter`, `objects`, `scenarios`, `select_locked_cells`, `select_unlocked_cells`, `delete_rows`, etc.).
 
 ### `auto_fit_column(col: int)`
 Automatically adjusts the width of the specified column to fit its contents.
 ```python
 ws.auto_fit_column(1) # Auto-fit column A
 ```
+*(You can also use `ws.column("A").autofit()`)*
 
 ### `apply_auto_filter()`
 Applies the autofilter dropdowns to the range specified in `ws.auto_filter`.

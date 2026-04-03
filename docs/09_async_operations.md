@@ -31,8 +31,8 @@ asyncio.run(process_file())
 ## Available Async Methods
 
 **Workbook:**
-- `await load_workbook_async(filename)`
-- `await wb.save_async()`
+- `await load_workbook_async(filename, password=None)`
+- `await wb.save_async(filename, password=None)`
 - `await wb.close_async()`
 - `await wb.create_sheet_async(title)`
 - `await wb.copy_worksheet_async(ws)`
@@ -53,6 +53,6 @@ asyncio.run(process_file())
 - `await ws.get_rows_data_async()`
 - `await ws.merge_cells_async(ref)`
 - `await ws.unmerge_cells_async(ref)`
-- `await ws.protect_async(password)`
+- `await ws.protect_async(password, **granular_options)`
 - `await ws.unprotect_async()`
 - `await ws.add_image_async(path, anchor)`
