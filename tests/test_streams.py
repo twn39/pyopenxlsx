@@ -10,8 +10,8 @@ def test_worksheet_streams(tmp_path):
         assert writer.is_stream_active()
 
         # Add a style
-        style_idx = wb.add_style(font=wb.styles.fonts().create()) # dummy style
-        
+        style_idx = wb.add_style(font=wb.styles.fonts().create())  # dummy style
+
         writer.append_row([1, "Test", 3.14])
         writer.append_row([(2, style_idx), "Data", 2.71])
         writer.close()

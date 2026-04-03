@@ -207,6 +207,8 @@ class Worksheet:
         """
         Protect the worksheet.
         """
+        from . import _openxlsx
+
         options = _openxlsx.XLSheetProtectionOptions()
         options.sheet = sheet
         options.objects = objects
@@ -224,7 +226,7 @@ class Worksheet:
         options.pivot_tables = pivot_tables
         options.select_locked_cells = select_locked_cells
         options.select_unlocked_cells = select_unlocked_cells
-        
+
         return self._sheet.protect(options, password or "")
 
     async def protect_async(
@@ -303,11 +305,10 @@ class Worksheet:
             "format_rows": self._sheet.format_rows_allowed(),
         }
 
-
     def add_shape(self, row=1, col=1, shape_type="Rectangle", **kwargs):
         """
         Add a vector shape to the worksheet.
-        
+
         Args:
             row (int): The 1-based row index to place the top-left corner.
             col (int): The 1-based column index to place the top-left corner.
@@ -336,20 +337,21 @@ class Worksheet:
                 - vert_align (str): Vertical text alignment ("t", "ctr", "b").
         """
         from . import _openxlsx
+
         options = _openxlsx.XLVectorShapeOptions()
-        
+
         # Resolve shape type enum
         shape_enum = getattr(_openxlsx.XLVectorShapeType, shape_type, None)
         if shape_enum is None:
             raise ValueError(f"Unknown shape type: {shape_type}")
         options.type = shape_enum
-        
+
         for k, v in kwargs.items():
             if hasattr(options, k):
                 setattr(options, k, v)
             else:
                 raise ValueError(f"Unknown shape option: {k}")
-                
+
         drawing = self._sheet.drawing()
         drawing.add_shape(row, col, options)
 
