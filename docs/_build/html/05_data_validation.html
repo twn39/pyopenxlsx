@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Validation API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tables (ListObjects) API" href="06_tables.html" />
+    <link rel="prev" title="Styles API" href="04_styles.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Validation API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#core-concepts">Core Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-validations-quick-method">Adding Validations: Quick Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-validations-detailed-method">Adding Validations: Detailed Method</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#enums">Enums</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#xldatavalidationtype"><code class="docutils literal notranslate"><span class="pre">XLDataValidationType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xldatavalidationoperator"><code class="docutils literal notranslate"><span class="pre">XLDataValidationOperator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#properties-and-methods-of-datavalidation">Properties and Methods of <code class="docutils literal notranslate"><span class="pre">DataValidation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#datavalidations-collection"><code class="docutils literal notranslate"><span class="pre">DataValidations</span></code> Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-example-dependent-dropdowns-cascading-validation">Advanced Example: Dependent Dropdowns (Cascading Validation)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Data Validation API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/05_data_validation.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-validation-api">
+<h1>Data Validation API<a class="headerlink" href="#data-validation-api" title="Link to this heading"></a></h1>
+<p>Data validation restricts what users can input into specific cells (e.g., dropdowns, numeric constraints).</p>
+<section id="core-concepts">
+<h2>Core Concepts<a class="headerlink" href="#core-concepts" title="Link to this heading"></a></h2>
+<p>Access a worksheet’s validations via <code class="docutils literal notranslate"><span class="pre">ws.data_validations</span></code>.</p>
+<section id="adding-validations-quick-method">
+<h3>Adding Validations: Quick Method<a class="headerlink" href="#adding-validations-quick-method" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+
+<span class="c1"># Dropdown list</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">data_validations</span><span class="o">.</span><span class="n">add_validation</span><span class="p">(</span>
+    <span class="s2">&quot;A1:A10&quot;</span><span class="p">,</span> 
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> 
+    <span class="n">formula1</span><span class="o">=</span><span class="s1">&#39;&quot;Item 1,Item 2,Item 3&quot;&#39;</span><span class="p">,</span> 
+    <span class="n">show_drop_down</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Numeric constraint</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">data_validations</span><span class="o">.</span><span class="n">add_validation</span><span class="p">(</span>
+    <span class="s2">&quot;B1:B10&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;whole&quot;</span><span class="p">,</span>
+    <span class="n">operator</span><span class="o">=</span><span class="s2">&quot;between&quot;</span><span class="p">,</span>
+    <span class="n">formula1</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="n">formula2</span><span class="o">=</span><span class="s2">&quot;100&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-validations-detailed-method">
+<h3>Adding Validations: Detailed Method<a class="headerlink" href="#adding-validations-detailed-method" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLDataValidationType</span><span class="p">,</span> <span class="n">XLDataValidationOperator</span>
+
+<span class="n">dv</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">data_validations</span><span class="o">.</span><span class="n">append</span><span class="p">()</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">sqref</span> <span class="o">=</span> <span class="s2">&quot;C1:C10&quot;</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Decimal</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">GreaterThan</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">formula1</span> <span class="o">=</span> <span class="s2">&quot;0.0&quot;</span>
+
+<span class="c1"># Custom Messages</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">set_prompt</span><span class="p">(</span><span class="s2">&quot;Input Required&quot;</span><span class="p">,</span> <span class="s2">&quot;Enter a positive number.&quot;</span><span class="p">)</span>
+<span class="n">dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span><span class="s2">&quot;Invalid Input&quot;</span><span class="p">,</span> <span class="s2">&quot;Value must be strictly greater than 0.&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="enums">
+<h2>Enums<a class="headerlink" href="#enums" title="Link to this heading"></a></h2>
+<section id="xldatavalidationtype">
+<h3><code class="docutils literal notranslate"><span class="pre">XLDataValidationType</span></code><a class="headerlink" href="#xldatavalidationtype" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">None_</span></code>, <code class="docutils literal notranslate"><span class="pre">Custom</span></code>, <code class="docutils literal notranslate"><span class="pre">Date</span></code>, <code class="docutils literal notranslate"><span class="pre">Decimal</span></code>, <code class="docutils literal notranslate"><span class="pre">List</span></code>, <code class="docutils literal notranslate"><span class="pre">TextLength</span></code>, <code class="docutils literal notranslate"><span class="pre">Time</span></code>, <code class="docutils literal notranslate"><span class="pre">Whole</span></code></p></li>
+</ul>
+</section>
+<section id="xldatavalidationoperator">
+<h3><code class="docutils literal notranslate"><span class="pre">XLDataValidationOperator</span></code><a class="headerlink" href="#xldatavalidationoperator" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Between</span></code>, <code class="docutils literal notranslate"><span class="pre">NotBetween</span></code>, <code class="docutils literal notranslate"><span class="pre">Equal</span></code>, <code class="docutils literal notranslate"><span class="pre">NotEqual</span></code>, <code class="docutils literal notranslate"><span class="pre">GreaterThan</span></code>, <code class="docutils literal notranslate"><span class="pre">LessThan</span></code>, <code class="docutils literal notranslate"><span class="pre">GreaterThanOrEqual</span></code>, <code class="docutils literal notranslate"><span class="pre">LessThanOrEqual</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="properties-and-methods-of-datavalidation">
+<h2>Properties and Methods of <code class="docutils literal notranslate"><span class="pre">DataValidation</span></code><a class="headerlink" href="#properties-and-methods-of-datavalidation" title="Link to this heading"></a></h2>
+<p>Once a validation rule is created, you can interact with its underlying C++ properties directly:</p>
+<ul class="simple">
+<li><p><strong>Properties/Methods</strong>: <code class="docutils literal notranslate"><span class="pre">sqref</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">operator</span></code>, <code class="docutils literal notranslate"><span class="pre">allow_blank</span></code>, <code class="docutils literal notranslate"><span class="pre">show_drop_down</span></code>, <code class="docutils literal notranslate"><span class="pre">show_input_message</span></code>, <code class="docutils literal notranslate"><span class="pre">show_error_message</span></code>, <code class="docutils literal notranslate"><span class="pre">ime_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">formula1</span></code>, <code class="docutils literal notranslate"><span class="pre">formula2</span></code>.</p></li>
+<li><p><strong>String Getters</strong>: <code class="docutils literal notranslate"><span class="pre">prompt_title</span></code>, <code class="docutils literal notranslate"><span class="pre">prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">error_title</span></code>, <code class="docutils literal notranslate"><span class="pre">error</span></code>, <code class="docutils literal notranslate"><span class="pre">error_style</span></code>.</p></li>
+<li><p><strong>Helper Methods</strong>: <code class="docutils literal notranslate"><span class="pre">add_cell(ref)</span></code>, <code class="docutils literal notranslate"><span class="pre">add_range(ref)</span></code>, <code class="docutils literal notranslate"><span class="pre">set_list([&quot;a&quot;,</span> <span class="pre">&quot;b&quot;])</span></code>, <code class="docutils literal notranslate"><span class="pre">set_reference_drop_list(&quot;Sheet&quot;,</span> <span class="pre">&quot;A1:A3&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">set_prompt(title,</span> <span class="pre">msg)</span></code>, <code class="docutils literal notranslate"><span class="pre">set_error(title,</span> <span class="pre">msg,</span> <span class="pre">style)</span></code>.</p></li>
+</ul>
+</section>
+<section id="datavalidations-collection">
+<h2><code class="docutils literal notranslate"><span class="pre">DataValidations</span></code> Collection<a class="headerlink" href="#datavalidations-collection" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ws.data_validations</span></code> property provides a list-like collection.</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">append()</span></code></strong>: Adds an empty validation and returns it.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">add_validation(...)</span></code></strong>: Quick-adds a populated validation.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">remove(index_or_sqref)</span></code></strong>: Deletes a specific validation.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">clear()</span></code></strong>: Deletes all validations on the sheet.</p></li>
+</ul>
+</section>
+<section id="advanced-example-dependent-dropdowns-cascading-validation">
+<h2>Advanced Example: Dependent Dropdowns (Cascading Validation)<a class="headerlink" href="#advanced-example-dependent-dropdowns-cascading-validation" title="Link to this heading"></a></h2>
+<p><em>Note: Excel evaluates formulas in data validation contextually. To do dependent dropdowns, we use the <code class="docutils literal notranslate"><span class="pre">INDIRECT</span></code> function pointing to another cell.</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    
+    <span class="c1"># Setup lookup lists using Defined Names</span>
+    <span class="c1"># &#39;Fruits&#39; list</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;X1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Apple&quot;</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;X2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Banana&quot;</span>
+    <span class="n">wb</span><span class="o">.</span><span class="n">defined_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Fruits&quot;</span><span class="p">,</span> <span class="s2">&quot;Sheet1!$X$1:$X$2&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># &#39;Cars&#39; list</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;Y1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Toyota&quot;</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;Y2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Ford&quot;</span>
+    <span class="n">wb</span><span class="o">.</span><span class="n">defined_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Cars&quot;</span><span class="p">,</span> <span class="s2">&quot;Sheet1!$Y$1:$Y$2&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 1. Primary Dropdown in A1</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">data_validations</span><span class="o">.</span><span class="n">add_validation</span><span class="p">(</span>
+        <span class="s2">&quot;A1&quot;</span><span class="p">,</span> 
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> 
+        <span class="n">formula1</span><span class="o">=</span><span class="s1">&#39;&quot;Fruits,Cars&quot;&#39;</span><span class="p">,</span> <span class="c1"># The literal string list</span>
+        <span class="n">show_drop_down</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># 2. Dependent Dropdown in B1</span>
+    <span class="c1"># Reads the text in A1, and uses INDIRECT to find the defined name</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">data_validations</span><span class="o">.</span><span class="n">add_validation</span><span class="p">(</span>
+        <span class="s2">&quot;B1&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">,</span>
+        <span class="n">formula1</span><span class="o">=</span><span class="s2">&quot;INDIRECT($A$1)&quot;</span><span class="p">,</span> 
+        <span class="n">show_drop_down</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;dependent_dropdown.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="04_styles.html" class="btn btn-neutral float-left" title="Styles API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="06_tables.html" class="btn btn-neutral float-right" title="Tables (ListObjects) API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

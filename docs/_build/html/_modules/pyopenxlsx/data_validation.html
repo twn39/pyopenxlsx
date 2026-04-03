@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyopenxlsx.data_validation &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyopenxlsx.data_validation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyopenxlsx.data_validation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">ref</span> <span class="k">as</span> <span class="n">weakref</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">XLDataValidationType</span><span class="p">,</span>
+    <span class="n">XLDataValidationOperator</span><span class="p">,</span>
+    <span class="n">XLDataValidationErrorStyle</span><span class="p">,</span>
+    <span class="n">XLDataValidationConfig</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataValidation">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataValidation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Excel data validation rule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_dv&quot;</span><span class="p">,</span> <span class="s2">&quot;_worksheet_ref&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_dv</span><span class="p">,</span> <span class="n">worksheet</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span> <span class="o">=</span> <span class="n">raw_dv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="p">(</span><span class="n">worksheet</span><span class="p">)</span> <span class="k">if</span> <span class="n">worksheet</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_worksheet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sqref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the range (sqref) this validation applies to.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">sqref</span><span class="p">()</span>
+
+    <span class="nd">@sqref</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sqref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_sqref</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the validation type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">type</span><span class="p">()</span>
+
+    <span class="nd">@type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">operator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the validation operator.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">operator_</span><span class="p">()</span>
+
+    <span class="nd">@operator</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">operator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_operator</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_blank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether blank values are allowed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">allow_blank</span><span class="p">()</span>
+
+    <span class="nd">@allow_blank</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_blank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_allow_blank</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_drop_down</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to show a drop-down list.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">show_drop_down</span><span class="p">()</span>
+
+    <span class="nd">@show_drop_down</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_drop_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_show_drop_down</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_input_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to show the input message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">show_input_message</span><span class="p">()</span>
+
+    <span class="nd">@show_input_message</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_input_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_show_input_message</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to show the error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">show_error_message</span><span class="p">()</span>
+
+    <span class="nd">@show_error_message</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_show_error_message</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">formula1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The first formula for the validation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">formula1</span><span class="p">()</span>
+
+    <span class="nd">@formula1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">formula1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_formula1</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">formula2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The second formula for the validation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">formula2</span><span class="p">()</span>
+
+    <span class="nd">@formula2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">formula2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_formula2</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the error style.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">error_style</span><span class="p">()</span>
+
+    <span class="nd">@error_style</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># Allow setting by string or enum</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Stop</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;warning&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Warning</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;information&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Information</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ime_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the IME mode.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">ime_mode</span><span class="p">()</span>
+
+    <span class="nd">@ime_mode</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ime_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_ime_mode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prompt_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The title of the prompt message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">prompt_title</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The prompt message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">prompt</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The title of the error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">error_title</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The error message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">error</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DataValidation.set_prompt">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.set_prompt">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the input prompt title and message.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_prompt</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DataValidation.set_error">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.set_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the error message title, message and style.</span>
+<span class="sd">        Style can be &#39;stop&#39;, &#39;warning&#39;, or &#39;information&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Stop</span>
+        <span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;warning&quot;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Warning</span>
+        <span class="k">elif</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;information&quot;</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">XLDataValidationErrorStyle</span><span class="o">.</span><span class="n">Information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataValidation.add_cell">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.add_cell">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a cell to the validation range.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">add_cell</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DataValidation.add_range">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.add_range">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a range to the validation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">add_range</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">range_ref</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DataValidation.set_list">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.set_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a list of allowed values.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_list</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="DataValidation.set_reference_drop_list">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidation.set_reference_drop_list">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_reference_drop_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sheet_name</span><span class="p">,</span> <span class="n">range_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a drop-down list from a range reference on another sheet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dv</span><span class="o">.</span><span class="n">set_reference_drop_list</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">sheet_name</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">range_ref</span><span class="p">))</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DataValidations">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidations">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataValidations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages all data validation rules in a worksheet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_dvs</span><span class="p">,</span> <span class="n">worksheet</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span> <span class="o">=</span> <span class="n">raw_dvs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span> <span class="o">=</span> <span class="n">weakref</span><span class="p">(</span><span class="n">worksheet</span><span class="p">)</span> <span class="k">if</span> <span class="n">worksheet</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_worksheet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet_ref</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet</span>
+        <span class="k">for</span> <span class="n">raw_dv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">DataValidation</span><span class="p">(</span><span class="n">raw_dv</span><span class="p">,</span> <span class="n">ws</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DataValidation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">DataValidation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Index must be an integer or a string (sqref)&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataValidations.append">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidations.append">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a new empty data validation rule.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DataValidation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">append</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataValidations.add_validation">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidations.add_validation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_validation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sqref</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="s2">&quot;between&quot;</span><span class="p">,</span> <span class="n">formula1</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">formula2</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience method to add a data validation rule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">XLDataValidationConfig</span><span class="p">()</span>
+        <span class="c1"># Mapping for type</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">XLDataValidationType</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Custom</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+            <span class="s2">&quot;decimal&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Decimal</span><span class="p">,</span>
+            <span class="s2">&quot;list&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">List</span><span class="p">,</span>
+            <span class="s2">&quot;text_length&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">TextLength</span><span class="p">,</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Time</span><span class="p">,</span>
+            <span class="s2">&quot;whole&quot;</span><span class="p">:</span> <span class="n">XLDataValidationType</span><span class="o">.</span><span class="n">Whole</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">XLDataValidationType</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">))</span>
+
+        <span class="c1"># Mapping for operator</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;between&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">Between</span><span class="p">,</span>
+            <span class="s2">&quot;equal&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">Equal</span><span class="p">,</span>
+            <span class="s2">&quot;greater_than&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">,</span>
+            <span class="s2">&quot;greater_than_or_equal&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">GreaterThanOrEqual</span><span class="p">,</span>
+            <span class="s2">&quot;less_than&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">LessThan</span><span class="p">,</span>
+            <span class="s2">&quot;less_than_or_equal&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">LessThanOrEqual</span><span class="p">,</span>
+            <span class="s2">&quot;not_between&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">NotBetween</span><span class="p">,</span>
+            <span class="s2">&quot;not_equal&quot;</span><span class="p">:</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">NotEqual</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">operator_</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">XLDataValidationOperator</span><span class="o">.</span><span class="n">Between</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">config</span><span class="o">.</span><span class="n">formula1</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">formula1</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">formula2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">formula2</span><span class="p">)</span>
+
+        <span class="c1"># Handle optional kwargs</span>
+        <span class="k">if</span> <span class="s2">&quot;allow_blank&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">allow_blank</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;allow_blank&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;show_drop_down&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">show_drop_down</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_drop_down&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;show_input_message&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">show_input_message</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_input_message&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;show_error_message&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">show_error_message</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;show_error_message&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;prompt_title&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">prompt_title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prompt_title&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;prompt&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;error_title&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">error_title</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;error_title&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">DataValidation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">add_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">sqref</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_worksheet</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DataValidations.remove">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidations.remove">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_or_sqref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a data validation rule by index or sqref.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index_or_sqref</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">index_or_sqref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">index_or_sqref</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="DataValidations.clear">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.DataValidations.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all data validation rules.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dvs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

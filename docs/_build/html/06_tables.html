@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tables (ListObjects) API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pivot Tables API" href="07_pivot_tables.html" />
+    <link rel="prev" title="Data Validation API" href="05_data_validation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tables (ListObjects) API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-table">Creating a Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-properties">Table Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-columns">Table Columns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#append-column-name-str"><code class="docutils literal notranslate"><span class="pre">append_column(name:</span> <span class="pre">str)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#totals-row">Totals Row</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-slicers">Table Slicers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-table-properties">Advanced Table Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tables (ListObjects) API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/06_tables.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tables-listobjects-api">
+<h1>Tables (ListObjects) API<a class="headerlink" href="#tables-listobjects-api" title="Link to this heading"></a></h1>
+<p>Excel Tables (ListObjects) allow data to be managed independently of the rest of the worksheet, complete with automatic filtering, sorting, and styling (e.g., row stripes).</p>
+<section id="creating-a-table">
+<h2>Creating a Table<a class="headerlink" href="#creating-a-table" title="Link to this heading"></a></h2>
+<p>To create a table, you access <code class="docutils literal notranslate"><span class="pre">ws.table</span></code> or <code class="docutils literal notranslate"><span class="pre">ws.add_table()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+
+<span class="c1"># 1. Write the headers and data first</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">]</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">write_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">write_rows</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="mi">95</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="mi">82</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Charlie&quot;</span><span class="p">,</span> <span class="mi">88</span><span class="p">]</span>
+<span class="p">])</span>
+
+<span class="c1"># 2. Define the table</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">&quot;StudentTable&quot;</span><span class="p">,</span> <span class="s2">&quot;A1:C4&quot;</span><span class="p">)</span>
+
+<span class="c1"># 3. Apply Table Styling</span>
+<span class="n">table</span><span class="o">.</span><span class="n">style_name</span> <span class="o">=</span> <span class="s2">&quot;TableStyleMedium2&quot;</span>
+<span class="n">table</span><span class="o">.</span><span class="n">show_row_stripes</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># 4. (Optional) Columns are auto-populated from worksheet headers when add_table is called.</span>
+
+<span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;tables.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="table-properties">
+<h2>Table Properties<a class="headerlink" href="#table-properties" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">name</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The internal name of the table.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">display_name</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The name shown in the Excel UI.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">range_reference</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The address of the table (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;A1:C4&quot;</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">style_name</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The built-in Excel style (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;TableStyleLight1&quot;</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">show_row_stripes</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Alternating row colors.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">show_column_stripes</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Alternating column colors.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">show_first_column</span></code></strong> / <strong><code class="docutils literal notranslate"><span class="pre">show_last_column</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Emphasize the first or last column.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">show_totals_row</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Display a totals row at the bottom.</p></li>
+</ul>
+</section>
+<section id="table-columns">
+<h2>Table Columns<a class="headerlink" href="#table-columns" title="Link to this heading"></a></h2>
+<p>When <code class="docutils literal notranslate"><span class="pre">add_table()</span></code> is called, OpenXLSX automatically reads the first row of your specified range and creates columns matching those text values. You usually do not need to call <code class="docutils literal notranslate"><span class="pre">append_column</span></code> manually unless you are building a table structure programmatically before writing data to the worksheet.</p>
+<section id="append-column-name-str">
+<h3><code class="docutils literal notranslate"><span class="pre">append_column(name:</span> <span class="pre">str)</span></code><a class="headerlink" href="#append-column-name-str" title="Link to this heading"></a></h3>
+<p>Manually appends a new column to the table definition.</p>
+</section>
+</section>
+<section id="totals-row">
+<h2>Totals Row<a class="headerlink" href="#totals-row" title="Link to this heading"></a></h2>
+<p>When you enable the totals row (<code class="docutils literal notranslate"><span class="pre">show_totals_row</span> <span class="pre">=</span> <span class="pre">True</span></code>), you must also ensure you manually write the corresponding labels or <code class="docutils literal notranslate"><span class="pre">SUBTOTAL</span></code> formulas into the worksheet cells for that row, as Excel does not automatically populate the cell contents based purely on the table definition.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLTotalsRowFunction</span>
+
+<span class="c1"># Enable totals row</span>
+<span class="n">table</span><span class="o">.</span><span class="n">show_totals_row</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># 1. Set the label in the first column definition and the worksheet cell</span>
+<span class="n">date_col</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">date_col</span><span class="o">.</span><span class="n">set_totals_row_label</span><span class="p">(</span><span class="s2">&quot;Grand Total:&quot;</span><span class="p">)</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">set_cell_value</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Grand Total:&quot;</span><span class="p">)</span> <span class="c1"># Assuming the totals row is on row 8</span>
+
+<span class="c1"># 2. Set the function in the column definition and the formula in the worksheet cell</span>
+<span class="n">sales_col</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">_table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;Total Sales&quot;</span><span class="p">)</span>
+<span class="n">sales_col</span><span class="o">.</span><span class="n">set_totals_row_function</span><span class="p">(</span><span class="n">XLTotalsRowFunction</span><span class="o">.</span><span class="n">Sum</span><span class="p">)</span>
+<span class="c1"># 109 is the function_num for SUM in SUBTOTAL</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="s2">&quot;=SUBTOTAL(109,SalesTable[Total Sales])&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="table-slicers">
+<h2>Table Slicers<a class="headerlink" href="#table-slicers" title="Link to this heading"></a></h2>
+<p>Slicers provide a visual way to filter tables in Excel. You can add them programmatically.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLSlicerOptions</span>
+
+<span class="c1"># Assume `table` is already created from the steps above</span>
+<span class="n">slicer_opts</span> <span class="o">=</span> <span class="n">XLSlicerOptions</span><span class="p">()</span>
+<span class="n">slicer_opts</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ScoreSlicer&quot;</span>
+<span class="n">slicer_opts</span><span class="o">.</span><span class="n">caption</span> <span class="o">=</span> <span class="s2">&quot;Filter by Score&quot;</span>
+
+<span class="c1"># Add a slicer for the &quot;Score&quot; column, positioning its top-left corner at E1</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_table_slicer</span><span class="p">(</span><span class="s2">&quot;E1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">_table</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">slicer_opts</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-table-properties">
+<h2>Advanced Table Properties<a class="headerlink" href="#advanced-table-properties" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">range</span></code></strong>: Alias for <code class="docutils literal notranslate"><span class="pre">range_reference</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">style</span></code></strong>: Alias for <code class="docutils literal notranslate"><span class="pre">style_name</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="05_data_validation.html" class="btn btn-neutral float-left" title="Data Validation API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="07_pivot_tables.html" class="btn btn-neutral float-right" title="Pivot Tables API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

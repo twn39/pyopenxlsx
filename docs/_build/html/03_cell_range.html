@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cell, Range, and Column API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Styles API" href="04_styles.html" />
+    <link rel="prev" title="Worksheet API" href="02_worksheet.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cell, Range, and Column API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#properties">Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-only-style-properties">Read-Only Style Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#column"><code class="docutils literal notranslate"><span class="pre">Column</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-example-formulas-and-merging">Advanced Example: Formulas and Merging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Cell, Range, and Column API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/03_cell_range.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cell-range-and-column-api">
+<h1>Cell, Range, and Column API<a class="headerlink" href="#cell-range-and-column-api" title="Link to this heading"></a></h1>
+<section id="cell">
+<h2><code class="docutils literal notranslate"><span class="pre">Cell</span></code><a class="headerlink" href="#cell" title="Link to this heading"></a></h2>
+<p>Represents a single Excel cell.</p>
+<section id="properties">
+<h3>Properties<a class="headerlink" href="#properties" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">value</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">Any</span></code>): The data stored in the cell (string, int, float, boolean, or datetime).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">formula</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">Formula</span></code>): The formula object for the cell. Read/write string representations without the leading <code class="docutils literal notranslate"><span class="pre">=</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">style_index</span></code></strong> / <strong><code class="docutils literal notranslate"><span class="pre">style</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The integer ID of the style applied to the cell.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">is_date</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if the cell’s number format indicates it is a date/time.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">comment</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Get or set the text of a comment attached to the cell.</p></li>
+</ul>
+</section>
+<section id="read-only-style-properties">
+<h3>Read-Only Style Properties<a class="headerlink" href="#read-only-style-properties" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">font</span></code></strong>: Underlying <code class="docutils literal notranslate"><span class="pre">XLFont</span></code> object.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">fill</span></code></strong>: Underlying <code class="docutils literal notranslate"><span class="pre">XLFill</span></code> object.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">border</span></code></strong>: Underlying <code class="docutils literal notranslate"><span class="pre">XLBorder</span></code> object.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">alignment</span></code></strong>: Underlying <code class="docutils literal notranslate"><span class="pre">XLAlignment</span></code> object.</p></li>
+</ul>
+</section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cell</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">cell</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">cell</span><span class="o">.</span><span class="n">style_index</span> <span class="o">=</span> <span class="n">my_style_id</span>
+<span class="n">cell</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;This is a comment&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="range">
+<h2><code class="docutils literal notranslate"><span class="pre">Range</span></code><a class="headerlink" href="#range" title="Link to this heading"></a></h2>
+<p>Represents a block of cells. Obtained via <code class="docutils literal notranslate"><span class="pre">ws.range(&quot;A1:C3&quot;)</span></code>.</p>
+<section id="id1">
+<h3>Properties<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">address</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The string reference of the range (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;A1:C3&quot;</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">num_rows</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): Number of rows in the range.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">num_columns</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): Number of columns in the range.</p></li>
+</ul>
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">clear()</span></code></strong>: Clears data and formulas from all cells in the range.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">__iter__()</span></code></strong>: Yields each <code class="docutils literal notranslate"><span class="pre">Cell</span></code> in the range, scanning left-to-right, top-to-bottom.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="column">
+<h2><code class="docutils literal notranslate"><span class="pre">Column</span></code><a class="headerlink" href="#column" title="Link to this heading"></a></h2>
+<p>Used to adjust column-specific properties. Obtained via <code class="docutils literal notranslate"><span class="pre">ws.column(&quot;A&quot;)</span></code> or <code class="docutils literal notranslate"><span class="pre">ws.column(1)</span></code>.</p>
+<section id="id2">
+<h3>Properties<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">width</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">float</span></code>): The width of the column.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">hidden</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Whether the column is hidden.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">style_index</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The default style for the column.</p></li>
+</ul>
+</section>
+</section>
+<section id="advanced-example-formulas-and-merging">
+<h2>Advanced Example: Formulas and Merging<a class="headerlink" href="#advanced-example-formulas-and-merging" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    
+    <span class="c1"># 1. Writing data</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;A1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Revenue&quot;</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;B1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;B2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">2500</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;B3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1500</span>
+    
+    <span class="c1"># 2. Applying a Formula</span>
+    <span class="c1"># IMPORTANT: Do not include the leading &#39;=&#39; in the formula string</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;B4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="s2">&quot;SUM(B1:B3)&quot;</span>
+    
+    <span class="c1"># 3. Using Ranges to clear or format blocks</span>
+    <span class="c1"># Clear the text we just wrote in B3</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="s2">&quot;B3:B3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span> 
+    
+    <span class="c1"># 4. Merging cells for a title header</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">merge_cells</span><span class="p">(</span><span class="s2">&quot;C1:E1&quot;</span><span class="p">)</span>
+    <span class="n">ws</span><span class="p">[</span><span class="s2">&quot;C1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;Q1 Highlights&quot;</span>
+    
+    <span class="c1"># Check if a cell is part of a merge</span>
+    <span class="k">if</span> <span class="s2">&quot;C1:E1&quot;</span> <span class="ow">in</span> <span class="n">ws</span><span class="o">.</span><span class="n">merges</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Range is merged successfully!&quot;</span><span class="p">)</span>
+        
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;cell_ops.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="02_worksheet.html" class="btn btn-neutral float-left" title="Worksheet API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="04_styles.html" class="btn btn-neutral float-right" title="Styles API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

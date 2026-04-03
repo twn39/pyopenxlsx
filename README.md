@@ -334,7 +334,7 @@ scale_rule = XLColorScaleRule(XLColor(255, 0, 0), XLColor(0, 255, 0))
 ws.add_conditional_formatting("A1:C1", scale_rule)
 
 # 2. Data Bar Rule (Blue bars)
-bar_rule = XLDataBarRule(XLColor(0, 0, 255), show_value_text=True)
+bar_rule = XLDataBarRule(XLColor(0, 0, 255), show_value=True)
 ws.add_conditional_formatting("A2:C2", bar_rule)
 
 wb.save("conditional_formatting.xlsx")

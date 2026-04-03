@@ -1,0 +1,847 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyopenxlsx.workbook &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../14_images_and_shapes.html">Images and Shapes API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../15_formula_engine.html">Formula Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../16_comments.html">Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../17_encryption.html">Encryption and Protection API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyopenxlsx.workbook</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyopenxlsx.workbook</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakValueDictionary</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_openxlsx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLProperty</span><span class="p">,</span> <span class="n">XLLineStyle</span><span class="p">,</span> <span class="n">XLPatternType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.worksheet</span><span class="w"> </span><span class="kn">import</span> <span class="n">Worksheet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Style</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DocumentProperties</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    High-level wrapper for Excel document properties.</span>
+<span class="sd">    Supports both Core and App/Extended properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_PROPERTY_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Title</span><span class="p">,</span>
+        <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Subject</span><span class="p">,</span>
+        <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Creator</span><span class="p">,</span>
+        <span class="s2">&quot;keywords&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Keywords</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Description</span><span class="p">,</span>
+        <span class="s2">&quot;last_modified_by&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">LastModifiedBy</span><span class="p">,</span>
+        <span class="s2">&quot;last_printed&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">LastPrinted</span><span class="p">,</span>
+        <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">CreationDate</span><span class="p">,</span>
+        <span class="s2">&quot;modified&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">ModificationDate</span><span class="p">,</span>
+        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Category</span><span class="p">,</span>
+        <span class="s2">&quot;application&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Application</span><span class="p">,</span>
+        <span class="s2">&quot;doc_security&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">DocSecurity</span><span class="p">,</span>
+        <span class="s2">&quot;scale_crop&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">ScaleCrop</span><span class="p">,</span>
+        <span class="s2">&quot;manager&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Manager</span><span class="p">,</span>
+        <span class="s2">&quot;company&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">Company</span><span class="p">,</span>
+        <span class="s2">&quot;links_up_to_date&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">LinksUpToDate</span><span class="p">,</span>
+        <span class="s2">&quot;shared_doc&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">SharedDoc</span><span class="p">,</span>
+        <span class="s2">&quot;hyperlink_base&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">HyperlinkBase</span><span class="p">,</span>
+        <span class="s2">&quot;hyperlinks_changed&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">HyperlinksChanged</span><span class="p">,</span>
+        <span class="s2">&quot;app_version&quot;</span><span class="p">:</span> <span class="n">XLProperty</span><span class="o">.</span><span class="n">AppVersion</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span> <span class="o">=</span> <span class="n">doc</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">XLProperty</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">property</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PROPERTY_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">property</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+
+        <span class="c1"># Fallback to string-based lookup in AppProperties (most flexible)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">app_properties</span><span class="p">()</span><span class="o">.</span><span class="n">property</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">XLProperty</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PROPERTY_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback to string-based set in AppProperties</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">app_properties</span><span class="p">()</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">XLProperty</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">delete_property</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PROPERTY_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">delete_property</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">app_properties</span><span class="p">()</span><span class="o">.</span><span class="n">delete_property</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Title</span><span class="p">]</span>
+
+    <span class="nd">@title</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Title</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">creator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Creator</span><span class="p">]</span>
+
+    <span class="nd">@creator</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">creator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Creator</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">last_modified_by</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">LastModifiedBy</span><span class="p">]</span>
+
+    <span class="nd">@last_modified_by</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">last_modified_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">LastModifiedBy</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Subject</span><span class="p">]</span>
+
+    <span class="nd">@subject</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Subject</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Description</span><span class="p">]</span>
+
+    <span class="nd">@description</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Description</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Keywords</span><span class="p">]</span>
+
+    <span class="nd">@keywords</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Keywords</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Category</span><span class="p">]</span>
+
+    <span class="nd">@category</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Category</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">company</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Company</span><span class="p">]</span>
+
+    <span class="nd">@company</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">company</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">XLProperty</span><span class="o">.</span><span class="n">Company</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomProperties</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Proxy for custom document properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span> <span class="o">=</span> <span class="n">doc</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">custom_property</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">set_custom_property</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">delete_custom_property</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">custom_property</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">val</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="Workbook">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Workbook</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Excel workbook.</span>
+
+<span class="sd">    Uses WeakValueDictionary for worksheet caching to allow garbage collection</span>
+<span class="sd">    of Worksheet objects when they are no longer referenced elsewhere.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span> <span class="o">=</span> <span class="n">_openxlsx</span><span class="o">.</span><span class="n">XLDocument</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Track temp file for cleanup</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">password</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use a temporary file to avoid polluting the current directory</span>
+            <span class="c1"># OpenXLSX&#39;s create() writes to disk immediately</span>
+            <span class="n">fd</span><span class="p">,</span> <span class="n">temp_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;pyopenxlsx_&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>  <span class="c1"># Close the file descriptor, XLDocument will manage the file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span> <span class="o">=</span> <span class="n">temp_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">temp_path</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">workbook</span><span class="p">()</span>
+        <span class="c1"># Use WeakValueDictionary to avoid keeping Worksheet objects alive indefinitely</span>
+        <span class="c1"># Worksheets will be garbage collected when no external references remain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span> <span class="o">=</span> <span class="n">WeakValueDictionary</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_styles</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_date_format_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the loaded document contains a VBA macro project.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">has_macro</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Workbook.save">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">force_overwrite</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">force_overwrite</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span>
+            <span class="c1"># OpenXLSX&#39;s save() doesn&#39;t take a password, but save_as does</span>
+            <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No filename specified&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.save_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.save_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">force_overwrite</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.close">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1"># Clean up temporary file if it was created</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Ignore errors during cleanup</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Workbook.close_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.close_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close_async</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close_async</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">styles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_styles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_styles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">styles</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_styles</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">defined_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Access the collection of defined names (named ranges) in the workbook.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wb</span><span class="o">.</span><span class="n">defined_names</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_properties&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span> <span class="o">=</span> <span class="n">DocumentProperties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_properties</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">custom_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the custom document properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_custom_properties&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_custom_properties</span> <span class="o">=</span> <span class="n">CustomProperties</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_properties</span>
+
+<div class="viewcode-block" id="Workbook.add_style">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.add_style">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_style</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">alignment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">number_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">protection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">style_obj</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">Style</span><span class="p">):</span>
+            <span class="n">style_obj</span> <span class="o">=</span> <span class="n">font</span>
+            <span class="n">font</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">font</span>
+            <span class="n">fill</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">fill</span>
+            <span class="n">border</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">border</span>
+            <span class="n">alignment</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">alignment</span>
+            <span class="n">number_format</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">number_format</span>
+            <span class="n">protection</span> <span class="o">=</span> <span class="n">style_obj</span><span class="o">.</span><span class="n">protection</span>
+
+        <span class="c1"># Create a new cell format entry (default)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">cell_formats</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+        <span class="n">xf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">cell_formats</span><span class="p">()</span><span class="o">.</span><span class="n">cell_format_by_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">font</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_font_index</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fonts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">fonts</span><span class="p">()</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">fonts</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+                <span class="n">target_font</span> <span class="o">=</span> <span class="n">fonts</span><span class="o">.</span><span class="n">font_by_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">target_font</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+                <span class="n">target_font</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+                <span class="n">target_font</span><span class="o">.</span><span class="n">set_bold</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">bold</span><span class="p">())</span>
+                <span class="n">target_font</span><span class="o">.</span><span class="n">set_italic</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">italic</span><span class="p">())</span>
+                <span class="c1"># TODO: Handle underline, etc. if added to Font class</span>
+                <span class="k">if</span> <span class="n">font</span><span class="o">.</span><span class="n">color</span><span class="p">():</span>
+                    <span class="n">target_font</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">font</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_font_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_font</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fill</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_fill_index</span><span class="p">(</span><span class="n">fill</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fills</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">fills</span><span class="p">()</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">fills</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+                <span class="n">target_fill</span> <span class="o">=</span> <span class="n">fills</span><span class="o">.</span><span class="n">fill_by_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+                <span class="c1"># Check for None pattern</span>
+                <span class="n">p_type</span> <span class="o">=</span> <span class="n">fill</span><span class="o">.</span><span class="n">pattern_type</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p_type</span> <span class="o">!=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">XLPatternType</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">):</span>
+                    <span class="n">target_fill</span><span class="o">.</span><span class="n">set_pattern_type</span><span class="p">(</span><span class="n">p_type</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">fill</span><span class="o">.</span><span class="n">color</span><span class="p">():</span>
+                    <span class="n">target_fill</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">fill</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">fill</span><span class="o">.</span><span class="n">background_color</span><span class="p">():</span>
+                    <span class="n">target_fill</span><span class="o">.</span><span class="n">set_background_color</span><span class="p">(</span><span class="n">fill</span><span class="o">.</span><span class="n">background_color</span><span class="p">())</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_fill_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_fill</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">border</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">border</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_border_index</span><span class="p">(</span><span class="n">border</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">borders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">borders</span><span class="p">()</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">borders</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+                <span class="n">target_border</span> <span class="o">=</span> <span class="n">borders</span><span class="o">.</span><span class="n">border_by_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+                <span class="n">line_none</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">)</span>
+
+                <span class="n">left_side</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">left</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">left_side</span> <span class="ow">and</span> <span class="n">left_side</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="ow">and</span> <span class="n">left_side</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="o">!=</span> <span class="n">line_none</span><span class="p">:</span>
+                    <span class="n">target_border</span><span class="o">.</span><span class="n">set_left</span><span class="p">(</span><span class="n">left_side</span><span class="o">.</span><span class="n">style</span><span class="p">(),</span> <span class="n">left_side</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+
+                <span class="n">r</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">right</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="o">!=</span> <span class="n">line_none</span><span class="p">:</span>
+                    <span class="n">target_border</span><span class="o">.</span><span class="n">set_right</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">style</span><span class="p">(),</span> <span class="n">r</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+
+                <span class="n">t</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">top</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="o">!=</span> <span class="n">line_none</span><span class="p">:</span>
+                    <span class="n">target_border</span><span class="o">.</span><span class="n">set_top</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">style</span><span class="p">(),</span> <span class="n">t</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+
+                <span class="n">b</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">bottom</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">b</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="ow">and</span> <span class="n">b</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="o">!=</span> <span class="n">line_none</span><span class="p">:</span>
+                    <span class="n">target_border</span><span class="o">.</span><span class="n">set_bottom</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">style</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+
+                <span class="n">d</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">diagonal</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">and</span> <span class="n">d</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="ow">and</span> <span class="n">d</span><span class="o">.</span><span class="n">style</span><span class="p">()</span> <span class="o">!=</span> <span class="n">line_none</span><span class="p">:</span>
+                    <span class="n">target_border</span><span class="o">.</span><span class="n">set_diagonal</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">style</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_border_index</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_border</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">alignment</span><span class="p">:</span>
+            <span class="n">target_align</span> <span class="o">=</span> <span class="n">xf</span><span class="o">.</span><span class="n">alignment</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alignment</span><span class="o">.</span><span class="n">horizontal</span><span class="p">():</span>
+                <span class="n">target_align</span><span class="o">.</span><span class="n">set_horizontal</span><span class="p">(</span><span class="n">alignment</span><span class="o">.</span><span class="n">horizontal</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">alignment</span><span class="o">.</span><span class="n">vertical</span><span class="p">():</span>
+                <span class="n">target_align</span><span class="o">.</span><span class="n">set_vertical</span><span class="p">(</span><span class="n">alignment</span><span class="o">.</span><span class="n">vertical</span><span class="p">())</span>
+            <span class="n">target_align</span><span class="o">.</span><span class="n">set_wrap_text</span><span class="p">(</span><span class="n">alignment</span><span class="o">.</span><span class="n">wrap_text</span><span class="p">())</span>
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_alignment</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">number_format</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number_format</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="c1"># Assume it&#39;s a numberFormatId</span>
+                <span class="n">xf</span><span class="o">.</span><span class="n">set_number_format_id</span><span class="p">(</span><span class="n">number_format</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number_format</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Check if this format code already exists</span>
+                <span class="n">nfs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">styles</span><span class="o">.</span><span class="n">number_formats</span><span class="p">()</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">target_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="n">count</span> <span class="o">=</span> <span class="n">nfs</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+                    <span class="n">nf</span> <span class="o">=</span> <span class="n">nfs</span><span class="o">.</span><span class="n">number_format_by_index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">nf</span><span class="o">.</span><span class="n">format_code</span><span class="p">()</span> <span class="o">==</span> <span class="n">number_format</span><span class="p">:</span>
+                        <span class="n">target_id</span> <span class="o">=</span> <span class="n">nf</span><span class="o">.</span><span class="n">number_format_id</span><span class="p">()</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">xf</span><span class="o">.</span><span class="n">set_number_format_id</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create new custom format</span>
+                    <span class="n">max_id</span> <span class="o">=</span> <span class="mi">163</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+                        <span class="n">nf</span> <span class="o">=</span> <span class="n">nfs</span><span class="o">.</span><span class="n">number_format_by_index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">nf</span><span class="o">.</span><span class="n">number_format_id</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">max_id</span><span class="p">:</span>
+                            <span class="n">max_id</span> <span class="o">=</span> <span class="n">nf</span><span class="o">.</span><span class="n">number_format_id</span><span class="p">()</span>
+
+                    <span class="n">new_id</span> <span class="o">=</span> <span class="n">max_id</span> <span class="o">+</span> <span class="mi">1</span>
+
+                    <span class="c1"># Create new empty number format entry</span>
+                    <span class="n">nfs</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+                    <span class="c1"># Retrieve it (assume appended)</span>
+                    <span class="n">nf</span> <span class="o">=</span> <span class="n">nfs</span><span class="o">.</span><span class="n">number_format_by_index</span><span class="p">(</span><span class="n">nfs</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">nf</span><span class="o">.</span><span class="n">set_number_format_id</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span>
+                    <span class="n">nf</span><span class="o">.</span><span class="n">set_format_code</span><span class="p">(</span><span class="n">number_format</span><span class="p">)</span>
+
+                    <span class="n">xf</span><span class="o">.</span><span class="n">set_number_format_id</span><span class="p">(</span><span class="n">new_id</span><span class="p">)</span>
+
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_number_format</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">protection</span><span class="p">:</span>
+            <span class="n">target_prot</span> <span class="o">=</span> <span class="n">xf</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">protection</span><span class="p">,</span> <span class="s2">&quot;locked&quot;</span><span class="p">):</span>
+                <span class="n">target_prot</span><span class="o">.</span><span class="n">set_locked</span><span class="p">(</span><span class="n">protection</span><span class="o">.</span><span class="n">locked</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">protection</span><span class="p">,</span> <span class="s2">&quot;hidden&quot;</span><span class="p">):</span>
+                <span class="n">target_prot</span><span class="o">.</span><span class="n">set_hidden</span><span class="p">(</span><span class="n">protection</span><span class="o">.</span><span class="n">hidden</span><span class="p">)</span>
+            <span class="n">xf</span><span class="o">.</span><span class="n">set_apply_protection</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">style_obj</span><span class="p">:</span>
+            <span class="n">style_obj</span><span class="o">.</span><span class="n">style_index</span> <span class="o">=</span> <span class="n">index</span>
+
+        <span class="k">return</span> <span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="Workbook.add_style_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.add_style_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">add_style_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">alignment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">number_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">protection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_style</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fill</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">alignment</span><span class="p">,</span> <span class="n">number_format</span><span class="p">,</span> <span class="n">protection</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workbook</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wb</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">worksheet</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ws</span><span class="o">.</span><span class="n">is_active</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>  <span class="c1"># Use cache via __getitem__</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@active</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ws</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">Worksheet</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Must be a Worksheet object&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">clear_active_tab</span><span class="p">()</span>
+        <span class="n">ws</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_active</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Workbook.create_sheet">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.create_sheet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="sa">f</span><span class="s2">&quot;Sheet</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Sheet</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">add_worksheet</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">ws</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">title</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ws</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ws</span></div>
+
+
+<div class="viewcode-block" id="Workbook.create_sheet_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.create_sheet_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_sheet_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_sheet</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.remove">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.remove">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">delete_sheet</span><span class="p">(</span><span class="n">worksheet</span><span class="o">.</span><span class="n">title</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.remove_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.remove_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">remove_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">,</span> <span class="n">worksheet</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.copy_worksheet">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.copy_worksheet">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_worksheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_worksheet</span><span class="p">):</span>
+        <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_worksheet</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> Copy&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">new_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">:</span>
+            <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">from_worksheet</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> Copy</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">clone_sheet</span><span class="p">(</span><span class="n">from_worksheet</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">new_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Workbook.copy_worksheet_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.copy_worksheet_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">copy_worksheet_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_worksheet</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_worksheet</span><span class="p">,</span> <span class="n">from_worksheet</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sheetnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">worksheet_names</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">sheet_exists</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">ws</span> <span class="o">=</span> <span class="n">Worksheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">worksheet</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ws</span>
+            <span class="k">return</span> <span class="n">ws</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Worksheet </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">sheet_exists</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">delete_sheet</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Worksheet </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">sheet_count</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">workbook</span><span class="o">.</span><span class="n">sheet_exists</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Workbook.get_archive_entries">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.get_archive_entries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_archive_entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all files/directories in the underlying zip archive.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: List of entry paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">get_archive_entries</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Workbook.has_archive_entry">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.has_archive_entry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_archive_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the underlying zip archive contains an entry with the given path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Path in the archive (e.g., &#39;xl/workbook.xml&#39;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the entry exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">has_archive_entry</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.get_archive_entry">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.get_archive_entry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_archive_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the raw bytes of an entry from the underlying zip archive.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Path in the archive (e.g., &#39;xl/workbook.xml&#39;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: The raw binary data of the entry.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the entry is not found in the archive.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">get_archive_entry</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.get_embedded_images">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.get_embedded_images">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_embedded_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all embedded images in the workbook.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[ImageInfo]: List of ImageInfo objects with name, path, and extension attributes.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; wb = Workbook(&quot;test.xlsx&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; images = wb.get_embedded_images()</span>
+<span class="sd">            &gt;&gt;&gt; for img in images:</span>
+<span class="sd">            ...     print(f&quot;Found image: {img.name}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">get_embedded_images</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Workbook.get_image_data">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.get_image_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_path_or_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the binary data of an embedded image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path_or_name: Either the full path (e.g., &#39;xl/media/image1.png&#39;)</span>
+<span class="sd">                               or just the filename (e.g., &#39;image1.png&#39;)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bytes: The raw binary data of the image.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the image is not found in the archive.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; wb = Workbook(&quot;test.xlsx&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; images = wb.get_embedded_images()</span>
+<span class="sd">            &gt;&gt;&gt; if images:</span>
+<span class="sd">            ...     data = wb.get_image_data(images[0].name)</span>
+<span class="sd">            ...     with open(&quot;extracted_image.png&quot;, &quot;wb&quot;) as f:</span>
+<span class="sd">            ...         f.write(data)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">get_image_data</span><span class="p">(</span><span class="n">image_path_or_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Workbook.extract_images">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.extract_images">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract all embedded images to a directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_dir: Directory path where images will be saved.</span>
+<span class="sd">                       Will be created if it doesn&#39;t exist.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[str]: List of paths to the extracted image files.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; wb = Workbook(&quot;test.xlsx&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; extracted = wb.extract_images(&quot;./images/&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Extracted {len(extracted)} images&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_embedded_images</span><span class="p">()</span>
+        <span class="n">extracted_paths</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_image_data</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">extracted_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extracted_paths</span></div>
+
+
+<div class="viewcode-block" id="Workbook.extract_images_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Workbook.extract_images_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_images_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of extract_images.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extract_images</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Ensure temporary file is cleaned up even if close() was not called</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_temp_file&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temp_file</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">):</span>
+                <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="load_workbook">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.load_workbook">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_workbook_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.load_workbook_async">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_workbook_async</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">load_workbook</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

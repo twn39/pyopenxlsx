@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyopenxlsx.styles &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyopenxlsx.styles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyopenxlsx.styles</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">XLColor</span><span class="p">,</span>
+    <span class="n">XLPatternType</span><span class="p">,</span>
+    <span class="n">XLLineStyle</span><span class="p">,</span>
+    <span class="n">XLAlignmentStyle</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Font">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Font</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Arial&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">italic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bold</span> <span class="o">=</span> <span class="n">bold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_italic</span> <span class="o">=</span> <span class="n">italic</span>
+        <span class="k">if</span> <span class="n">color</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Default black</span>
+
+<div class="viewcode-block" id="Font.name">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span></div>
+
+
+<div class="viewcode-block" id="Font.set_name">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.set_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Font.size">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span></div>
+
+
+<div class="viewcode-block" id="Font.set_size">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.set_size">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Font.bold">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.bold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bold</span></div>
+
+
+<div class="viewcode-block" id="Font.set_bold">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.set_bold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bold</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Font.italic">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.italic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">italic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_italic</span></div>
+
+
+<div class="viewcode-block" id="Font.set_italic">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.set_italic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_italic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_italic</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Font.color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span></div>
+
+
+<div class="viewcode-block" id="Font.set_color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Font.set_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">value</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Fill">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Fill</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pattern_type</span><span class="o">=</span><span class="n">XLPatternType</span><span class="o">.</span><span class="n">Solid</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">background_color</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pattern_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_type</span> <span class="o">=</span> <span class="n">XLPatternType</span><span class="o">.</span><span class="n">Solid</span>  <span class="c1"># Default fallback</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">XLPatternType</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">pattern_type</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_type</span> <span class="o">=</span> <span class="n">member</span>
+                    <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_type</span> <span class="o">=</span> <span class="n">pattern_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">color</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="k">if</span> <span class="n">background_color</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">background_color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">background_color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span> <span class="o">=</span> <span class="n">background_color</span>
+
+<div class="viewcode-block" id="Fill.pattern_type">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.pattern_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pattern_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_type</span></div>
+
+
+<div class="viewcode-block" id="Fill.set_pattern_type">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.set_pattern_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_pattern_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_type</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Fill.color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span></div>
+
+
+<div class="viewcode-block" id="Fill.set_color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.set_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Fill.background_color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.background_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">background_color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span></div>
+
+
+<div class="viewcode-block" id="Fill.set_background_color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Fill.set_background_color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_background_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_background_color</span> <span class="o">=</span> <span class="n">value</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Alignment">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Alignment</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">horizontal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vertical</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wrap_text</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_text</span> <span class="o">=</span> <span class="n">wrap_text</span>
+
+        <span class="k">if</span> <span class="n">horizontal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">horizontal</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Map string to enum</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">XLAlignmentStyle</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">horizontal</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="n">member</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="n">horizontal</span>
+
+        <span class="k">if</span> <span class="n">vertical</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vertical</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># Map string to enum</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">XLAlignmentStyle</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">vertical</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="n">member</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="n">vertical</span>
+
+<div class="viewcode-block" id="Alignment.horizontal">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.horizontal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span></div>
+
+
+<div class="viewcode-block" id="Alignment.set_horizontal">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.set_horizontal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_horizontal</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Alignment.vertical">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.vertical">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span></div>
+
+
+<div class="viewcode-block" id="Alignment.set_vertical">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.set_vertical">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_vertical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertical</span> <span class="o">=</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="Alignment.wrap_text">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.wrap_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_text</span></div>
+
+
+<div class="viewcode-block" id="Alignment.set_wrap_text">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Alignment.set_wrap_text">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_wrap_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_text</span> <span class="o">=</span> <span class="n">value</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="is_date_format">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.is_date_format">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_date_format</span><span class="p">(</span><span class="n">c_format</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns True if the given format code or id implies a date/time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c_format</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># Standard date formats</span>
+        <span class="c1"># 14-22: Date/Time</span>
+        <span class="c1"># 27-36: Date/Time (mostly Asian)</span>
+        <span class="c1"># 45-47: Time</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mi">14</span> <span class="o">&lt;=</span> <span class="n">c_format</span> <span class="o">&lt;=</span> <span class="mi">22</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">27</span> <span class="o">&lt;=</span> <span class="n">c_format</span> <span class="o">&lt;=</span> <span class="mi">36</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">45</span> <span class="o">&lt;=</span> <span class="n">c_format</span> <span class="o">&lt;=</span> <span class="mi">47</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c_format</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Heuristic check for date characters</span>
+        <span class="c1"># This is simplified. Reference: OpenXML standard or similar libraries.</span>
+        <span class="c1"># Check for y, m, d, h, s in the string, but ignore colors [Red] etc.</span>
+        <span class="c1"># Also need to handle escaped chars.</span>
+        <span class="c1"># For now, a simple reliable check for common patterns.</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+        <span class="c1"># Remove quoted text</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&quot;[^&quot;]*&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">c_format</span><span class="p">)</span>
+        <span class="c1"># Remove known colors</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[[^\]]*\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="c1"># Check for date time tokens</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">fmt</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_line_style</span><span class="p">(</span><span class="n">style</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Capitalize logic or dictionary?</span>
+        <span class="c1"># Enums are like &quot;Thin&quot;, &quot;Thick&quot;, &quot;Dashed&quot;</span>
+        <span class="c1"># Let&#39;s try to match case-insensitive</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">XLLineStyle</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">member</span>
+        <span class="c1"># Fallback to Thin if unknown or raise?</span>
+        <span class="c1"># Let&#39;s raise or default. Defaulting to Thin might be confusing.</span>
+        <span class="c1"># But raising might break simple assumptions.</span>
+        <span class="c1"># Given &quot;thick&quot; -&gt; &quot;Thick&quot; works.</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">style</span>
+
+
+<div class="viewcode-block" id="Side">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Side">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Side</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">XLLineStyle</span><span class="o">.</span><span class="n">Thin</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style</span> <span class="o">=</span> <span class="n">_get_line_style</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Side.style">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Side.style">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">style</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style</span></div>
+
+
+<div class="viewcode-block" id="Side.color">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Side.color">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Border">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Border</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">diagonal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">outline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_diagonal</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">XLLineStyle</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">outline</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">right</span> <span class="o">=</span> <span class="n">top</span> <span class="o">=</span> <span class="n">bottom</span> <span class="o">=</span> <span class="n">outline</span>
+
+        <span class="k">if</span> <span class="n">left</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">Side</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">left</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">_get_line_style</span><span class="p">(</span><span class="n">left</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">Side</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">right</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">_get_line_style</span><span class="p">(</span><span class="n">right</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">top</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">Side</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_top</span> <span class="o">=</span> <span class="n">top</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_top</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">_get_line_style</span><span class="p">(</span><span class="n">top</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bottom</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">Side</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span> <span class="o">=</span> <span class="n">bottom</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">_get_line_style</span><span class="p">(</span><span class="n">bottom</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">diagonal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diagonal</span><span class="p">,</span> <span class="n">Side</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_diagonal</span> <span class="o">=</span> <span class="n">diagonal</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_diagonal</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">_get_line_style</span><span class="p">(</span><span class="n">diagonal</span><span class="p">),</span> <span class="n">XLColor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Border.left">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.left">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">left</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_left</span></div>
+
+
+<div class="viewcode-block" id="Border.right">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.right">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span></div>
+
+
+<div class="viewcode-block" id="Border.top">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.top">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top</span></div>
+
+
+<div class="viewcode-block" id="Border.bottom">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.bottom">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span></div>
+
+
+<div class="viewcode-block" id="Border.diagonal">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.diagonal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagonal</span></div>
+
+
+<div class="viewcode-block" id="Border.set_left">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.set_left">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_left</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Border.set_right">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.set_right">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Border.set_top">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.set_top">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Border.set_bottom">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.set_bottom">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_bottom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Border.set_diagonal">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Border.set_diagonal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_diagonal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_diagonal</span> <span class="o">=</span> <span class="n">Side</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Protection">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Protection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Protection</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hidden</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="n">locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="n">hidden</span></div>
+
+
+
+<div class="viewcode-block" id="Style">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Style">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Style</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">alignment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">number_format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">protection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">font</span> <span class="o">=</span> <span class="n">font</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">border</span> <span class="o">=</span> <span class="n">border</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">alignment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_format</span> <span class="o">=</span> <span class="n">number_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protection</span> <span class="o">=</span> <span class="n">protection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">style_index</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># To be set by workbook.add_style</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_index</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

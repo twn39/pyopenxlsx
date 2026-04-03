@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formula Engine API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Images API" href="14_images.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images.html">Images API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Formula Engine API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#formulaengine">FormulaEngine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#contextual-evaluation-resolving-cell-references">Contextual Evaluation (Resolving Cell References)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#evaluate-formula-str-worksheet-optional-worksheet-none-any"><code class="docutils literal notranslate"><span class="pre">evaluate(formula:</span> <span class="pre">str,</span> <span class="pre">worksheet:</span> <span class="pre">Optional[Worksheet]</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Formula Engine API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/15_formula_engine.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="formula-engine-api">
+<h1>Formula Engine API<a class="headerlink" href="#formula-engine-api" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pyopenxlsx</span></code> exposes the underlying OpenXLSX-NX C++ formula engine to allow static evaluation of Excel formulas within Python, without needing to open Microsoft Excel.</p>
+<section id="formulaengine">
+<h2>FormulaEngine<a class="headerlink" href="#formulaengine" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">FormulaEngine</span></code> class parses and evaluates formula strings.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span><span class="p">,</span> <span class="n">FormulaEngine</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">FormulaEngine</span><span class="p">()</span>
+
+<span class="c1"># Basic evaluation (no cell references needed)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;=1 + 2 * 3&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="c1"># Output: 7</span>
+
+<span class="c1"># String operations</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;=&quot;Hello &quot; &amp; &quot;World&quot;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="c1"># Output: &quot;Hello World&quot;</span>
+
+<span class="c1"># Logical operations</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;=IF(10 &gt; 5, TRUE, FALSE)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="c1"># Output: True</span>
+</pre></div>
+</div>
+<section id="contextual-evaluation-resolving-cell-references">
+<h3>Contextual Evaluation (Resolving Cell References)<a class="headerlink" href="#contextual-evaluation-resolving-cell-references" title="Link to this heading"></a></h3>
+<p>If your formula contains references to cells (like <code class="docutils literal notranslate"><span class="pre">A1</span></code>, <code class="docutils literal notranslate"><span class="pre">B2</span></code>), you must provide a <code class="docutils literal notranslate"><span class="pre">Worksheet</span></code> context so the engine can look up the values of those cells.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span><span class="p">,</span> <span class="n">FormulaEngine</span>
+
+<span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
+<span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+
+<span class="c1"># Populate some data</span>
+<span class="n">ws</span><span class="p">[</span><span class="s2">&quot;A1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">ws</span><span class="p">[</span><span class="s2">&quot;A2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">ws</span><span class="p">[</span><span class="s2">&quot;B1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">FormulaEngine</span><span class="p">()</span>
+
+<span class="c1"># Pass the worksheet context to evaluate</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;=SUM(A1:A2) * B1&quot;</span><span class="p">,</span> <span class="n">worksheet</span><span class="o">=</span><span class="n">ws</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="c1"># Output: 150 ((10 + 20) * 5)</span>
+</pre></div>
+</div>
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+<section id="evaluate-formula-str-worksheet-optional-worksheet-none-any">
+<h4><code class="docutils literal notranslate"><span class="pre">evaluate(formula:</span> <span class="pre">str,</span> <span class="pre">worksheet:</span> <span class="pre">Optional[Worksheet]</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code><a class="headerlink" href="#evaluate-formula-str-worksheet-optional-worksheet-none-any" title="Link to this heading"></a></h4>
+<p>Evaluates the formula string.</p>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">formula</span></code>: The string to evaluate. Can start with or without the <code class="docutils literal notranslate"><span class="pre">=</span></code> sign.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">worksheet</span></code>: (Optional) The <code class="docutils literal notranslate"><span class="pre">pyopenxlsx.Worksheet</span></code> object to use for resolving cell references (e.g. <code class="docutils literal notranslate"><span class="pre">A1</span></code>).</p></li>
+</ul>
+</li>
+<li><p><strong>Returns:</strong> The calculated primitive Python value (e.g. <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>), or raises an error if evaluation fails.</p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="14_images.html" class="btn btn-neutral float-left" title="Images API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

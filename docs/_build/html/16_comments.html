@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comments API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Encryption and Protection API" href="17_encryption.html" />
+    <link rel="prev" title="Formula Engine API" href="15_formula_engine.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images_and_shapes.html">Images and Shapes API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Comments API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#adding-legacy-comments">Adding Legacy Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#threaded-comments">Threaded Comments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interacting-with-threaded-comments">Interacting with Threaded Comments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-threaded-comments">Reading Threaded Comments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="17_encryption.html">Encryption and Protection API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Comments API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/16_comments.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="comments-api">
+<h1>Comments API<a class="headerlink" href="#comments-api" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pyopenxlsx</span></code> supports adding and interacting with standard comments, as well as the modern Threaded Comments (used in newer versions of Excel for conversational replies).</p>
+<section id="adding-legacy-comments">
+<h2>Adding Legacy Comments<a class="headerlink" href="#adding-legacy-comments" title="Link to this heading"></a></h2>
+<p>A standard, non-threaded comment attached to a cell.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;This cell needs review.&quot;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+    
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;comments.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="threaded-comments">
+<h2>Threaded Comments<a class="headerlink" href="#threaded-comments" title="Link to this heading"></a></h2>
+<p>Threaded comments support rich conversations with authors (persons), replies, and resolved states.</p>
+<section id="interacting-with-threaded-comments">
+<h3>Interacting with Threaded Comments<a class="headerlink" href="#interacting-with-threaded-comments" title="Link to this heading"></a></h3>
+<p>You must first register a “Person” (an author) in the workbook before adding threaded comments.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    
+    <span class="c1"># 1. Register a Person in the document</span>
+    <span class="n">persons</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">_doc</span><span class="o">.</span><span class="n">persons</span><span class="p">()</span>
+    <span class="n">author_id</span> <span class="o">=</span> <span class="n">persons</span><span class="o">.</span><span class="n">add_person</span><span class="p">(</span><span class="s2">&quot;John Doe&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 2. Access the threaded comments collection for the active sheet</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">threaded_comments</span><span class="p">()</span>
+    
+    <span class="c1"># 3. Add a top-level comment to a cell (e.g. A1)</span>
+    <span class="n">root_comment</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="s2">&quot;Please update these figures.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 4. Add a reply to the root comment</span>
+    <span class="c1"># Notice we pass the parent&#39;s ID</span>
+    <span class="n">reply</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="n">add_reply</span><span class="p">(</span><span class="n">root_comment</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">author_id</span><span class="p">,</span> <span class="s2">&quot;Updated!&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 5. Mark the conversation as resolved</span>
+    <span class="n">root_comment</span><span class="o">.</span><span class="n">is_resolved</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;threaded_comments.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="reading-threaded-comments">
+<h3>Reading Threaded Comments<a class="headerlink" href="#reading-threaded-comments" title="Link to this heading"></a></h3>
+<p>You can load an existing workbook and retrieve conversation threads:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_workbook</span>
+
+<span class="k">with</span> <span class="n">load_workbook</span><span class="p">(</span><span class="s2">&quot;threaded_comments.xlsx&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    
+    <span class="n">threads</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">threaded_comments</span><span class="p">()</span>
+    
+    <span class="c1"># Get the root comment on a specific cell</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="s2">&quot;A1&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Top Comment: &#39;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39; (Resolved: </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">is_resolved</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Get all replies</span>
+        <span class="n">replies</span> <span class="o">=</span> <span class="n">threads</span><span class="o">.</span><span class="n">replies</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">replies</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Reply: &#39;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>(Note: Advanced Threaded Comments API is accessed via the internal C++ bindings <code class="docutils literal notranslate"><span class="pre">.</span> <span class="pre">_doc</span></code> and <code class="docutils literal notranslate"><span class="pre">._sheet</span></code> properties to offer raw maximum control over the underlying OpenXLSX objects).</em></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="15_formula_engine.html" class="btn btn-neutral float-left" title="Formula Engine API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="17_encryption.html" class="btn btn-neutral float-right" title="Encryption and Protection API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

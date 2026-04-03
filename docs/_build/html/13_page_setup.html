@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Setup &amp; Printing API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Images API" href="14_images.html" />
+    <link rel="prev" title="Charts API" href="12_charts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Page Setup &amp; Printing API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-configuration">Example Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="14_images.html">Images API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Page Setup &amp; Printing API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/13_page_setup.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="page-setup-printing-api">
+<h1>Page Setup &amp; Printing API<a class="headerlink" href="#page-setup-printing-api" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pyopenxlsx</span></code> allows you to configure how a worksheet is printed or exported to PDF using <code class="docutils literal notranslate"><span class="pre">page_setup</span></code>, <code class="docutils literal notranslate"><span class="pre">page_margins</span></code>, and <code class="docutils literal notranslate"><span class="pre">print_options</span></code>.</p>
+<section id="example-configuration">
+<h2>Example Configuration<a class="headerlink" href="#example-configuration" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLPageOrientation</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># 1. Page Setup</span>
+    <span class="c1"># -----------------------------</span>
+    <span class="n">setup</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">page_setup</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">orientation</span> <span class="o">=</span> <span class="n">XLPageOrientation</span><span class="o">.</span><span class="n">Landscape</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">paper_size</span> <span class="o">=</span> <span class="mi">9</span> <span class="c1"># 9 = A4</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="mi">80</span>     <span class="c1"># Print at 80% scale</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">black_and_white</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># 2. Page Margins (in inches)</span>
+    <span class="c1"># -----------------------------</span>
+    <span class="n">margins</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">page_margins</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">bottom</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="mf">0.3</span>
+    <span class="n">margins</span><span class="o">.</span><span class="n">footer</span> <span class="o">=</span> <span class="mf">0.3</span>
+    
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># 3. Print Options</span>
+    <span class="c1"># -----------------------------</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">print_options</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">grid_lines</span> <span class="o">=</span> <span class="kc">True</span>         <span class="c1"># Print gridlines</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">headings</span> <span class="o">=</span> <span class="kc">True</span>           <span class="c1"># Print row/column headers (A, B, 1, 2)</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">horizontal_centered</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">vertical_centered</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="c1"># -----------------------------</span>
+    <span class="c1"># 4. Print Area &amp; Titles</span>
+    <span class="c1"># -----------------------------</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">set_print_area</span><span class="p">(</span><span class="s2">&quot;A1:E50&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Repeat specific rows/cols on every printed page</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">set_print_title_rows</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="c1"># Repeat rows 1-2</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">set_print_title_cols</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># Repeat column A (1)</span>
+    
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;printing_setup.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="12_charts.html" class="btn btn-neutral float-left" title="Charts API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="14_images.html" class="btn btn-neutral float-right" title="Images API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyopenxlsx documentation &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Workbook API" href="01_workbook.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images_and_shapes.html">Images and Shapes API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_comments.html">Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_encryption.html">Encryption and Protection API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyopenxlsx documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pyopenxlsx-documentation">
+<h1>pyopenxlsx documentation<a class="headerlink" href="#pyopenxlsx-documentation" title="Link to this heading"></a></h1>
+<p><cite>pyopenxlsx</cite> is a high-performance Python binding for the OpenXLSX-NX C++ library.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01_workbook.html#creating-and-loading">Creating and Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_workbook.html#properties">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_workbook.html#methods">Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_workbook.html#advanced-example-modifying-document-metadata">Advanced Example: Modifying Document Metadata</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="02_worksheet.html">Worksheet API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#properties">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#data-access-modification-methods">Data Access &amp; Modification Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#formatting-view-methods">Formatting &amp; View Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#hyperlinks-comments">Hyperlinks &amp; Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#ranges-merging">Ranges &amp; Merging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#tables-shapes">Tables &amp; Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#advanced-i-o">Advanced I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#documented-in-other-modules">Documented in Other Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_worksheet.html#advanced-example-data-parsing-and-high-speed-bulk-write">Advanced Example: Data Parsing and High-Speed Bulk Write</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03_cell_range.html#cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_cell_range.html#range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_cell_range.html#column"><code class="docutils literal notranslate"><span class="pre">Column</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_cell_range.html#advanced-example-formulas-and-merging">Advanced Example: Formulas and Merging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="04_styles.html#components">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_styles.html#applying-styles">Applying Styles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_styles.html#advanced-properties-getters-setters">Advanced Properties &amp; Getters/Setters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_styles.html#advanced-example-complex-financial-styling">Advanced Example: Complex Financial Styling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="05_data_validation.html#core-concepts">Core Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_validation.html#enums">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_validation.html#properties-and-methods-of-datavalidation">Properties and Methods of <code class="docutils literal notranslate"><span class="pre">DataValidation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_validation.html#datavalidations-collection"><code class="docutils literal notranslate"><span class="pre">DataValidations</span></code> Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_data_validation.html#advanced-example-dependent-dropdowns-cascading-validation">Advanced Example: Dependent Dropdowns (Cascading Validation)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#creating-a-table">Creating a Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#table-properties">Table Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#table-columns">Table Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#totals-row">Totals Row</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#table-slicers">Table Slicers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_tables.html#advanced-table-properties">Advanced Table Properties</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="07_pivot_tables.html#code-example">Code Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_pivot_tables.html#xlpivotfield-configuration"><code class="docutils literal notranslate"><span class="pre">XLPivotField</span></code> Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_pivot_tables.html#xlsliceroptions-configuration"><code class="docutils literal notranslate"><span class="pre">XLSlicerOptions</span></code> Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="08_rich_text.html#rich-text">Rich Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_rich_text.html#comments">Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="09_async_operations.html#async-context-managers">Async Context Managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_async_operations.html#available-async-methods">Available Async Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="10_conditional_formatting.html#adding-a-rule">Adding a Rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_conditional_formatting.html#supported-rule-types">Supported Rule Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_conditional_formatting.html#managing-rules">Managing Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="11_streams.html#stream-writer">Stream Writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_streams.html#stream-reader">Stream Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_streams.html#use-cases">Use Cases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="12_charts.html#adding-a-chart">Adding a Chart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_charts.html#supported-chart-types-xlcharttype">Supported Chart Types (<code class="docutils literal notranslate"><span class="pre">XLChartType</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="13_page_setup.html#example-configuration">Example Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="14_images_and_shapes.html">Images and Shapes API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="14_images_and_shapes.html#inserting-an-image">Inserting an Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_images_and_shapes.html#extracting-images">Extracting Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_images_and_shapes.html#advanced-binary-data-access">Advanced Binary Data Access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_images_and_shapes.html#inserting-vector-shapes">Inserting Vector Shapes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="15_formula_engine.html#formulaengine">FormulaEngine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="16_comments.html">Comments API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="16_comments.html#adding-legacy-comments">Adding Legacy Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_comments.html#threaded-comments">Threaded Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="17_encryption.html">Encryption and Protection API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="17_encryption.html#workbook-encryption-password-protection">Workbook Encryption (Password Protection)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="17_encryption.html#worksheet-protection">Worksheet Protection</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Alignment"><code class="docutils literal notranslate"><span class="pre">Alignment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Border"><code class="docutils literal notranslate"><span class="pre">Border</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Column"><code class="docutils literal notranslate"><span class="pre">Column</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.DataValidation"><code class="docutils literal notranslate"><span class="pre">DataValidation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.DataValidations"><code class="docutils literal notranslate"><span class="pre">DataValidations</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Fill"><code class="docutils literal notranslate"><span class="pre">Fill</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Font"><code class="docutils literal notranslate"><span class="pre">Font</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Formula"><code class="docutils literal notranslate"><span class="pre">Formula</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.FormulaEngine"><code class="docutils literal notranslate"><span class="pre">FormulaEngine</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.ImageInfo"><code class="docutils literal notranslate"><span class="pre">ImageInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.PageMargins"><code class="docutils literal notranslate"><span class="pre">PageMargins</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.PageSetup"><code class="docutils literal notranslate"><span class="pre">PageSetup</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.PrintOptions"><code class="docutils literal notranslate"><span class="pre">PrintOptions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Protection"><code class="docutils literal notranslate"><span class="pre">Protection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.PythonMergeCells"><code class="docutils literal notranslate"><span class="pre">PythonMergeCells</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Side"><code class="docutils literal notranslate"><span class="pre">Side</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Style"><code class="docutils literal notranslate"><span class="pre">Style</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Table"><code class="docutils literal notranslate"><span class="pre">Table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Workbook"><code class="docutils literal notranslate"><span class="pre">Workbook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.Worksheet"><code class="docutils literal notranslate"><span class="pre">Worksheet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLAlignment"><code class="docutils literal notranslate"><span class="pre">XLAlignment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLAlignmentStyle"><code class="docutils literal notranslate"><span class="pre">XLAlignmentStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLAppProperties"><code class="docutils literal notranslate"><span class="pre">XLAppProperties</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLBorder"><code class="docutils literal notranslate"><span class="pre">XLBorder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLBorders"><code class="docutils literal notranslate"><span class="pre">XLBorders</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLCellFormat"><code class="docutils literal notranslate"><span class="pre">XLCellFormat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLCellFormats"><code class="docutils literal notranslate"><span class="pre">XLCellFormats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLCellRange"><code class="docutils literal notranslate"><span class="pre">XLCellRange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLCellReference"><code class="docutils literal notranslate"><span class="pre">XLCellReference</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLColor"><code class="docutils literal notranslate"><span class="pre">XLColor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLComment"><code class="docutils literal notranslate"><span class="pre">XLComment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLComments"><code class="docutils literal notranslate"><span class="pre">XLComments</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLContentItem"><code class="docutils literal notranslate"><span class="pre">XLContentItem</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLContentType"><code class="docutils literal notranslate"><span class="pre">XLContentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLContentTypes"><code class="docutils literal notranslate"><span class="pre">XLContentTypes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDataValidationErrorStyle"><code class="docutils literal notranslate"><span class="pre">XLDataValidationErrorStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDataValidationOperator"><code class="docutils literal notranslate"><span class="pre">XLDataValidationOperator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDataValidationType"><code class="docutils literal notranslate"><span class="pre">XLDataValidationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDateTime"><code class="docutils literal notranslate"><span class="pre">XLDateTime</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDefinedName"><code class="docutils literal notranslate"><span class="pre">XLDefinedName</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDefinedNames"><code class="docutils literal notranslate"><span class="pre">XLDefinedNames</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDocument"><code class="docutils literal notranslate"><span class="pre">XLDocument</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLDrawing"><code class="docutils literal notranslate"><span class="pre">XLDrawing</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFill"><code class="docutils literal notranslate"><span class="pre">XLFill</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFillType"><code class="docutils literal notranslate"><span class="pre">XLFillType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFills"><code class="docutils literal notranslate"><span class="pre">XLFills</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFont"><code class="docutils literal notranslate"><span class="pre">XLFont</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFontSchemeStyle"><code class="docutils literal notranslate"><span class="pre">XLFontSchemeStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLFonts"><code class="docutils literal notranslate"><span class="pre">XLFonts</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLIMEMode"><code class="docutils literal notranslate"><span class="pre">XLIMEMode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLLineStyle"><code class="docutils literal notranslate"><span class="pre">XLLineStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLMergeCells"><code class="docutils literal notranslate"><span class="pre">XLMergeCells</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLNumberFormat"><code class="docutils literal notranslate"><span class="pre">XLNumberFormat</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLNumberFormats"><code class="docutils literal notranslate"><span class="pre">XLNumberFormats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLPageOrientation"><code class="docutils literal notranslate"><span class="pre">XLPageOrientation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLPane"><code class="docutils literal notranslate"><span class="pre">XLPane</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLPaneState"><code class="docutils literal notranslate"><span class="pre">XLPaneState</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLPatternType"><code class="docutils literal notranslate"><span class="pre">XLPatternType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLProperties"><code class="docutils literal notranslate"><span class="pre">XLProperties</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLProperty"><code class="docutils literal notranslate"><span class="pre">XLProperty</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLRichText"><code class="docutils literal notranslate"><span class="pre">XLRichText</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLRichTextRun"><code class="docutils literal notranslate"><span class="pre">XLRichTextRun</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLShape"><code class="docutils literal notranslate"><span class="pre">XLShape</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLShapeClientData"><code class="docutils literal notranslate"><span class="pre">XLShapeClientData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLShapeStyle"><code class="docutils literal notranslate"><span class="pre">XLShapeStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLSheetState"><code class="docutils literal notranslate"><span class="pre">XLSheetState</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLStyles"><code class="docutils literal notranslate"><span class="pre">XLStyles</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLUnderlineStyle"><code class="docutils literal notranslate"><span class="pre">XLUnderlineStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLVerticalAlignRunStyle"><code class="docutils literal notranslate"><span class="pre">XLVerticalAlignRunStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.XLWorkbook"><code class="docutils literal notranslate"><span class="pre">XLWorkbook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.is_date_format"><code class="docutils literal notranslate"><span class="pre">is_date_format()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.load_workbook"><code class="docutils literal notranslate"><span class="pre">load_workbook()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#pyopenxlsx.load_workbook_async"><code class="docutils literal notranslate"><span class="pre">load_workbook_async()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="01_workbook.html" class="btn btn-neutral float-right" title="Workbook API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

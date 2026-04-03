@@ -1,0 +1,1201 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyopenxlsx.worksheet &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../02_worksheet.html">Worksheet API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../14_images_and_shapes.html">Images and Shapes API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../15_formula_engine.html">Formula Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../16_comments.html">Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../17_encryption.html">Encryption and Protection API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyopenxlsx.worksheet</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyopenxlsx.worksheet</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakValueDictionary</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLSheetState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.cell</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.range</span><span class="w"> </span><span class="kn">import</span> <span class="n">Range</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.merge</span><span class="w"> </span><span class="kn">import</span> <span class="n">MergeCells</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.column</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.data_validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataValidations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.autofilter</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.page_setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PageMargins</span><span class="p">,</span> <span class="n">PrintOptions</span><span class="p">,</span> <span class="n">PageSetup</span>
+
+
+<div class="viewcode-block" id="Worksheet">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Worksheet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Excel worksheet.</span>
+
+<span class="sd">    Uses WeakValueDictionary for cell caching to allow garbage collection</span>
+<span class="sd">    of Cell objects when they are no longer referenced elsewhere.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_sheet</span><span class="p">,</span> <span class="n">workbook</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span> <span class="o">=</span> <span class="n">raw_sheet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_workbook</span> <span class="o">=</span> <span class="n">workbook</span>
+        <span class="c1"># Use WeakValueDictionary to avoid keeping Cell objects alive indefinitely</span>
+        <span class="c1"># Cells will be garbage collected when no external references remain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span> <span class="o">=</span> <span class="n">WeakValueDictionary</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+
+    <span class="nd">@title</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">index</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="nd">@index</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sheet_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">visibility</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="n">XLSheetState</span><span class="o">.</span><span class="n">Visible</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;visible&quot;</span>
+        <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="n">XLSheetState</span><span class="o">.</span><span class="n">Hidden</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;hidden&quot;</span>
+        <span class="k">elif</span> <span class="n">state</span> <span class="o">==</span> <span class="n">XLSheetState</span><span class="o">.</span><span class="n">VeryHidden</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;very_hidden&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;visible&quot;</span>
+
+    <span class="nd">@sheet_state</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sheet_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;visible&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_visibility</span><span class="p">(</span><span class="n">XLSheetState</span><span class="o">.</span><span class="n">Visible</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;hidden&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_visibility</span><span class="p">(</span><span class="n">XLSheetState</span><span class="o">.</span><span class="n">Hidden</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;very_hidden&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_visibility</span><span class="p">(</span><span class="n">XLSheetState</span><span class="o">.</span><span class="n">VeryHidden</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_row</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">row_count</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">column_count</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the worksheet has a drawing (images, charts, etc.).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">has_drawing</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the drawing object for the worksheet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">drawing</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Worksheet.append">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.append">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterable</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_row</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">write_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.append_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.append_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">append_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterable</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">,</span> <span class="n">iterable</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_column</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only string references (e.g., &#39;A1&#39;) are supported&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Worksheet.cell">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.cell">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cached_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_cell</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal helper to get a cached Cell object from a raw XLCell.&quot;&quot;&quot;</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">raw_cell</span><span class="o">.</span><span class="n">cell_reference</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">ref</span><span class="o">.</span><span class="n">column</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span><span class="n">raw_cell</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cells</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+<div class="viewcode-block" id="Worksheet.range">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.range">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;range() takes 1 or 2 arguments&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.merge_cells">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.merge_cells">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_string</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">merge_cells</span><span class="p">(</span><span class="n">range_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.merge_cells_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.merge_cells_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">merge_cells_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_string</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">merge_cells</span><span class="p">,</span> <span class="n">range_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.unmerge_cells">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.unmerge_cells">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unmerge_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_string</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">unmerge_cells</span><span class="p">(</span><span class="n">range_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.unmerge_cells_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.unmerge_cells_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">unmerge_cells_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_string</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unmerge_cells</span><span class="p">,</span> <span class="n">range_string</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_column_format">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_column_format">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_column_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">style_index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_column_format</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">style_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_column_format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">column</span><span class="p">),</span> <span class="n">style_index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_row_format">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_row_format">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_row_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">style_index</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_row_format</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">style_index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.insert_row">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.insert_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">insert_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_number</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert one or more rows at the given row number (1-based).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">insert_row</span><span class="p">(</span><span class="n">row_number</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.delete_row">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.delete_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_number</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete one or more rows starting at the given row number (1-based).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">delete_row</span><span class="p">(</span><span class="n">row_number</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">delete_row</span><span class="p">(</span><span class="n">row_number</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.insert_column">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.insert_column">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">insert_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_number</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert one or more columns at the given column number (1-based).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">insert_column</span><span class="p">(</span><span class="n">col_number</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.delete_column">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.delete_column">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_number</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete one or more columns starting at the given column number (1-based).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">delete_column</span><span class="p">(</span><span class="n">col_number</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MergeCells</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">merges</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Worksheet.column">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.column">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a Column object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)),</span> <span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.protect">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.protect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">protect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sheet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">scenarios</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_hyperlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">delete_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">delete_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">select_locked_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">select_unlocked_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">auto_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">pivot_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Protect the worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_openxlsx</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="n">_openxlsx</span><span class="o">.</span><span class="n">XLSheetProtectionOptions</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">sheet</span> <span class="o">=</span> <span class="n">sheet</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">objects</span> <span class="o">=</span> <span class="n">objects</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">scenarios</span> <span class="o">=</span> <span class="n">scenarios</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">format_cells</span> <span class="o">=</span> <span class="n">format_cells</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">format_columns</span> <span class="o">=</span> <span class="n">format_columns</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">format_rows</span> <span class="o">=</span> <span class="n">format_rows</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">insert_columns</span> <span class="o">=</span> <span class="n">insert_columns</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">insert_rows</span> <span class="o">=</span> <span class="n">insert_rows</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">insert_hyperlinks</span> <span class="o">=</span> <span class="n">insert_hyperlinks</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">delete_columns</span> <span class="o">=</span> <span class="n">delete_columns</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">delete_rows</span> <span class="o">=</span> <span class="n">delete_rows</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">auto_filter</span> <span class="o">=</span> <span class="n">auto_filter</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">pivot_tables</span> <span class="o">=</span> <span class="n">pivot_tables</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">select_locked_cells</span> <span class="o">=</span> <span class="n">select_locked_cells</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">select_unlocked_cells</span> <span class="o">=</span> <span class="n">select_unlocked_cells</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">protect</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">password</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.protect_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.protect_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">protect_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sheet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">objects</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">scenarios</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">insert_hyperlinks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">delete_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">delete_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">select_locked_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">select_unlocked_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">auto_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">pivot_tables</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_columns</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">format_rows</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protect</span><span class="p">,</span>
+            <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+            <span class="n">sheet</span><span class="o">=</span><span class="n">sheet</span><span class="p">,</span>
+            <span class="n">objects</span><span class="o">=</span><span class="n">objects</span><span class="p">,</span>
+            <span class="n">scenarios</span><span class="o">=</span><span class="n">scenarios</span><span class="p">,</span>
+            <span class="n">insert_columns</span><span class="o">=</span><span class="n">insert_columns</span><span class="p">,</span>
+            <span class="n">insert_rows</span><span class="o">=</span><span class="n">insert_rows</span><span class="p">,</span>
+            <span class="n">insert_hyperlinks</span><span class="o">=</span><span class="n">insert_hyperlinks</span><span class="p">,</span>
+            <span class="n">delete_columns</span><span class="o">=</span><span class="n">delete_columns</span><span class="p">,</span>
+            <span class="n">delete_rows</span><span class="o">=</span><span class="n">delete_rows</span><span class="p">,</span>
+            <span class="n">select_locked_cells</span><span class="o">=</span><span class="n">select_locked_cells</span><span class="p">,</span>
+            <span class="n">select_unlocked_cells</span><span class="o">=</span><span class="n">select_unlocked_cells</span><span class="p">,</span>
+            <span class="n">auto_filter</span><span class="o">=</span><span class="n">auto_filter</span><span class="p">,</span>
+            <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span>
+            <span class="n">pivot_tables</span><span class="o">=</span><span class="n">pivot_tables</span><span class="p">,</span>
+            <span class="n">format_cells</span><span class="o">=</span><span class="n">format_cells</span><span class="p">,</span>
+            <span class="n">format_columns</span><span class="o">=</span><span class="n">format_columns</span><span class="p">,</span>
+            <span class="n">format_rows</span><span class="o">=</span><span class="n">format_rows</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.unprotect">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.unprotect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unprotect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unprotect the worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">protect_sheet</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">clear_password</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.unprotect_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.unprotect_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">unprotect_async</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unprotect</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">protection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the protection status of the worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">sheet_protected</span><span class="p">(),</span>
+            <span class="s2">&quot;password_set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">password_is_set</span><span class="p">(),</span>
+            <span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">objects_protected</span><span class="p">(),</span>
+            <span class="s2">&quot;scenarios&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">scenarios_protected</span><span class="p">(),</span>
+            <span class="s2">&quot;insert_columns&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">insert_columns_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;insert_rows&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">insert_rows_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;insert_hyperlinks&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">insert_hyperlinks_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;delete_columns&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">delete_columns_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;delete_rows&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">delete_rows_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;select_locked_cells&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">select_locked_cells_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;select_unlocked_cells&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">select_unlocked_cells_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;auto_filter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">auto_filter_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;sort&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">sort_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;pivot_tables&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">pivot_tables_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;format_cells&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">format_cells_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;format_columns&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">format_columns_allowed</span><span class="p">(),</span>
+            <span class="s2">&quot;format_rows&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">format_rows_allowed</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="Worksheet.add_shape">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shape_type</span><span class="o">=</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a vector shape to the worksheet.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            row (int): The 1-based row index to place the top-left corner.</span>
+<span class="sd">            col (int): The 1-based column index to place the top-left corner.</span>
+<span class="sd">            shape_type (str): The type of the shape (e.g., &quot;Rectangle&quot;, &quot;Ellipse&quot;, &quot;Arrow&quot;).</span>
+<span class="sd">            **kwargs: Shape options including:</span>
+<span class="sd">                - name (str): Shape name.</span>
+<span class="sd">                - text (str): Text inside the shape.</span>
+<span class="sd">                - fill_color (str): ARGB fill color.</span>
+<span class="sd">                - line_color (str): ARGB line color.</span>
+<span class="sd">                - line_width (float): Line width.</span>
+<span class="sd">                - width (int): Width in pixels.</span>
+<span class="sd">                - height (int): Height in pixels.</span>
+<span class="sd">                - offset_x (int): Offset X in pixels.</span>
+<span class="sd">                - offset_y (int): Offset Y in pixels.</span>
+<span class="sd">                - end_row (int): End row for two-cell anchor.</span>
+<span class="sd">                - end_col (int): End column for two-cell anchor.</span>
+<span class="sd">                - end_offset_x (int): End offset X.</span>
+<span class="sd">                - end_offset_y (int): End offset Y.</span>
+<span class="sd">                - rotation (int): Rotation in degrees.</span>
+<span class="sd">                - flip_h (bool): Flip horizontally.</span>
+<span class="sd">                - flip_v (bool): Flip vertically.</span>
+<span class="sd">                - line_dash (str): Line dash style (e.g., &quot;dash&quot;, &quot;sysDash&quot;).</span>
+<span class="sd">                - arrow_start (str): Arrow start style.</span>
+<span class="sd">                - arrow_end (str): Arrow end style.</span>
+<span class="sd">                - horz_align (str): Horizontal text alignment (&quot;l&quot;, &quot;ctr&quot;, &quot;r&quot;).</span>
+<span class="sd">                - vert_align (str): Vertical text alignment (&quot;t&quot;, &quot;ctr&quot;, &quot;b&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_openxlsx</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="n">_openxlsx</span><span class="o">.</span><span class="n">XLVectorShapeOptions</span><span class="p">()</span>
+
+        <span class="c1"># Resolve shape type enum</span>
+        <span class="n">shape_enum</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_openxlsx</span><span class="o">.</span><span class="n">XLVectorShapeType</span><span class="p">,</span> <span class="n">shape_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shape_enum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown shape type: </span><span class="si">{</span><span class="n">shape_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">shape_enum</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown shape option: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">drawing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">drawing</span><span class="p">()</span>
+        <span class="n">drawing</span><span class="o">.</span><span class="n">add_shape</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_image">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an image to the worksheet.</span>
+
+<span class="sd">        :param img_path: Path to the image file.</span>
+<span class="sd">        :param anchor: Cell reference for the top-left corner of the image (e.g., &#39;A1&#39;).</span>
+<span class="sd">        :param width: Width of the image in pixels. If None, it will try to get it from the image.</span>
+<span class="sd">        :param height: Height of the image in pixels. If None, it will try to get it from the image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">img_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image file not found: </span><span class="si">{</span><span class="n">img_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">img_path</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;gif&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported image format: </span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Normalize extension for OOXML</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">:</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="s2">&quot;jpg&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">img_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+                <span class="k">with</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">img</span><span class="p">:</span>
+                    <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">size</span>
+                    <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">width</span> <span class="o">=</span> <span class="n">w</span>
+                        <span class="n">height</span> <span class="o">=</span> <span class="n">h</span>
+                    <span class="k">elif</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="n">w</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="n">h</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                        <span class="s2">&quot;Pillow is required to automatically detect image dimensions. &quot;</span>
+                        <span class="s2">&quot;Please install it or provide width and height manually.&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="c1"># Parse anchor</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLCellReference</span>
+
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">XLCellReference</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Width and height must be provided or detected.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span>
+            <span class="n">img_data</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">ref</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="n">ref</span><span class="o">.</span><span class="n">column</span><span class="p">(),</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_image_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_image_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">add_image_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_path</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;A1&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_image</span><span class="p">,</span> <span class="n">img_path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_hyperlink">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_hyperlink">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_hyperlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an external hyperlink to a cell.</span>
+
+<span class="sd">        :param cell_ref: Cell reference (e.g., &#39;A1&#39;).</span>
+<span class="sd">        :param url: URL of the hyperlink.</span>
+<span class="sd">        :param tooltip: Optional tooltip text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_hyperlink</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">tooltip</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_internal_hyperlink">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_internal_hyperlink">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_internal_hyperlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an internal hyperlink (to another sheet or range) to a cell.</span>
+
+<span class="sd">        :param cell_ref: Cell reference (e.g., &#39;A1&#39;).</span>
+<span class="sd">        :param location: Destination in the workbook (e.g., &#39;Sheet2!A1&#39;).</span>
+<span class="sd">        :param tooltip: Optional tooltip text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_internal_hyperlink</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">tooltip</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.has_hyperlink">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.has_hyperlink">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_hyperlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a cell has a hyperlink.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">has_hyperlink</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_hyperlink">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_hyperlink">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hyperlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the hyperlink target for a cell.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_hyperlink</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.remove_hyperlink">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.remove_hyperlink">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_hyperlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a hyperlink from a cell.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">remove_hyperlink</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.freeze_panes">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.freeze_panes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">freeze_panes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_or_ref</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Freeze the worksheet panes.</span>
+
+<span class="sd">        :param row_or_ref: Row number (1-indexed) or a cell reference string (e.g., &#39;B2&#39;).</span>
+<span class="sd">        :param col: Column number (1-indexed). Only used if row_or_ref is an int.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row_or_ref</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">freeze_panes</span><span class="p">(</span><span class="n">row_or_ref</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row_or_ref</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">freeze_panes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row_or_ref</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">freeze_panes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">row_or_ref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;row_or_ref must be an int or a string reference&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.split_panes">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.split_panes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split_panes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x_split</span><span class="p">,</span> <span class="n">y_split</span><span class="p">,</span> <span class="n">top_left_cell</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">active_pane</span><span class="o">=</span><span class="s2">&quot;bottomRight&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the worksheet panes at given pixel coordinates.</span>
+
+<span class="sd">        :param x_split: Horizontal split position in 1/20th of a point.</span>
+<span class="sd">        :param y_split: Vertical split position in 1/20th of a point.</span>
+<span class="sd">        :param top_left_cell: Cell address of the top-left cell in the bottom-right pane.</span>
+<span class="sd">        :param active_pane: The pane that is active (&#39;bottomRight&#39;, &#39;topRight&#39;, &#39;bottomLeft&#39;, &#39;topLeft&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">._openxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">XLPane</span>
+
+        <span class="n">pane_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;bottomRight&quot;</span><span class="p">:</span> <span class="n">XLPane</span><span class="o">.</span><span class="n">BottomRight</span><span class="p">,</span>
+            <span class="s2">&quot;topRight&quot;</span><span class="p">:</span> <span class="n">XLPane</span><span class="o">.</span><span class="n">TopRight</span><span class="p">,</span>
+            <span class="s2">&quot;bottomLeft&quot;</span><span class="p">:</span> <span class="n">XLPane</span><span class="o">.</span><span class="n">BottomLeft</span><span class="p">,</span>
+            <span class="s2">&quot;topLeft&quot;</span><span class="p">:</span> <span class="n">XLPane</span><span class="o">.</span><span class="n">TopLeft</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">active_pane_enum</span> <span class="o">=</span> <span class="n">pane_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">active_pane</span><span class="p">,</span> <span class="n">XLPane</span><span class="o">.</span><span class="n">BottomRight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">split_panes</span><span class="p">(</span><span class="n">x_split</span><span class="p">,</span> <span class="n">y_split</span><span class="p">,</span> <span class="n">top_left_cell</span><span class="p">,</span> <span class="n">active_pane_enum</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.clear_panes">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.clear_panes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_panes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all panes (frozen or split) from the worksheet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">clear_panes</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_panes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the worksheet has frozen or split panes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">has_panes</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the AutoFilter object for the worksheet to manage filters.</span>
+<span class="sd">        Returns None if no AutoFilter is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">af</span> <span class="o">=</span> <span class="n">AutoFilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">autofilter_object</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">af</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">af</span>
+
+    <span class="nd">@auto_filter</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">clear_auto_filter</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_auto_filter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">AutoFilter</span><span class="p">):</span>
+            <span class="c1"># If setting an AutoFilter object, just set its reference if it differs</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get or set the worksheet zoom scale (percentage, e.g., 100).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">zoom</span><span class="p">()</span>
+
+    <span class="nd">@zoom</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_zoom</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_validations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the DataValidations object for this worksheet to manage data validation rules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DataValidations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">data_validations</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the collection of tables in this worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the first Table object for this worksheet.</span>
+<span class="sd">        If no table exists, one is created automatically with default name &#39;Table1&#39; and range &#39;A1:A1&#39;.</span>
+<span class="sd">        Note: OpenXLSX now supports multiple tables per worksheet.</span>
+<span class="sd">        Use the &#39;tables&#39; property to access all tables or &#39;add_table&#39; to create new ones.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Create a default table for backward compatibility</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">&quot;Table1&quot;</span><span class="p">,</span> <span class="s2">&quot;A1:A1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Worksheet.add_table">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_table">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">range_string</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new table to the worksheet.</span>
+
+<span class="sd">        :param name: Table name (no spaces).</span>
+<span class="sd">        :param range_string: Range reference (e.g., &#39;A1:C10&#39;).</span>
+<span class="sd">        :return: Table object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+        <span class="n">raw_table</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">range_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">raw_table</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">page_margins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the PageMargins object for this worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PageMargins</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">page_margins</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the PrintOptions object for this worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PrintOptions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">print_options</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">page_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the PageSetup object for this worksheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PageSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">page_setup</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Worksheet.get_rows_data">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_rows_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rows_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all rows data as list[list[Any]].</span>
+
+<span class="sd">        This is an optimized bulk read method that returns all cell values</span>
+<span class="sd">        without creating intermediate Cell objects. Much faster than iterating</span>
+<span class="sd">        through ws.rows for large worksheets.</span>
+
+<span class="sd">        :return: list[list[Any]] - All cell values, with None for empty cells</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_rows_data</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_rows_data_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_rows_data_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_rows_data_async</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of get_rows_data().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_rows_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_row_values">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_row_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_row_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single row&#39;s values as list[Any].</span>
+
+<span class="sd">        :param row: Row number (1-indexed)</span>
+<span class="sd">        :return: list[Any] - Cell values for the specified row</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_row_values</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_row_values_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_row_values_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_row_values_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of get_row_values().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_row_values</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.iter_row_values">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.iter_row_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_row_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over rows, yielding each row&#39;s values as list[Any].</span>
+
+<span class="sd">        This is an optimized iterator that yields row values directly</span>
+<span class="sd">        without creating Cell objects. Use this for efficient row-by-row</span>
+<span class="sd">        processing of large worksheets.</span>
+
+<span class="sd">        :yields: list[Any] - Cell values for each row</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">row_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_row_values</span><span class="p">(</span><span class="n">row_idx</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_range_data">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_range_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_range_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_col</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a range of cells as list[list[Any]].</span>
+
+<span class="sd">        This is an optimized bulk read method for reading a specific range</span>
+<span class="sd">        of cells without creating intermediate Cell objects.</span>
+
+<span class="sd">        :param start_row: Starting row number (1-indexed)</span>
+<span class="sd">        :param start_col: Starting column number (1-indexed)</span>
+<span class="sd">        :param end_row: Ending row number (1-indexed, inclusive)</span>
+<span class="sd">        :param end_col: Ending column number (1-indexed, inclusive)</span>
+<span class="sd">        :return: list[list[Any]] - Cell values in the range</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_range_data</span><span class="p">(</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">end_row</span><span class="p">,</span> <span class="n">end_col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_range_data_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_range_data_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_range_data_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_col</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of get_range_data().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_range_data</span><span class="p">,</span> <span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">end_row</span><span class="p">,</span> <span class="n">end_col</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_cell_value">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_cell_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single cell&#39;s value directly without creating a Cell object.</span>
+
+<span class="sd">        This is faster than ws.cell(row, col).value when you only need the value</span>
+<span class="sd">        and don&#39;t need to modify the cell or access other properties.</span>
+
+<span class="sd">        :param row: Row number (1-indexed)</span>
+<span class="sd">        :param column: Column number (1-indexed)</span>
+<span class="sd">        :return: The cell&#39;s value (str, int, float, bool, or None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_cell_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_cell_value_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_cell_value_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_value_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of get_cell_value().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_value</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_range">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_range">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a 2D numpy array or any object supporting the buffer protocol to a worksheet range.</span>
+
+<span class="sd">        This is a high-performance method that avoids Python-level loops and object creation.</span>
+
+<span class="sd">        :param start_row: Starting row number (1-indexed)</span>
+<span class="sd">        :param start_col: Starting column number (1-indexed)</span>
+<span class="sd">        :param data: 2D numpy array or buffer-compatible object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">write_range_data</span><span class="p">(</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_range_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_range_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_range_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of write_range().&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_range</span><span class="p">,</span> <span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_range_values">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_range_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_range_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_col</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read a range of numeric cells into a 2D numpy array of doubles.</span>
+
+<span class="sd">        This is a high-performance method for reading large amounts of numeric data.</span>
+
+<span class="sd">        :param start_row: Starting row number (1-indexed)</span>
+<span class="sd">        :param start_col: Starting column number (1-indexed)</span>
+<span class="sd">        :param end_row: Ending row number (1-indexed, inclusive)</span>
+<span class="sd">        :param end_col: Ending column number (1-indexed, inclusive)</span>
+<span class="sd">        :return: 2D numpy array (float64)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">get_range_values</span><span class="p">(</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">end_row</span><span class="p">,</span> <span class="n">end_col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.get_range_values_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.get_range_values_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_range_values_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_col</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of get_range_values().&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_range_values</span><span class="p">,</span> <span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">end_row</span><span class="p">,</span> <span class="n">end_col</span>
+        <span class="p">)</span></div>
+
+
+    <span class="c1"># ============================================================</span>
+    <span class="c1"># Performance-optimized write APIs</span>
+    <span class="c1"># These methods bypass Python Cell object creation for 10-20x speedup</span>
+    <span class="c1"># ============================================================</span>
+
+<div class="viewcode-block" id="Worksheet.set_cell_value">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_cell_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_cell_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a cell&#39;s value directly without creating a Cell object.</span>
+
+<span class="sd">        This is 10-20x faster than ws.cell(row, col).value = val for bulk operations</span>
+<span class="sd">        as it bypasses:</span>
+<span class="sd">        - Python Cell wrapper object creation</span>
+<span class="sd">        - WeakValueDictionary cache operations</span>
+<span class="sd">        - Multiple Python/C++ boundary crossings</span>
+
+<span class="sd">        :param row: Row number (1-indexed)</span>
+<span class="sd">        :param column: Column number (1-indexed)</span>
+<span class="sd">        :param value: Value to set (str, int, float, bool, or None)</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            # Fast bulk write</span>
+<span class="sd">            for r in range(1, 1001):</span>
+<span class="sd">                for c in range(1, 51):</span>
+<span class="sd">                    ws.set_cell_value(r, c, f&quot;R{r}C{c}&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_cell_value</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_cell_value_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_cell_value_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_cell_value_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of set_cell_value().&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">set_cell_value</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_rows">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_rows">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a 2D Python list to a worksheet range.</span>
+
+<span class="sd">        This is optimized for any Python data (strings, mixed types, etc.).</span>
+<span class="sd">        For pure numeric data, use write_range() with numpy for best performance.</span>
+
+<span class="sd">        :param start_row: Starting row number (1-indexed)</span>
+<span class="sd">        :param data: 2D list/tuple of values [[row1_val1, row1_val2, ...], [row2_val1, ...], ...]</span>
+<span class="sd">        :param start_col: Starting column number (1-indexed), defaults to 1</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            data = [</span>
+<span class="sd">                [&quot;Name&quot;, &quot;Age&quot;, &quot;City&quot;],</span>
+<span class="sd">                [&quot;Alice&quot;, 30, &quot;New York&quot;],</span>
+<span class="sd">                [&quot;Bob&quot;, 25, &quot;Los Angeles&quot;],</span>
+<span class="sd">            ]</span>
+<span class="sd">            ws.write_rows(1, data)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert to list if it&#39;s a tuple or other sequence</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">write_rows_data</span><span class="p">(</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_rows_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_rows_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_rows_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of write_rows().&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_rows</span><span class="p">,</span> <span class="n">start_row</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">start_col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_row">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_row">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write a single row of Python data.</span>
+
+<span class="sd">        :param row: Row number (1-indexed)</span>
+<span class="sd">        :param values: List/tuple of values for the row</span>
+<span class="sd">        :param start_col: Starting column number (1-indexed), defaults to 1</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            ws.write_row(1, [&quot;Name&quot;, &quot;Age&quot;, &quot;City&quot;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">write_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.write_row_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.write_row_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_row_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">start_col</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of write_row().&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write_row</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">start_col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_cells">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_cells">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Batch set multiple cell values efficiently.</span>
+
+<span class="sd">        This is optimal for non-contiguous cell updates where you can&#39;t use</span>
+<span class="sd">        write_rows() or write_range().</span>
+
+<span class="sd">        :param cells: Iterable of (row, col, value) tuples</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            ws.set_cells([</span>
+<span class="sd">                (1, 1, &quot;Header A&quot;),</span>
+<span class="sd">                (1, 5, &quot;Header B&quot;),</span>
+<span class="sd">                (10, 3, 42.5),</span>
+<span class="sd">                (20, 1, &quot;Footer&quot;),</span>
+<span class="sd">            ])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert to list of tuples if needed</span>
+        <span class="n">cell_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_cells_batch</span><span class="p">(</span><span class="n">cell_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_cells_async">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_cells_async">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_cells_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Async version of set_cells().&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">set_cells</span><span class="p">,</span> <span class="n">cells</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.stream_writer">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.stream_writer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stream_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a stream writer for this worksheet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">stream_writer</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.stream_reader">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.stream_reader">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stream_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a stream reader for this worksheet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">stream_reader</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.auto_fit_column">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.auto_fit_column">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">auto_fit_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Auto-fit the specified column.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">auto_fit_column</span><span class="p">(</span><span class="n">column_number</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.apply_auto_filter">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.apply_auto_filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_auto_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply auto filter to the worksheet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">apply_auto_filter</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_conditional_formatting">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_conditional_formatting">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_conditional_formatting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add conditional formatting to a range.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_conditional_formatting</span><span class="p">(</span><span class="n">sqref</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.remove_conditional_formatting">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.remove_conditional_formatting">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_conditional_formatting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqref</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove conditional formatting from a range.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">remove_conditional_formatting</span><span class="p">(</span><span class="n">sqref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.clear_all_conditional_formatting">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.clear_all_conditional_formatting">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_all_conditional_formatting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all conditional formatting.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">clear_all_conditional_formatting</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_print_area">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_print_area">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_print_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqref</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the print area for the worksheet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_print_area</span><span class="p">(</span><span class="n">sqref</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_print_title_rows">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_print_title_rows">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_print_title_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the rows to repeat at top on printed pages.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_print_title_rows</span><span class="p">(</span><span class="n">first_row</span><span class="p">,</span> <span class="n">last_row</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.set_print_title_cols">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.set_print_title_cols">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_print_title_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the columns to repeat at left on printed pages.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">set_print_title_cols</span><span class="p">(</span><span class="n">first_col</span><span class="p">,</span> <span class="n">last_col</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_sparkline">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_sparkline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_sparkline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_range</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sparkline_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a sparkline to the worksheet.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sparkline_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_sparkline</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">data_range</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_sparkline</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">data_range</span><span class="p">,</span> <span class="n">sparkline_type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_comment">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_comment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">author</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a simple (legacy) comment.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_threaded_comment">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_threaded_comment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_threaded_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">author</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a modern threaded comment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_threaded_comment</span><span class="p">(</span><span class="n">cell_ref</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Worksheet.add_threaded_reply">
+<a class="viewcode-back" href="../../api_reference.html#pyopenxlsx.Worksheet.add_threaded_reply">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_threaded_reply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">author</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a reply to a threaded comment.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet</span><span class="o">.</span><span class="n">add_threaded_reply</span><span class="p">(</span><span class="n">parent_id</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">author</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

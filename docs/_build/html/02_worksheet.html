@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worksheet API &mdash; pyopenxlsx 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cell, Range, and Column API" href="03_cell_range.html" />
+    <link rel="prev" title="Workbook API" href="01_workbook.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyopenxlsx
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_workbook.html">Workbook API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Worksheet API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#properties">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-access-modification-methods">Data Access &amp; Modification Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cell-row-int-column-int-value-any-none-cell"><code class="docutils literal notranslate"><span class="pre">cell(row:</span> <span class="pre">int,</span> <span class="pre">column:</span> <span class="pre">int,</span> <span class="pre">value:</span> <span class="pre">Any</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">-&gt;</span> <span class="pre">Cell</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#range-address-str-range"><code class="docutils literal notranslate"><span class="pre">range(address:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">Range</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#append-iterable"><code class="docutils literal notranslate"><span class="pre">append(iterable)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-row-row-int-values-list-start-col-int-1"><code class="docutils literal notranslate"><span class="pre">write_row(row:</span> <span class="pre">int,</span> <span class="pre">values:</span> <span class="pre">list,</span> <span class="pre">start_col:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-rows-start-row-int-data-list-list-start-col-int-1"><code class="docutils literal notranslate"><span class="pre">write_rows(start_row:</span> <span class="pre">int,</span> <span class="pre">data:</span> <span class="pre">list[list],</span> <span class="pre">start_col:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-cell-value-row-int-col-int-value-any"><code class="docutils literal notranslate"><span class="pre">set_cell_value(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int,</span> <span class="pre">value:</span> <span class="pre">Any)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-cell-value-row-int-col-int-any"><code class="docutils literal notranslate"><span class="pre">get_cell_value(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-rows-data-list-list-any"><code class="docutils literal notranslate"><span class="pre">get_rows_data()</span> <span class="pre">-&gt;</span> <span class="pre">list[list[Any]]</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#formatting-view-methods">Formatting &amp; View Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#set-column-format-col-int-str-style-idx-int"><code class="docutils literal notranslate"><span class="pre">set_column_format(col:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">str,</span> <span class="pre">style_idx:</span> <span class="pre">int)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-row-format-row-int-style-idx-int"><code class="docutils literal notranslate"><span class="pre">set_row_format(row:</span> <span class="pre">int,</span> <span class="pre">style_idx:</span> <span class="pre">int)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#insert-row-row-number-int-count-int-1"><code class="docutils literal notranslate"><span class="pre">insert_row(row_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-row-row-number-int-count-int-1"><code class="docutils literal notranslate"><span class="pre">delete_row(row_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#insert-column-col-number-int-count-int-1"><code class="docutils literal notranslate"><span class="pre">insert_column(col_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-column-col-number-int-count-int-1"><code class="docutils literal notranslate"><span class="pre">delete_column(col_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#freeze-panes-ref-or-row-col-none"><code class="docutils literal notranslate"><span class="pre">freeze_panes(ref_or_row,</span> <span class="pre">col=None)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#split-panes-x-split-float-y-split-float-top-left-cell-str-active-pane"><code class="docutils literal notranslate"><span class="pre">split_panes(x_split:</span> <span class="pre">float,</span> <span class="pre">y_split:</span> <span class="pre">float,</span> <span class="pre">top_left_cell:</span> <span class="pre">str,</span> <span class="pre">active_pane)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-image-img-path-str-anchor-str-width-none-height-none"><code class="docutils literal notranslate"><span class="pre">add_image(img_path:</span> <span class="pre">str,</span> <span class="pre">anchor:</span> <span class="pre">str,</span> <span class="pre">width=None,</span> <span class="pre">height=None)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-shape-row-int-col-int-shape-type-str-kwargs"><code class="docutils literal notranslate"><span class="pre">add_shape(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int,</span> <span class="pre">shape_type:</span> <span class="pre">str,</span> <span class="pre">**kwargs)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#protect-password-str-options"><code class="docutils literal notranslate"><span class="pre">protect(password:</span> <span class="pre">str,</span> <span class="pre">**options)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auto-fit-column-col-int"><code class="docutils literal notranslate"><span class="pre">auto_fit_column(col:</span> <span class="pre">int)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#apply-auto-filter"><code class="docutils literal notranslate"><span class="pre">apply_auto_filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hyperlinks-comments">Hyperlinks &amp; Comments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-hyperlink-ref-str-url-str-tooltip-str"><code class="docutils literal notranslate"><span class="pre">add_hyperlink(ref:</span> <span class="pre">str,</span> <span class="pre">url:</span> <span class="pre">str,</span> <span class="pre">tooltip:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&quot;&quot;)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-internal-hyperlink-ref-str-location-str-tooltip-str"><code class="docutils literal notranslate"><span class="pre">add_internal_hyperlink(ref:</span> <span class="pre">str,</span> <span class="pre">location:</span> <span class="pre">str,</span> <span class="pre">tooltip:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&quot;&quot;)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#has-hyperlink-ref-str-bool-get-hyperlink-ref-str-str-remove-hyperlink-ref-str"><code class="docutils literal notranslate"><span class="pre">has_hyperlink(ref:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code> / <code class="docutils literal notranslate"><span class="pre">get_hyperlink(ref:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code> / <code class="docutils literal notranslate"><span class="pre">remove_hyperlink(ref:</span> <span class="pre">str)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-comment-cell-ref-str-text-str-author-str"><code class="docutils literal notranslate"><span class="pre">add_comment(cell_ref:</span> <span class="pre">str,</span> <span class="pre">text:</span> <span class="pre">str,</span> <span class="pre">author:</span> <span class="pre">str)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ranges-merging">Ranges &amp; Merging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#merge-cells-address-str"><code class="docutils literal notranslate"><span class="pre">merge_cells(address:</span> <span class="pre">str)</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unmerge-cells-address-str"><code class="docutils literal notranslate"><span class="pre">unmerge_cells(address:</span> <span class="pre">str)</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tables-shapes">Tables &amp; Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-i-o">Advanced I/O</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documented-in-other-modules">Documented in Other Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#missing-methods-properties-internal-proxy">Missing Methods &amp; Properties (Internal/Proxy)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-example-data-parsing-and-high-speed-bulk-write">Advanced Example: Data Parsing and High-Speed Bulk Write</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03_cell_range.html">Cell, Range, and Column API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_styles.html">Styles API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_data_validation.html">Data Validation API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_tables.html">Tables (ListObjects) API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_pivot_tables.html">Pivot Tables API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_rich_text.html">Rich Text &amp; Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_async_operations.html">Async Operations API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conditional_formatting.html">Conditional Formatting API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_streams.html">Streams API (High Performance I/O)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_charts.html">Charts API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13_page_setup.html">Page Setup &amp; Printing API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="14_images_and_shapes.html">Images and Shapes API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="15_formula_engine.html">Formula Engine API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="16_comments.html">Comments API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="17_encryption.html">Encryption and Protection API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyopenxlsx</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Worksheet API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/02_worksheet.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="worksheet-api">
+<h1>Worksheet API<a class="headerlink" href="#worksheet-api" title="Link to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">Worksheet</span></code> class represents a single tab within a <code class="docutils literal notranslate"><span class="pre">Workbook</span></code>. It is used to manipulate cells, rows, columns, and sheet-level configurations.</p>
+<section id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">title</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): The name of the worksheet.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">index</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The 0-based position of the sheet in the workbook.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">sheet_state</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Visibility state (<code class="docutils literal notranslate"><span class="pre">&quot;visible&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hidden&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;very_hidden&quot;</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">max_row</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The highest row number containing data.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">max_column</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The highest column number containing data.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">merges</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">MergeCells</span></code>): Collection of merged cell ranges.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">auto_filter</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">str</span></code>): Get or set the autofilter range (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;A1:D10&quot;</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">zoom</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>): The zoom scale percentage (e.g., <code class="docutils literal notranslate"><span class="pre">150</span></code> for 150%).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">has_panes</span></code></strong> (<code class="docutils literal notranslate"><span class="pre">bool</span></code>): Whether the sheet has frozen or split panes.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">page_setup</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">page_margins</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">print_options</span></code></strong>: Objects to configure printing behavior.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="data-access-modification-methods">
+<h2>Data Access &amp; Modification Methods<a class="headerlink" href="#data-access-modification-methods" title="Link to this heading"></a></h2>
+<section id="cell-row-int-column-int-value-any-none-cell">
+<h3><code class="docutils literal notranslate"><span class="pre">cell(row:</span> <span class="pre">int,</span> <span class="pre">column:</span> <span class="pre">int,</span> <span class="pre">value:</span> <span class="pre">Any</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">-&gt;</span> <span class="pre">Cell</span></code><a class="headerlink" href="#cell-row-int-column-int-value-any-none-cell" title="Link to this heading"></a></h3>
+<p>Retrieves a cell by its 1-based row and column index. Optionally sets its value.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;Header&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="range-address-str-range">
+<h3><code class="docutils literal notranslate"><span class="pre">range(address:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">Range</span></code><a class="headerlink" href="#range-address-str-range" title="Link to this heading"></a></h3>
+<p>Retrieves a range of cells.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="s2">&quot;A1:C3&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">rng</span><span class="p">:</span>
+    <span class="n">cell</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</section>
+<section id="append-iterable">
+<h3><code class="docutils literal notranslate"><span class="pre">append(iterable)</span></code><a class="headerlink" href="#append-iterable" title="Link to this heading"></a></h3>
+<p>Appends a single row of data to the bottom of the current sheet.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;City&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="write-row-row-int-values-list-start-col-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">write_row(row:</span> <span class="pre">int,</span> <span class="pre">values:</span> <span class="pre">list,</span> <span class="pre">start_col:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#write-row-row-int-values-list-start-col-int-1" title="Link to this heading"></a></h3>
+<p>Writes a list of values to a specific row.</p>
+</section>
+<section id="write-rows-start-row-int-data-list-list-start-col-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">write_rows(start_row:</span> <span class="pre">int,</span> <span class="pre">data:</span> <span class="pre">list[list],</span> <span class="pre">start_col:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#write-rows-start-row-int-data-list-list-start-col-int-1" title="Link to this heading"></a></h3>
+<p>Writes a 2D list of data starting at a specific cell. Highly optimized for speed.</p>
+</section>
+<section id="set-cell-value-row-int-col-int-value-any">
+<h3><code class="docutils literal notranslate"><span class="pre">set_cell_value(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int,</span> <span class="pre">value:</span> <span class="pre">Any)</span></code><a class="headerlink" href="#set-cell-value-row-int-col-int-value-any" title="Link to this heading"></a></h3>
+<p>Directly sets a cell’s value bypassing Python object creation. (Maximum performance).</p>
+</section>
+<section id="get-cell-value-row-int-col-int-any">
+<h3><code class="docutils literal notranslate"><span class="pre">get_cell_value(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">Any</span></code><a class="headerlink" href="#get-cell-value-row-int-col-int-any" title="Link to this heading"></a></h3>
+<p>Directly gets a cell’s value.</p>
+</section>
+<section id="get-rows-data-list-list-any">
+<h3><code class="docutils literal notranslate"><span class="pre">get_rows_data()</span> <span class="pre">-&gt;</span> <span class="pre">list[list[Any]]</span></code><a class="headerlink" href="#get-rows-data-list-list-any" title="Link to this heading"></a></h3>
+<p>Extracts all data from the sheet into a 2D Python list.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="formatting-view-methods">
+<h2>Formatting &amp; View Methods<a class="headerlink" href="#formatting-view-methods" title="Link to this heading"></a></h2>
+<section id="set-column-format-col-int-str-style-idx-int">
+<h3><code class="docutils literal notranslate"><span class="pre">set_column_format(col:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">str,</span> <span class="pre">style_idx:</span> <span class="pre">int)</span></code><a class="headerlink" href="#set-column-format-col-int-str-style-idx-int" title="Link to this heading"></a></h3>
+<p>Sets the default style for an entire column.</p>
+</section>
+<section id="set-row-format-row-int-style-idx-int">
+<h3><code class="docutils literal notranslate"><span class="pre">set_row_format(row:</span> <span class="pre">int,</span> <span class="pre">style_idx:</span> <span class="pre">int)</span></code><a class="headerlink" href="#set-row-format-row-int-style-idx-int" title="Link to this heading"></a></h3>
+<p>Sets the default style for an entire row.</p>
+</section>
+<section id="insert-row-row-number-int-count-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">insert_row(row_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#insert-row-row-number-int-count-int-1" title="Link to this heading"></a></h3>
+<p>Inserts one or more rows at the given row number (1-based index).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span><span class="o">.</span><span class="n">insert_row</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Inserts 2 empty rows at row 5</span>
+</pre></div>
+</div>
+</section>
+<section id="delete-row-row-number-int-count-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">delete_row(row_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#delete-row-row-number-int-count-int-1" title="Link to this heading"></a></h3>
+<p>Deletes one or more rows starting at the given row number.</p>
+</section>
+<section id="insert-column-col-number-int-count-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">insert_column(col_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#insert-column-col-number-int-count-int-1" title="Link to this heading"></a></h3>
+<p>Inserts one or more columns at the given column number (1-based index).</p>
+</section>
+<section id="delete-column-col-number-int-count-int-1">
+<h3><code class="docutils literal notranslate"><span class="pre">delete_column(col_number:</span> <span class="pre">int,</span> <span class="pre">count:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1)</span></code><a class="headerlink" href="#delete-column-col-number-int-count-int-1" title="Link to this heading"></a></h3>
+<p>Deletes one or more columns starting at the given column number.</p>
+</section>
+<section id="freeze-panes-ref-or-row-col-none">
+<h3><code class="docutils literal notranslate"><span class="pre">freeze_panes(ref_or_row,</span> <span class="pre">col=None)</span></code><a class="headerlink" href="#freeze-panes-ref-or-row-col-none" title="Link to this heading"></a></h3>
+<p>Freezes the view. <code class="docutils literal notranslate"><span class="pre">ws.freeze_panes(&quot;B2&quot;)</span></code> freezes row 1 and column A.</p>
+</section>
+<section id="split-panes-x-split-float-y-split-float-top-left-cell-str-active-pane">
+<h3><code class="docutils literal notranslate"><span class="pre">split_panes(x_split:</span> <span class="pre">float,</span> <span class="pre">y_split:</span> <span class="pre">float,</span> <span class="pre">top_left_cell:</span> <span class="pre">str,</span> <span class="pre">active_pane)</span></code><a class="headerlink" href="#split-panes-x-split-float-y-split-float-top-left-cell-str-active-pane" title="Link to this heading"></a></h3>
+<p>Splits the view into scrollable panes.</p>
+</section>
+<section id="add-image-img-path-str-anchor-str-width-none-height-none">
+<h3><code class="docutils literal notranslate"><span class="pre">add_image(img_path:</span> <span class="pre">str,</span> <span class="pre">anchor:</span> <span class="pre">str,</span> <span class="pre">width=None,</span> <span class="pre">height=None)</span></code><a class="headerlink" href="#add-image-img-path-str-anchor-str-width-none-height-none" title="Link to this heading"></a></h3>
+<p>Inserts an image into the worksheet.</p>
+</section>
+<section id="add-shape-row-int-col-int-shape-type-str-kwargs">
+<h3><code class="docutils literal notranslate"><span class="pre">add_shape(row:</span> <span class="pre">int,</span> <span class="pre">col:</span> <span class="pre">int,</span> <span class="pre">shape_type:</span> <span class="pre">str,</span> <span class="pre">**kwargs)</span></code><a class="headerlink" href="#add-shape-row-int-col-int-shape-type-str-kwargs" title="Link to this heading"></a></h3>
+<p>Adds a vector shape to the worksheet. Supports over 20 shape types (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;Rectangle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Arrow&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Cloud&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;FlowChartProcess&quot;</span></code>) and configurable appearance options (like <code class="docutils literal notranslate"><span class="pre">fill_color</span></code>, <code class="docutils literal notranslate"><span class="pre">line_color</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">text</span></code>).</p>
+</section>
+<section id="protect-password-str-options">
+<h3><code class="docutils literal notranslate"><span class="pre">protect(password:</span> <span class="pre">str,</span> <span class="pre">**options)</span></code><a class="headerlink" href="#protect-password-str-options" title="Link to this heading"></a></h3>
+<p>Protects the worksheet. Supports highly granular protection options (e.g. <code class="docutils literal notranslate"><span class="pre">format_cells</span></code>, <code class="docutils literal notranslate"><span class="pre">insert_columns</span></code>, <code class="docutils literal notranslate"><span class="pre">sort</span></code>, <code class="docutils literal notranslate"><span class="pre">auto_filter</span></code>, <code class="docutils literal notranslate"><span class="pre">objects</span></code>, <code class="docutils literal notranslate"><span class="pre">scenarios</span></code>, <code class="docutils literal notranslate"><span class="pre">select_locked_cells</span></code>, <code class="docutils literal notranslate"><span class="pre">select_unlocked_cells</span></code>, <code class="docutils literal notranslate"><span class="pre">delete_rows</span></code>, etc.).</p>
+</section>
+<section id="auto-fit-column-col-int">
+<h3><code class="docutils literal notranslate"><span class="pre">auto_fit_column(col:</span> <span class="pre">int)</span></code><a class="headerlink" href="#auto-fit-column-col-int" title="Link to this heading"></a></h3>
+<p>Automatically adjusts the width of the specified column to fit its contents.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span><span class="o">.</span><span class="n">auto_fit_column</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Auto-fit column A</span>
+</pre></div>
+</div>
+</section>
+<section id="apply-auto-filter">
+<h3><code class="docutils literal notranslate"><span class="pre">apply_auto_filter()</span></code><a class="headerlink" href="#apply-auto-filter" title="Link to this heading"></a></h3>
+<p>Applies the autofilter dropdowns to the range specified in <code class="docutils literal notranslate"><span class="pre">ws.auto_filter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ws</span><span class="o">.</span><span class="n">auto_filter</span> <span class="o">=</span> <span class="s2">&quot;A1:C10&quot;</span>
+<span class="n">ws</span><span class="o">.</span><span class="n">apply_auto_filter</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="hyperlinks-comments">
+<h2>Hyperlinks &amp; Comments<a class="headerlink" href="#hyperlinks-comments" title="Link to this heading"></a></h2>
+<section id="add-hyperlink-ref-str-url-str-tooltip-str">
+<h3><code class="docutils literal notranslate"><span class="pre">add_hyperlink(ref:</span> <span class="pre">str,</span> <span class="pre">url:</span> <span class="pre">str,</span> <span class="pre">tooltip:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&quot;&quot;)</span></code><a class="headerlink" href="#add-hyperlink-ref-str-url-str-tooltip-str" title="Link to this heading"></a></h3>
+<p>Adds an external hyperlink to a cell.</p>
+</section>
+<section id="add-internal-hyperlink-ref-str-location-str-tooltip-str">
+<h3><code class="docutils literal notranslate"><span class="pre">add_internal_hyperlink(ref:</span> <span class="pre">str,</span> <span class="pre">location:</span> <span class="pre">str,</span> <span class="pre">tooltip:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">&quot;&quot;)</span></code><a class="headerlink" href="#add-internal-hyperlink-ref-str-location-str-tooltip-str" title="Link to this heading"></a></h3>
+<p>Adds an internal link to another sheet or cell (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;Sheet2!A1&quot;</span></code>).</p>
+</section>
+<section id="has-hyperlink-ref-str-bool-get-hyperlink-ref-str-str-remove-hyperlink-ref-str">
+<h3><code class="docutils literal notranslate"><span class="pre">has_hyperlink(ref:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code> / <code class="docutils literal notranslate"><span class="pre">get_hyperlink(ref:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code> / <code class="docutils literal notranslate"><span class="pre">remove_hyperlink(ref:</span> <span class="pre">str)</span></code><a class="headerlink" href="#has-hyperlink-ref-str-bool-get-hyperlink-ref-str-str-remove-hyperlink-ref-str" title="Link to this heading"></a></h3>
+<p>Helpers to check, retrieve, or remove hyperlinks.</p>
+</section>
+<section id="add-comment-cell-ref-str-text-str-author-str">
+<h3><code class="docutils literal notranslate"><span class="pre">add_comment(cell_ref:</span> <span class="pre">str,</span> <span class="pre">text:</span> <span class="pre">str,</span> <span class="pre">author:</span> <span class="pre">str)</span></code><a class="headerlink" href="#add-comment-cell-ref-str-text-str-author-str" title="Link to this heading"></a></h3>
+<p>Adds a comment to a specific cell.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="ranges-merging">
+<h2>Ranges &amp; Merging<a class="headerlink" href="#ranges-merging" title="Link to this heading"></a></h2>
+<section id="merge-cells-address-str">
+<h3><code class="docutils literal notranslate"><span class="pre">merge_cells(address:</span> <span class="pre">str)</span></code><a class="headerlink" href="#merge-cells-address-str" title="Link to this heading"></a></h3>
+<p>Merges a range of cells (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;A1:C3&quot;</span></code>).</p>
+</section>
+<section id="unmerge-cells-address-str">
+<h3><code class="docutils literal notranslate"><span class="pre">unmerge_cells(address:</span> <span class="pre">str)</span></code><a class="headerlink" href="#unmerge-cells-address-str" title="Link to this heading"></a></h3>
+<p>Unmerges a previously merged range.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tables-shapes">
+<h2>Tables &amp; Shapes<a class="headerlink" href="#tables-shapes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">table</span></code></strong> / <strong><code class="docutils literal notranslate"><span class="pre">tables</span></code></strong>: Properties to access the Worksheet’s ListObjects.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">add_table(name:</span> <span class="pre">str,</span> <span class="pre">range:</span> <span class="pre">str)</span></code></strong>: Creates a new Table.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">has_drawing</span></code></strong> / <strong><code class="docutils literal notranslate"><span class="pre">drawing</span></code></strong>: Check or access the underlying drawing object.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">add_sparkline(location:</span> <span class="pre">str,</span> <span class="pre">data_range:</span> <span class="pre">str,</span> <span class="pre">type)</span></code></strong>: Inserts a sparkline into a cell.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="advanced-i-o">
+<h2>Advanced I/O<a class="headerlink" href="#advanced-i-o" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">get_row_values(row:</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">list[Any]</span></code></strong>: Gets a single row’s values.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">iter_row_values()</span></code></strong>: Iterator yielding rows one by one.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">get_range_data(r1,</span> <span class="pre">c1,</span> <span class="pre">r2,</span> <span class="pre">c2)</span></code></strong> / <strong><code class="docutils literal notranslate"><span class="pre">get_range_values(...)</span></code></strong>: Bulk reading.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">write_range(r1,</span> <span class="pre">c1,</span> <span class="pre">data)</span></code></strong>: Optimized writing for numpy arrays/buffers.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">set_cells(cells:</span> <span class="pre">list[tuple])</span></code></strong>: Batch updates using a list of <code class="docutils literal notranslate"><span class="pre">(row,</span> <span class="pre">col,</span> <span class="pre">value)</span></code> tuples.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="documented-in-other-modules">
+<h2>Documented in Other Modules<a class="headerlink" href="#documented-in-other-modules" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>For conditional formatting: <code class="docutils literal notranslate"><span class="pre">add_conditional_formatting</span></code>, <code class="docutils literal notranslate"><span class="pre">remove_conditional_formatting</span></code>, <code class="docutils literal notranslate"><span class="pre">clear_all_conditional_formatting</span></code>.</p></li>
+<li><p>For streams: <code class="docutils literal notranslate"><span class="pre">stream_writer</span></code>, <code class="docutils literal notranslate"><span class="pre">stream_reader</span></code>.</p></li>
+</ul>
+<section id="missing-methods-properties-internal-proxy">
+<h3>Missing Methods &amp; Properties (Internal/Proxy)<a class="headerlink" href="#missing-methods-properties-internal-proxy" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">column(col)</span></code></strong>: Used internally to fetch a specific column.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">unprotect()</span></code></strong>: Disables worksheet protection.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">set_print_area(sqref:</span> <span class="pre">str)</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">set_print_title_rows(start:</span> <span class="pre">int,</span> <span class="pre">end:</span> <span class="pre">int)</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">set_print_title_cols(start:</span> <span class="pre">int,</span> <span class="pre">end:</span> <span class="pre">int)</span></code></strong>: Configures print properties directly on the worksheet.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">clear_panes()</span></code></strong>: Clears any existing split or frozen panes.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">rows</span></code></strong>: Yields an iterator for all rows containing data.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">data_validations</span></code></strong>: Property returning a <code class="docutils literal notranslate"><span class="pre">DataValidations</span></code> collection.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">protection</span></code></strong>: Property returning the current worksheet protection status in a dictionary.</p></li>
+</ul>
+</section>
+</section>
+<section id="advanced-example-data-parsing-and-high-speed-bulk-write">
+<h2>Advanced Example: Data Parsing and High-Speed Bulk Write<a class="headerlink" href="#advanced-example-data-parsing-and-high-speed-bulk-write" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyopenxlsx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="k">with</span> <span class="n">Workbook</span><span class="p">()</span> <span class="k">as</span> <span class="n">wb</span><span class="p">:</span>
+    <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;HighSpeedData&quot;</span>
+    
+    <span class="c1"># 1. Formatting columns before data arrives</span>
+    <span class="c1"># Apply a date format (14 is the built-in mm-dd-yy format index)</span>
+    <span class="n">style_date</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">add_style</span><span class="p">(</span><span class="n">number_format</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">set_column_format</span><span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">style_date</span><span class="p">)</span>
+    
+    <span class="c1"># 2. Bulk Write using write_rows (Ultra-Fast)</span>
+    <span class="c1"># write_rows bypasses Python Cell object creation</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Join Date&quot;</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="mf">95.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="mf">88.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Charlie&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mf">92.2</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">write_rows</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="c1"># Start at Row 1</span>
+    
+    <span class="c1"># 3. View manipulations</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">auto_filter</span> <span class="o">=</span> <span class="s2">&quot;A1:D4&quot;</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">apply_auto_filter</span><span class="p">()</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">auto_fit_column</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># Auto-fit the &quot;Name&quot; column</span>
+    
+    <span class="c1"># 4. Sheet Level Protections</span>
+    <span class="n">ws</span><span class="o">.</span><span class="n">protect</span><span class="p">(</span><span class="s2">&quot;my_secret&quot;</span><span class="p">,</span> <span class="n">format_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">wb</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;bulk_data.xlsx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="01_workbook.html" class="btn btn-neutral float-left" title="Workbook API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="03_cell_range.html" class="btn btn-neutral float-right" title="Cell, Range, and Column API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Curry Tang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
