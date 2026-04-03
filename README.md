@@ -383,6 +383,7 @@ The full API documentation has been split into individual modules for easier rea
 - [Formula Engine API](docs/15_formula_engine.md)
 - [Comments & Threaded Comments API](docs/16_comments.md)
 - [Encryption & Protection API](docs/17_encryption.md)
+- [Pandas Integration API](docs/18_pandas.md)
 
 ---
 
