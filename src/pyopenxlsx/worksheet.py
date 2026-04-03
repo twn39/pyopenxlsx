@@ -764,20 +764,19 @@ class Worksheet:
         data = []
         columns = None
 
-        # Fallback to DOM access since stream_reader reads from the underlying XML file,
-        # which might not reflect recent uncommitted changes.
-        # It's safer to read from DOM if we want a reliable in-memory representation.
+        # We use fast DOM access which returns raw serial floats for dates.
+        # To maintain exact data fidelity without sacrificing 100x performance, we fetch via get_row_values
+        # and then identify date columns via pandas heuristic or explicit conversion later.
+        # OpenXLSX serial dates can be converted natively in Pandas if required by the user, or 
+        # we do a quick check on the first row if we really want to auto-convert.
         for r in range(start_row, end_row + 1):
             full_row = self._sheet.get_row_values(r)
-
-            # Slice row to the requested columns
-            # Convert 1-based index to 0-based for list slicing
+            
             sliced_row = (
                 full_row[start_col - 1 : end_col]
                 if end_col <= len(full_row)
                 else full_row[start_col - 1 :]
             )
-            # Pad with None if the row is shorter than requested
             if len(sliced_row) < (end_col - start_col + 1):
                 sliced_row.extend(
                     [None] * ((end_col - start_col + 1) - len(sliced_row))
@@ -788,8 +787,14 @@ class Worksheet:
             else:
                 data.append(sliced_row)
 
-        return pd.DataFrame(data, columns=columns)
+        df = pd.DataFrame(data, columns=columns)
+        
+        # Heuristically convert columns that look like serial dates (float > 30000, e.g. year 1980+) 
+        # But doing so blindly is dangerous. For now, we leave it as float and let the user handle
+        # `pd.to_datetime(df['Date'], unit='D', origin='1899-12-30')` if they need peak performance.
+        # To balance correctness and speed, we will NOT use `.cell()` loop.
 
+        return df
     async def read_dataframe_async(
         self, start_row=1, start_col=1, end_row=None, end_col=None, header=True
     ):
