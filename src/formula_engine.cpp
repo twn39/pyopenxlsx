@@ -1,3 +1,4 @@
+#include <headers/XLCellReference.hpp>
 #include <headers/XLFormulaEngine.hpp>
 
 #include "internal_access.hpp"
