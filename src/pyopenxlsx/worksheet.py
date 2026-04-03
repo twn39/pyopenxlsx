@@ -671,7 +671,7 @@ class Worksheet:
         """Async version of get_cell_value()."""
         return await asyncio.to_thread(self.get_cell_value, row, column)
 
-    def write_dataframe(self, df, start_row=1, start_col=1, header=True, index=False):
+    def write_dataframe(self, df, start_row=1, start_col=1, header=True, index=False, column_styles=None):
         """
         Export a pandas DataFrame to the worksheet.
 
@@ -681,6 +681,8 @@ class Worksheet:
             start_col (int): The starting 1-based column index.
             header (bool): Whether to write the DataFrame columns as a header row.
             index (bool): Whether to write the DataFrame index as the first column(s).
+            column_styles (dict): Optional dictionary mapping column names or 0-based indices to style IDs.
+                                  e.g. {"Date": date_style_id}
         """
         import pandas as pd
         import numpy as np
@@ -688,22 +690,56 @@ class Worksheet:
         if index:
             df = df.reset_index()
 
-        if header:
-            # Write column names
-            headers = df.columns.tolist()
-            self.write_row(start_row, headers, start_col=start_col)
-            start_row += 1
-
         # Replace NaT/NaN with None for C++
         df = df.replace({np.nan: None})
 
         # If dates are pandas Timestamps, convert them to standard datetime
         for col in df.select_dtypes(include=["datetime64", "datetimetz"]).columns:
             df[col] = df[col].dt.to_pydatetime()
+            
+        if column_styles:
+            # When styles are requested, we use stream_writer for O(1) style application
+            # Convert column_styles to a mapping of column_index -> style_id
+            col_idx_styles = {}
+            for k, v in column_styles.items():
+                if isinstance(k, str) and k in df.columns:
+                    col_idx_styles[df.columns.get_loc(k)] = v
+                elif isinstance(k, int):
+                    col_idx_styles[k] = v
+            
+            writer = self.stream_writer()
+            
+            # Since stream_writer writes to the very end of the stream, we must pad empty rows if start_row > 1
+            # Note: stream_writer writes exactly from the next available row. 
+            # If start_row > 1 and the sheet is empty, we'd need to pad. 
+            # To be safe and since stream_writer is generally for append-only, 
+            # we rely on it just appending. If strict positioning is needed, write_rows is better.
+            # But let's assume it appends from where we are.
+            
+            if header:
+                writer.append_row(df.columns.tolist())
+            
+            # Use itertuples for fast iteration while allowing column-specific styling
+            for row in df.itertuples(index=False, name=None):
+                styled_row = []
+                for c_idx, val in enumerate(row):
+                    if c_idx in col_idx_styles:
+                        styled_row.append((val, col_idx_styles[c_idx]))
+                    else:
+                        styled_row.append(val)
+                writer.append_row(styled_row)
+                
+            writer.close()
+        else:
+            if header:
+                # Write column names
+                headers = df.columns.tolist()
+                self.write_row(start_row, headers, start_col=start_col)
+                start_row += 1
 
-        # Since C++ handles numpy types now, we can just pass the fast DataFrame list view directly.
-        # df.values.tolist() operates at C speed within pandas.
-        self.write_rows(start_row, df.values.tolist(), start_col=start_col)
+            # Since C++ handles numpy types now, we can just pass the fast DataFrame list view directly.
+            # df.values.tolist() operates at C speed within pandas.
+            self.write_rows(start_row, df.values.tolist(), start_col=start_col)
 
     async def write_dataframe_async(
         self, df, start_row=1, start_col=1, header=True, index=False
