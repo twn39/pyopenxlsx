@@ -13,13 +13,13 @@
 </div>
 
 > [!IMPORTANT]
-> `pyopenxlsx` currently uses a specialized **fork** of the [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) library (v1.0.0+), which includes critical performance optimizations and functional enhancements (such as custom properties and improved hyperlink handling) not currently available in the upstream repository.
+> `pyopenxlsx` uses [OpenXLSX-NX](https://github.com/twn39/OpenXLSX-NX) (v1.0.0+), a specialized C++ fork that includes critical performance optimizations and functional enhancements (such as agile encryption, streaming I/O, vector shapes, threaded comments, and custom properties) not currently available in the upstream repository.
 
-`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
+`pyopenxlsx` is a high-performance Python binding for the [OpenXLSX-NX](https://github.com/twn39/OpenXLSX-NX) C++ library. It aims to provide significantly faster read/write speeds compared to pure Python libraries like `openpyxl`, while maintaining a Pythonic API design.
 
 ## Core Features
 
--   **High Performance**: Powered by the modern C++17 OpenXLSX library.
+-   **High Performance**: Powered by the modern C++17 OpenXLSX-NX library.
 -   **Pythonic API**: Intuitive interface with properties, iterators, and context managers.
 -   **Streaming I/O**: Bypass the DOM entirely with `XLStreamWriter` and `XLStreamReader` for memory-efficient bulk data processing.
 -   **Security**: Full support for ECMA-376 Standard and Agile Encryption (read/write password-protected files) and granular worksheet protection.
@@ -33,7 +33,7 @@
 
 | Component | Technology |
 | :--- | :--- |
-| **C++ Core** | [OpenXLSX](https://github.com/twn39/OpenXLSX-NX) |
+| **C++ Core** | [OpenXLSX-NX](https://github.com/twn39/OpenXLSX-NX) |
 | **Bindings** | [nanobind](https://github.com/wjakob/nanobind) |
 | **Build System** | [scikit-build-core](https://github.com/scikit-build/scikit-build-core) & [CMake](https://cmake.org/) |
 
@@ -368,7 +368,7 @@ The full API documentation has been split into individual modules for easier rea
 
 ## Performance
 
-`pyopenxlsx` is built for speed. By leveraging the C++ OpenXLSX engine and providing optimized bulk operations, it significantly outperforms pure-Python alternatives.
+`pyopenxlsx` is built for speed. By leveraging the C++ OpenXLSX-NX engine and providing optimized bulk operations, it significantly outperforms pure-Python alternatives.
 
 ### Benchmarks (pyopenxlsx vs openpyxl)
 
@@ -396,7 +396,7 @@ The full API documentation has been split into individual modules for easier rea
 ### Why is it faster?
 1. **C++ Foundation**: Core operations happen in highly optimized C++.
 2. **Reduced Object Overhead**: `pyopenxlsx` minimizes the creation of many Python `Cell` objects during bulk operations.
-3. **Efficient Memory Mapping**: Leverages the memory-efficient design of OpenXLSX.
+3. **Efficient Memory Mapping**: Leverages the memory-efficient design of OpenXLSX-NX.
 4. **Asynchronous I/O**: Key operations are available as non-blocking coroutines to maximize throughput in concurrent applications.
 
 ---
@@ -416,4 +416,4 @@ uv run pytest --cov=src/pyopenxlsx --cov-report=term-missing
 ## License
 
 BSD 3-Clause License.
-The underlying OpenXLSX library is licensed under the MIT License, and nanobind under a BSD-style license.
+The underlying OpenXLSX-NX library is licensed under the MIT License, and nanobind under a BSD-style license.
