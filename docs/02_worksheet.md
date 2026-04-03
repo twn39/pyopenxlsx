@@ -99,7 +99,6 @@ Automatically adjusts the width of the specified column to fit its contents.
 ```python
 ws.auto_fit_column(1) # Auto-fit column A
 ```
-*(You can also use `ws.column("A").autofit()`)*
 
 ### `apply_auto_filter()`
 Applies the autofilter dropdowns to the range specified in `ws.auto_filter`.
