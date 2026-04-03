@@ -247,7 +247,7 @@ with Workbook() as wb:
     wb.save("pivot.xlsx")
 ```
 
-### Insert Images
+### Insert Images and Vector Shapes
 
 ```python
 from pyopenxlsx import Workbook
@@ -255,19 +255,25 @@ from pyopenxlsx import Workbook
 wb = Workbook()
 ws = wb.active
 
-# Insert image at A1, automatically maintaining aspect ratio
+# 1. Insert image at A1, automatically maintaining aspect ratio
 # Requires Pillow: pip install pillow
 ws.add_image("logo.png", anchor="A1", width=200)
 
-# Or specify exact dimensions
+# 2. Or specify exact dimensions
 ws.add_image("banner.jpg", anchor="B5", width=400, height=100)
 
-wb.save("images.xlsx")
+# 3. Add Native Vector Shapes
+ws.add_shape(
+    row=2, col=5, shape_type="Arrow", 
+    name="MyArrow", text="Point!", 
+    fill_color="FF0000", line_width=2.5,
+    rotation=90
+)
+
+wb.save("media.xlsx")
 ```
 
-### Comments
-
-Comments are **automatically resized** to fit their content by default.
+### Comments & Threaded Replies
 
 ```python
 from pyopenxlsx import Workbook
@@ -275,9 +281,15 @@ from pyopenxlsx import Workbook
 wb = Workbook()
 ws = wb.active
 
-# Simple or multiline comments - all will auto-size perfectly
+# 1. Simple or multiline legacy comments
 ws["A1"].comment = "Short comment"
-ws["B2"].comment = "Line 1: High performance\nLine 2: Pythonic API\nLine 3: Auto-sized by default!"
+
+# 2. Modern Threaded Comments (Conversations)
+author_id = wb._doc.persons().add_person("Curry Tang")
+threads = ws._sheet.threaded_comments()
+
+root_comment = threads.add_comment("B2", author_id, "Please review this cell.")
+threads.add_reply(root_comment.id(), author_id, "Fixed!")
 
 wb.save("comments.xlsx")
 ```
@@ -341,13 +353,16 @@ The full API documentation has been split into individual modules for easier rea
 - [Data Validation API](docs/05_data_validation.md)
 - [Tables (ListObjects) API](docs/06_tables.md)
 - [Pivot Tables API](docs/07_pivot_tables.md)
-- [Rich Text & Comments API](docs/08_rich_text.md)
+- [Rich Text API](docs/08_rich_text.md)
 - [Async Operations API](docs/09_async_operations.md)
 - [Conditional Formatting API](docs/10_conditional_formatting.md)
 - [Streams I/O API](docs/11_streams.md)
 - [Charts API](docs/12_charts.md)
 - [Page Setup & Printing API](docs/13_page_setup.md)
-- [Images API](docs/14_images.md)
+- [Images & Shapes API](docs/14_images_and_shapes.md)
+- [Formula Engine API](docs/15_formula_engine.md)
+- [Comments & Threaded Comments API](docs/16_comments.md)
+- [Encryption & Protection API](docs/17_encryption.md)
 
 ---
 
