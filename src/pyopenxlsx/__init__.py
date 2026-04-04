@@ -87,7 +87,7 @@ XLAlignBottom = XLAlignmentStyle.Bottom
 XLAlignVCenter = XLAlignmentStyle.Center  # Alias for convenience
 
 
-__version__ = "1.2.1"
+__version__ = "1.3.0"
 
 
 __all__ = [
