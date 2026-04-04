@@ -22,7 +22,7 @@ with Workbook("large_output.xlsx") as wb:
     writer.append_row(["ID", "Name", "Score"])
     
     # 2. Append rows with styles (using tuples: (value, style_index))
-    bold_style = wb.add_style(font=wb.styles.fonts().create(bold=True))
+    bold_style = wb.add_style(font=wb.styles.fonts().create(XLFont(bold=True)))
     writer.append_row([
         (1, bold_style), 
         ("Alice", bold_style), 
@@ -33,9 +33,14 @@ with Workbook("large_output.xlsx") as wb:
         # Appends a row immediately to the XML stream
         writer.append_row([i, f"User_{i}", 99.9])
         
-    # Close the stream to finalize the XML structure
-    writer.close()
-```
+    # Optional: Close the stream manually if not using context manager
+    # writer.close()
+
+# Recommended: Use context manager (auto-closes)
+with Workbook("large_output.xlsx") as wb:
+    ws = wb.active
+    with ws.stream_writer() as writer:
+        writer.append_row([1, 2, 3])
 
 ## Stream Reader
 
@@ -50,12 +55,10 @@ with Workbook("large_input.xlsx") as wb:
     # Open a stream reader for this worksheet
     reader = ws.stream_reader()
     
-    # Iterate through rows sequentially
-    while reader.has_next():
-        current_row_idx = reader.current_row()
-        row_data = reader.next_row() # Returns a list of values
-        
-        # Process row_data...
+    # Iterate through rows sequentially using Python iterator
+    for row_data in reader:
+        current_row_idx = reader.current_row_index
+        # Process row_data... (a list of values)
         # print(f"Row {current_row_idx}: {row_data}")
 ```
 

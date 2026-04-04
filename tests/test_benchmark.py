@@ -95,6 +95,16 @@ def write_pyopenxlsx_bulk(np_data, filepath):
     wb.close()
 
 
+def write_pyopenxlsx_stream(data, filepath):
+    wb = PyWorkbook()
+    ws = wb.active
+    with ws.stream_writer() as writer:
+        for row in data:
+            writer.append_row(row)
+    wb.save(filepath)
+    wb.close()
+
+
 @pytest.fixture(scope="session")
 def small_data():
     return [[f"R{r}C{c}" for c in range(1, 11)] for r in range(1, 101)]
@@ -155,6 +165,11 @@ def test_write_large_bulk_pyopenxlsx(benchmark, temp_xlsx_file, large_np_data):
     benchmark(write_pyopenxlsx_bulk, large_np_data, temp_xlsx_file)
 
 
+@pytest.mark.benchmark(group="write_large")
+def test_write_large_stream_pyopenxlsx(benchmark, temp_xlsx_file, large_data):
+    benchmark(write_pyopenxlsx_stream, large_data, temp_xlsx_file)
+
+
 @pytest.mark.benchmark(group="write_extreme")
 def test_write_extreme_bulk_pyopenxlsx(benchmark, temp_xlsx_file, extreme_np_data):
     with ResourceMonitor("pyopenxlsx_bulk_1M"):
@@ -165,6 +180,12 @@ def test_write_extreme_bulk_pyopenxlsx(benchmark, temp_xlsx_file, extreme_np_dat
 def test_write_extreme_write_rows_pyopenxlsx(benchmark, temp_xlsx_file, extreme_data):
     with ResourceMonitor("pyopenxlsx_rows_1M"):
         benchmark(write_pyopenxlsx_write_rows, extreme_data, temp_xlsx_file)
+
+
+@pytest.mark.benchmark(group="write_extreme")
+def test_write_extreme_stream_pyopenxlsx(benchmark, temp_xlsx_file, extreme_data):
+    with ResourceMonitor("pyopenxlsx_stream_1M"):
+        benchmark(write_pyopenxlsx_stream, extreme_data, temp_xlsx_file)
 
 
 @pytest.mark.benchmark(group="write_extreme")
@@ -195,6 +216,23 @@ def read_pyopenxlsx(filepath):
     return val
 
 
+def read_pyopenxlsx_stream(filepath):
+    wb = PyWorkbook(filepath)
+    ws = wb.active
+    val = None
+    try:
+        with ws.stream_reader() as reader:
+            count = 0
+            for row in reader:
+                count += 1
+                if count == 500:
+                    val = row[9]  # column 10
+                    break
+    finally:
+        wb.close()
+    return val
+
+
 def read_openpyxl(filepath):
     wb = openpyxl.load_workbook(filepath)
     ws = wb.active
@@ -205,6 +243,11 @@ def read_openpyxl(filepath):
 @pytest.mark.benchmark(group="read")
 def test_read_pyopenxlsx(benchmark, large_file):
     benchmark(read_pyopenxlsx, large_file)
+
+
+@pytest.mark.benchmark(group="read")
+def test_read_stream_pyopenxlsx(benchmark, large_file):
+    benchmark(read_pyopenxlsx_stream, large_file)
 
 
 @pytest.mark.benchmark(group="read")
@@ -291,6 +334,19 @@ def iterate_pyopenxlsx_bulk(filepath):
     return count
 
 
+def iterate_pyopenxlsx_stream(filepath):
+    wb = PyWorkbook(filepath)
+    ws = wb.active
+    count = 0
+    try:
+        with ws.stream_reader() as reader:
+            for row in reader:
+                count += len(row)
+    finally:
+        wb.close()
+    return count
+
+
 def iterate_openpyxl_values_only(filepath):
     wb = openpyxl.load_workbook(filepath, read_only=True)
     ws = wb.active
@@ -304,6 +360,11 @@ def iterate_openpyxl_values_only(filepath):
 @pytest.mark.benchmark(group="iterate")
 def test_iterate_bulk_pyopenxlsx(benchmark, large_file):
     benchmark(iterate_pyopenxlsx_bulk, large_file)
+
+
+@pytest.mark.benchmark(group="iterate")
+def test_iterate_stream_pyopenxlsx(benchmark, large_file):
+    benchmark(iterate_pyopenxlsx_stream, large_file)
 
 
 @pytest.mark.benchmark(group="iterate")

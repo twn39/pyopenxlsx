@@ -50,6 +50,8 @@ from ._openxlsx import (
     XLFill,
     XLBorder,
     XLAlignment,
+    XLStreamReader,
+    XLStreamWriter,
 )
 from .styles import (
     Font,
@@ -104,6 +106,8 @@ __all__ = [
     "Cell",
     "Range",
     "Column",
+    "XLStreamReader",
+    "XLStreamWriter",
     "load_workbook",
     "load_workbook_async",
     "Font",
