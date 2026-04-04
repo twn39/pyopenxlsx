@@ -31,6 +31,9 @@ def test_image_extraction():
         binary_data = img_item.image_binary()
         assert len(binary_data) > 0
         assert binary_data.startswith(b'\x89PNG')
+        
+        # Explicitly close to release file handle on Windows
+        wb.close()
     finally:
         if os.path.exists(test_image_path):
             os.remove(test_image_path)
