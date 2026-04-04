@@ -28,25 +28,77 @@ void init_types(py::module_& m) {
         .def("set_text", &XLComment::setText)
         .def("set_author_id", &XLComment::setAuthorId);
 
+    // Bind XLShapeText Alignments
+    py::enum_<XLShapeTextVAlign>(m, "XLShapeTextVAlign")
+        .value("Center", XLShapeTextVAlign::Center)
+        .value("Top", XLShapeTextVAlign::Top)
+        .value("Bottom", XLShapeTextVAlign::Bottom)
+        .value("Invalid", XLShapeTextVAlign::Invalid);
+
+    py::enum_<XLShapeTextHAlign>(m, "XLShapeTextHAlign")
+        .value("Left", XLShapeTextHAlign::Left)
+        .value("Right", XLShapeTextHAlign::Right)
+        .value("Center", XLShapeTextHAlign::Center)
+        .value("Invalid", XLShapeTextHAlign::Invalid);
+
     // Bind XLShapeStyle
     py::class_<XLShapeStyle>(m, "XLShapeStyle")
+        .def("position", &XLShapeStyle::position)
+        .def("set_position", &XLShapeStyle::setPosition)
+        .def("margin_left", &XLShapeStyle::marginLeft)
+        .def("set_margin_left", &XLShapeStyle::setMarginLeft)
+        .def("margin_top", &XLShapeStyle::marginTop)
+        .def("set_margin_top", &XLShapeStyle::setMarginTop)
         .def("width", &XLShapeStyle::width)
-        .def("height", &XLShapeStyle::height)
         .def("set_width", &XLShapeStyle::setWidth)
+        .def("height", &XLShapeStyle::height)
         .def("set_height", &XLShapeStyle::setHeight)
-        .def("set_raw", &XLShapeStyle::setRaw)
+        .def("mso_wrap_style", &XLShapeStyle::msoWrapStyle)
+        .def("set_mso_wrap_style", &XLShapeStyle::setMsoWrapStyle)
+        .def("v_text_anchor", &XLShapeStyle::vTextAnchor)
+        .def("set_v_text_anchor", &XLShapeStyle::setVTextAnchor)
+        .def("hidden", &XLShapeStyle::hidden)
+        .def("visible", &XLShapeStyle::visible)
+        .def("hide", &XLShapeStyle::hide)
         .def("show", &XLShapeStyle::show)
-        .def("hide", &XLShapeStyle::hide);
+        .def("raw", &XLShapeStyle::raw)
+        .def("set_raw", &XLShapeStyle::setRaw);
 
     // Bind XLShapeClientData
     py::class_<XLShapeClientData>(m, "XLShapeClientData")
+        .def("object_type", &XLShapeClientData::objectType)
+        .def("set_object_type", &XLShapeClientData::setObjectType)
+        .def("move_with_cells", &XLShapeClientData::moveWithCells)
+        .def("set_move_with_cells", &XLShapeClientData::setMoveWithCells)
+        .def("size_with_cells", &XLShapeClientData::sizeWithCells)
+        .def("set_size_with_cells", &XLShapeClientData::setSizeWithCells)
+        .def("anchor", &XLShapeClientData::anchor)
+        .def("set_anchor", &XLShapeClientData::setAnchor)
         .def("auto_fill", &XLShapeClientData::autoFill)
         .def("set_auto_fill", &XLShapeClientData::setAutoFill)
-        .def("set_anchor", &XLShapeClientData::setAnchor);
+        .def("text_v_align", &XLShapeClientData::textVAlign)
+        .def("set_text_v_align", &XLShapeClientData::setTextVAlign)
+        .def("text_h_align", &XLShapeClientData::textHAlign)
+        .def("set_text_h_align", &XLShapeClientData::setTextHAlign)
+        .def("row", &XLShapeClientData::row)
+        .def("set_row", &XLShapeClientData::setRow)
+        .def("column", &XLShapeClientData::column)
+        .def("set_column", &XLShapeClientData::setColumn);
 
     // Bind XLShape
     py::class_<XLShape>(m, "XLShape")
+        .def("shape_id", &XLShape::shapeId)
+        .def("fill_color", &XLShape::fillColor)
+        .def("set_fill_color", &XLShape::setFillColor)
+        .def("stroked", &XLShape::stroked)
+        .def("set_stroked", &XLShape::setStroked)
+        .def("type", &XLShape::type)
+        .def("set_type", &XLShape::setType)
+        .def("allow_in_cell", &XLShape::allowInCell)
+        .def("set_allow_in_cell", &XLShape::setAllowInCell)
         .def("style", &XLShape::style)
+        .def("set_style", py::overload_cast<std::string_view>(&XLShape::setStyle))
+        .def("set_style_obj", py::overload_cast<const XLShapeStyle&>(&XLShape::setStyle))
         .def("client_data", &XLShape::clientData);
 
     // Bind XLComments

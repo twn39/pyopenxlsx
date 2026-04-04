@@ -3,7 +3,7 @@ import datetime
 from pyopenxlsx import Workbook, load_workbook
 
 pytest.importorskip("pandas")
-import pandas as pd
+import pandas as pd  # type: ignore
 
 
 def test_pandas_write_read(tmp_path):

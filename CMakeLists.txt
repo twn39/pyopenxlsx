@@ -34,12 +34,6 @@ set(OPENXLSX_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(third_party/OpenXLSX EXCLUDE_FROM_ALL)
 
-# Configure GSL (Microsoft Guidelines Support Library)
-# OpenXLSX 1.1.0+ no longer provides this, but pyopenxlsx still uses it.
-include(FetchContent)
-FetchContent_Declare(GSL GIT_REPOSITORY https://github.com/microsoft/GSL.git GIT_TAG v4.2.1)
-FetchContent_MakeAvailable(GSL)
-
 # Configure Python and nanobind
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 

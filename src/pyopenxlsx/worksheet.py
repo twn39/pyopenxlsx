@@ -684,7 +684,7 @@ class Worksheet:
             column_styles (dict): Optional dictionary mapping column names or 0-based indices to style IDs.
                                   e.g. {"Date": date_style_id}
         """
-        import pandas as pd
+        import pandas as pd  # type: ignore
         import numpy as np
 
         if index:
@@ -766,7 +766,7 @@ class Worksheet:
         Returns:
             A pandas DataFrame.
         """
-        import pandas as pd
+        import pandas as pd  # type: ignore
 
         if end_row is None:
             end_row = self.max_row

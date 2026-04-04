@@ -1,4 +1,5 @@
-from pyopenxlsx import Workbook, XLFont
+from pyopenxlsx import Workbook
+from pyopenxlsx._openxlsx import XLFont
 
 
 def test_worksheet_streams(tmp_path):
@@ -60,3 +61,4 @@ def test_stream_reader_index(tmp_path):
         assert next(reader) == [3]
         assert reader.current_row_index == 3
         assert not reader.has_next()
+()

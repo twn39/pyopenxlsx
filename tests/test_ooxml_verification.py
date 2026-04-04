@@ -106,6 +106,7 @@ def test_ooxml_elements_verification(tmp_path):
 
     wf1 = v_whole.find("main:formula1", ns)
     wf2 = v_whole.find("main:formula2", ns)
+    assert wf1 is not None and wf2 is not None
     assert wf1.text == "1"
     assert wf2.text == "100"
 

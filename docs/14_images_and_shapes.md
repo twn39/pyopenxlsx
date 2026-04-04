@@ -40,9 +40,12 @@ image_infos = wb.get_embedded_images()
 for img in image_infos:
     print(f"Found image: {img.name} (Type: {img.extension})")
 
-# Extract all images to a specific directory on disk
-extracted_paths = wb.extract_images("output_folder/")
-print(f"Extracted to: {extracted_paths}")
+# Alternatively, extract raw bytes directly from the worksheet's drawing:
+ws = wb.active
+drawing = ws._sheet.drawing()
+for i in range(drawing.image_count()):
+    img_item = drawing.image(i)
+    raw_bytes = img_item.image_binary() # Direct access to the image binary data (e.g. PNG/JPEG)
 ```
 
 ## Advanced Binary Data Access
@@ -87,6 +90,43 @@ with Workbook() as wb:
     )
     
     wb.save("shapes.xlsx")
+```
+
+### Legacy VML Shapes
+
+For advanced manipulation of legacy form controls or specific comment-like shape behavior, `pyopenxlsx` exposes the underlying VML Drawing APIs:
+
+```python
+from pyopenxlsx import Workbook
+
+wb = Workbook()
+ws = wb.active
+
+vml = ws._sheet.vml_drawing()
+shape = vml.create_shape()
+
+# Set properties
+shape.set_fill_color("#00FF00")
+shape.set_type("#_x0000_t202")
+shape.set_stroked(True)
+
+# Anchor the shape
+client_data = shape.client_data()
+client_data.set_move_with_cells(True)
+client_data.set_size_with_cells(True)
+client_data.set_anchor("3, 15, 3, 10, 5, 15, 5, 10") # format: LeftCol, LeftOffset, TopRow, TopOffset, RightCol, RightOffset, BottomRow, BottomOffset
+client_data.set_row(3)     # Logical link to Row 4
+client_data.set_column(3)  # Logical link to Col D
+
+# Adjust the style
+style = shape.style()
+style.show() # Remove default hidden attribute
+style.set_position("absolute")
+style.set_width(120)
+style.set_height(40)
+shape.set_style_obj(style) # Apply back to the shape
+
+wb.save("vml_shapes.xlsx")
 ```
 
 ### Supported Shape Options (`**kwargs`)

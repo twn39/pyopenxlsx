@@ -474,8 +474,19 @@ void init_worksheet(py::module_& m) {
         .def("col", &XLDrawingItem::col)
         .def("width", &XLDrawingItem::width)
         .def("height", &XLDrawingItem::height)
-        .def("relationship_id", &XLDrawingItem::relationshipId);
+        .def("relationship_id", &XLDrawingItem::relationshipId)
+        .def("image_binary", [](const XLDrawingItem& self) { auto data = self.imageBinary(); return py::bytes(reinterpret_cast<const char*>(data.data()), data.size()); })
+        ;
 
+
+
+    // Bind XLVmlDrawing
+    py::class_<XLVmlDrawing>(m, "XLVmlDrawing")
+        .def("shape_count", &XLVmlDrawing::shapeCount)
+        .def("shape", &XLVmlDrawing::shape, py::arg("index"))
+        .def("delete_shape", py::overload_cast<uint32_t>(&XLVmlDrawing::deleteShape), py::arg("index"))
+        .def("delete_shape_by_ref", py::overload_cast<std::string_view>(&XLVmlDrawing::deleteShape), py::arg("cell_ref"))
+        .def("create_shape", &XLVmlDrawing::createShape, py::arg("shape_template") = XLShape());
     // Bind XLDrawing
     py::class_<XLDrawing>(m, "XLDrawing")
         .def("image_count", &XLDrawing::imageCount)
@@ -545,6 +556,8 @@ void init_worksheet(py::module_& m) {
         .def("column_count", &XLWorksheet::columnCount)
         .def("has_drawing", &XLWorksheet::hasDrawing)
         .def("drawing", &XLWorksheet::drawing, py::rv_policy::reference_internal)
+        .def("vml_drawing", &XLWorksheet::vmlDrawing, py::rv_policy::reference_internal)
+        .def("has_vml_drawing", &XLWorksheet::hasVmlDrawing)
         .def("has_panes", &XLWorksheet::hasPanes)
         .def("freeze_panes", py::overload_cast<uint16_t, uint32_t>(&XLWorksheet::freezePanes),
              py::arg("column"), py::arg("row"))

@@ -83,6 +83,7 @@ def test_data_validation_ooxml_full(tmp_path):
 
     f1 = v1.find("main:formula1", ns)
     f2 = v1.find("main:formula2", ns)
+    assert f1 is not None and f2 is not None
     assert f1.text == "10"
     assert f2.text == "20"
 
@@ -93,13 +94,16 @@ def test_data_validation_ooxml_full(tmp_path):
     assert v2.get("showDropDown") == "1"
 
     f2_1 = v2.find("main:formula1", ns)
+    assert f2_1 is not None
     assert f2_1.text == '"Yes,No,Maybe"'
 
     # Verify DV3 (Decimal)
     v3 = next(v for v in dvs if v.get("sqref") == "C1")
     assert v3.get("type") == "decimal"
     assert v3.get("operator") == "greaterThan"
-    assert v3.find("main:formula1", ns).text == "0.5"
+    v3_f1 = v3.find("main:formula1", ns)
+    assert v3_f1 is not None
+    assert v3_f1.text == "0.5"
 
 
 def test_data_validation_ime_mode(tmp_path):
