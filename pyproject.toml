@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "nanobind>=2.11.0"]
+requires = ["scikit-build-core", "nanobind>=2.11.0", "ninja"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -45,16 +45,7 @@ test = [
 cmake.version = ">=3.15"
 wheel.packages = ["src/pyopenxlsx"]
 sdist.include = [
-    "third_party/OpenXLSX/third_party/pugixml/src",
-    "third_party/OpenXLSX/third_party/pugixml/scripts",
-    "third_party/OpenXLSX/third_party/pugixml/CMakeLists.txt",
-    "third_party/OpenXLSX/third_party/pugixml/LICENSE.md",
-    "third_party/OpenXLSX/third_party/nowide/include",
-    "third_party/OpenXLSX/third_party/nowide/src",
-    "third_party/OpenXLSX/third_party/nowide/CMakeLists.txt",
-    "third_party/OpenXLSX/third_party/nowide/LICENSE",
-    "third_party/OpenXLSX/third_party/nowide/cmake",
-    "third_party/OpenXLSX/third_party/nowide/config",
+    "third_party/OpenXLSX/third_party/**",
     "third_party/nanobind/include",
     "third_party/nanobind/src",
     "third_party/nanobind/ext",

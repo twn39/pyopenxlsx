@@ -38,9 +38,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
 
       - name: Install dependencies
-        run: |
-          uv sync --all-groups
-          uv pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints myst-parser
+        run: uv sync --all-groups
 
       - name: Build Sphinx Documentation
         run: |
