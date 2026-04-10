@@ -141,6 +141,25 @@ void init_types(py::module_& m) {
         .value("Column", XLSparklineType::Column)
         .value("Stacked", XLSparklineType::Stacked);
 
+    py::class_<XLSparklineOptions>(m, "XLSparklineOptions")
+        .def(py::init<>())
+        .def_rw("type", &XLSparklineOptions::type)
+        .def_rw("series_color", &XLSparklineOptions::seriesColor)
+        .def_rw("negative_color", &XLSparklineOptions::negativeColor)
+        .def_rw("markers_color", &XLSparklineOptions::markersColor)
+        .def_rw("first_marker_color", &XLSparklineOptions::firstMarkerColor)
+        .def_rw("last_marker_color", &XLSparklineOptions::lastMarkerColor)
+        .def_rw("high_marker_color", &XLSparklineOptions::highMarkerColor)
+        .def_rw("low_marker_color", &XLSparklineOptions::lowMarkerColor)
+        .def_rw("markers", &XLSparklineOptions::markers)
+        .def_rw("high", &XLSparklineOptions::high)
+        .def_rw("low", &XLSparklineOptions::low)
+        .def_rw("first", &XLSparklineOptions::first)
+        .def_rw("last", &XLSparklineOptions::last)
+        .def_rw("negative", &XLSparklineOptions::negative)
+        .def_rw("display_x_axis", &XLSparklineOptions::displayXAxis)
+        .def_rw("display_empty_cells_as", &XLSparklineOptions::displayEmptyCellsAs);
+
     // Bind XLImagePositioning
     py::enum_<XLImagePositioning>(m, "XLImagePositioning")
         .value("OneCell", XLImagePositioning::OneCell)

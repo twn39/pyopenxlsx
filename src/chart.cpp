@@ -10,6 +10,12 @@ void init_chart(py::module_& m) {
         .value("Bar3D", XLChartType::Bar3D)
         .value("Bar3DStacked", XLChartType::Bar3DStacked)
         .value("Bar3DPercentStacked", XLChartType::Bar3DPercentStacked)
+        .value("Column", XLChartType::Column)
+        .value("ColumnStacked", XLChartType::ColumnStacked)
+        .value("ColumnPercentStacked", XLChartType::ColumnPercentStacked)
+        .value("Column3D", XLChartType::Column3D)
+        .value("Column3DStacked", XLChartType::Column3DStacked)
+        .value("Column3DPercentStacked", XLChartType::Column3DPercentStacked)
         .value("Line", XLChartType::Line)
         .value("LineStacked", XLChartType::LineStacked)
         .value("LinePercentStacked", XLChartType::LinePercentStacked)
@@ -17,6 +23,18 @@ void init_chart(py::module_& m) {
         .value("Pie", XLChartType::Pie)
         .value("Pie3D", XLChartType::Pie3D)
         .value("Scatter", XLChartType::Scatter)
+        .value("ScatterLine", XLChartType::ScatterLine)
+        .value("ScatterLineMarker", XLChartType::ScatterLineMarker)
+        .value("ScatterSmooth", XLChartType::ScatterSmooth)
+        .value("ScatterSmoothMarker", XLChartType::ScatterSmoothMarker)
+        .value("ScatterMarker", XLChartType::ScatterMarker)
+        .value("Bubble", XLChartType::Bubble)
+        .value("StockHLC", XLChartType::StockHLC)
+        .value("StockOHLC", XLChartType::StockOHLC)
+        .value("Surface", XLChartType::Surface)
+        .value("Surface3D", XLChartType::Surface3D)
+        .value("SurfaceWireframe", XLChartType::SurfaceWireframe)
+        .value("Surface3DWireframe", XLChartType::Surface3DWireframe)
         .value("Area", XLChartType::Area)
         .value("AreaStacked", XLChartType::AreaStacked)
         .value("AreaPercentStacked", XLChartType::AreaPercentStacked)
@@ -35,6 +53,15 @@ void init_chart(py::module_& m) {
         .value("Top", XLLegendPosition::Top)
         .value("TopRight", XLLegendPosition::TopRight)
         .value("Hidden", XLLegendPosition::Hidden);
+
+    py::enum_<XLAxisOrientation>(m, "XLAxisOrientation")
+        .value("MinMax", XLAxisOrientation::MinMax)
+        .value("MaxMin", XLAxisOrientation::MaxMin);
+
+    py::enum_<XLAxisCrosses>(m, "XLAxisCrosses")
+        .value("AutoZero", XLAxisCrosses::AutoZero)
+        .value("Min", XLAxisCrosses::Min)
+        .value("Max", XLAxisCrosses::Max);
 
     py::enum_<XLMarkerStyle>(m, "XLMarkerStyle")
         .value("None", XLMarkerStyle::None)
@@ -63,6 +90,14 @@ void init_chart(py::module_& m) {
         .def("clear_min_bounds", &XLAxis::clearMinBounds)
         .def("set_max_bounds", &XLAxis::setMaxBounds)
         .def("clear_max_bounds", &XLAxis::clearMaxBounds)
+        .def("set_major_unit", &XLAxis::setMajorUnit)
+        .def("set_minor_unit", &XLAxis::setMinorUnit)
+        .def("set_log_scale", &XLAxis::setLogScale)
+        .def("set_date_axis", &XLAxis::setDateAxis)
+        .def("set_orientation", &XLAxis::setOrientation)
+        .def("set_crosses", &XLAxis::setCrosses)
+        .def("set_crosses_at", &XLAxis::setCrossesAt)
+        .def("set_number_format", &XLAxis::setNumberFormat, py::arg("format_code"), py::arg("source_linked") = false)
         .def("set_major_gridlines", &XLAxis::setMajorGridlines)
         .def("set_minor_gridlines", &XLAxis::setMinorGridlines);
 
@@ -91,6 +126,12 @@ void init_chart(py::module_& m) {
                                std::optional<XLChartType>, bool>(&XLChart::addSeries),
              py::arg("values_ref"), py::arg("title") = "", py::arg("categories_ref") = "",
              py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
+        .def("add_bubble_series",
+             py::overload_cast<std::string_view, std::string_view, std::string_view, std::string_view>(&XLChart::addBubbleSeries),
+             py::arg("x_val_ref"), py::arg("y_val_ref"), py::arg("size_ref"), py::arg("title") = "")
+        .def("add_bubble_series",
+             py::overload_cast<const XLWorksheet&, const XLCellRange&, const XLCellRange&, const XLCellRange&, std::string_view>(&XLChart::addBubbleSeries),
+             py::arg("wks"), py::arg("x_values"), py::arg("y_values"), py::arg("sizes"), py::arg("title") = "")
         .def("set_title", &XLChart::setTitle)
         .def("set_style", &XLChart::setStyle)
         .def("set_legend_position", &XLChart::setLegendPosition)
@@ -100,5 +141,9 @@ void init_chart(py::module_& m) {
         .def("set_show_data_labels", &XLChart::setShowDataLabels, py::arg("show_value"),
              py::arg("show_category") = false, py::arg("show_percent") = false)
         .def("set_series_smooth", &XLChart::setSeriesSmooth)
-        .def("set_series_marker", &XLChart::setSeriesMarker);
+        .def("set_series_marker", &XLChart::setSeriesMarker)
+        .def("set_overlap", &XLChart::setOverlap)
+        .def("set_hole_size", &XLChart::setHoleSize)
+        .def("set_rotation", &XLChart::setRotation, py::arg("x"), py::arg("y"), py::arg("perspective") = 30)
+        .def("set_plot_area_color", &XLChart::setPlotAreaColor);
 }

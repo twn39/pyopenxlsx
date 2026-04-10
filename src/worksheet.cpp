@@ -874,8 +874,14 @@ void init_worksheet(py::module_& m) {
              py::arg("last_row"))
         .def("set_print_title_cols", &XLWorksheet::setPrintTitleCols, py::arg("first_col"),
              py::arg("last_col"))
-        .def("add_sparkline", &XLWorksheet::addSparkline, py::arg("location"),
-             py::arg("data_range"), py::arg("type") = XLSparklineType::Line)
+        .def("add_sparkline",
+             py::overload_cast<const std::string&, const std::string&, XLSparklineType>(
+                 &XLWorksheet::addSparkline),
+             py::arg("location"), py::arg("data_range"), py::arg("type") = XLSparklineType::Line)
+        .def("add_sparkline",
+             py::overload_cast<const std::string&, const std::string&, const XLSparklineOptions&>(
+                 &XLWorksheet::addSparkline),
+             py::arg("location"), py::arg("data_range"), py::arg("options"))
         .def("insert_image",
              py::overload_cast<const std::string&, const std::string&>(&XLWorksheet::insertImage),
              py::arg("cell_reference"), py::arg("image_path"))

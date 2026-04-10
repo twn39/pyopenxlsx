@@ -36,6 +36,15 @@ class Worksheet:
         self._sheet.set_name(value)
 
     @property
+    def name(self):
+        """Alias for title to maintain compatibility and prevent dynamic attribute bugs."""
+        return self.title
+
+    @name.setter
+    def name(self, value):
+        self.title = value
+
+    @property
     def index(self):
         return self._sheet.index() - 1
 
@@ -1012,12 +1021,14 @@ class Worksheet:
         """Set the columns to repeat at left on printed pages."""
         self._sheet.set_print_title_cols(first_col, last_col)
 
-    def add_sparkline(self, location: str, data_range: str, sparkline_type=None):
+    def add_sparkline(self, location: str, data_range: str, sparkline_type=None, options=None):
         """Add a sparkline to the worksheet."""
-        if sparkline_type is None:
-            self._sheet.add_sparkline(location, data_range)
-        else:
+        if options is not None:
+            self._sheet.add_sparkline(location, data_range, options)
+        elif sparkline_type is not None:
             self._sheet.add_sparkline(location, data_range, sparkline_type)
+        else:
+            self._sheet.add_sparkline(location, data_range)
 
     def add_comment(self, cell_ref: str, text: str, author: str = ""):
         """Add a simple (legacy) comment."""

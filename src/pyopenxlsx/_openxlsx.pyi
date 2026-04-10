@@ -1002,7 +1002,7 @@ class XLWorksheet:
     def write_row_data(self, row: int, start_col: int, values: List[Any]) -> None: ...
     def set_cells_batch(self, cells: List[tuple]) -> None: ...
     def add_chart(
-        self, type: XLChartType, name: str, row: int, col: int, width: int, height: int
+        self, type: Any, name: str, row: int, col: int, width: int, height: int
     ) -> Any: ...
     def add_pivot_table(self, options: XLPivotTableOptions) -> None: ...
     def add_table_slicer(
@@ -1208,6 +1208,12 @@ class XLChartType(Enum):
     Bar3D: int
     Bar3DStacked: int
     Bar3DPercentStacked: int
+    Column: int
+    ColumnStacked: int
+    ColumnPercentStacked: int
+    Column3D: int
+    Column3DStacked: int
+    Column3DPercentStacked: int
     Line: int
     LineStacked: int
     LinePercentStacked: int
@@ -1215,6 +1221,18 @@ class XLChartType(Enum):
     Pie: int
     Pie3D: int
     Scatter: int
+    ScatterLine: int
+    ScatterLineMarker: int
+    ScatterSmooth: int
+    ScatterSmoothMarker: int
+    ScatterMarker: int
+    Bubble: int
+    StockHLC: int
+    StockOHLC: int
+    Surface: int
+    Surface3D: int
+    SurfaceWireframe: int
+    Surface3DWireframe: int
     Area: int
     AreaStacked: int
     AreaPercentStacked: int
@@ -1234,10 +1252,38 @@ class XLPivotSubtotal(Enum):
     Min: int
     Product: int
 
+class XLAxisOrientation(Enum):
+    MinMax: int
+    MaxMin: int
+
+class XLAxisCrosses(Enum):
+    AutoZero: int
+    Min: int
+    Max: int
+
 class XLSparklineType(Enum):
     Line: int
     Column: int
     Stacked: int
+
+class XLSparklineOptions:
+    def __init__(self) -> None: ...
+    type: Any
+    series_color: str
+    negative_color: str
+    markers_color: str
+    first_marker_color: str
+    last_marker_color: str
+    high_marker_color: str
+    low_marker_color: str
+    markers: bool
+    high: bool
+    low: bool
+    first: bool
+    last: bool
+    negative: bool
+    display_x_axis: bool
+    display_empty_cells_as: str
 
 class XLCfOperator(Enum):
     LessThan: int
@@ -1259,6 +1305,7 @@ class XLPivotField:
     name: str
     subtotal: XLPivotSubtotal
     custom_name: str
+    num_fmt_id: int
 
 class XLPivotTableOptions:
     def __init__(self) -> None: ...
@@ -1269,6 +1316,21 @@ class XLPivotTableOptions:
     columns: List[XLPivotField]
     data: List[XLPivotField]
     filters: List[XLPivotField]
+    data_on_rows: bool
+    row_grand_totals: bool
+    col_grand_totals: bool
+    show_drill: bool
+    use_auto_formatting: bool
+    page_over_then_down: bool
+    merge_item: bool
+    compact_data: bool
+    show_error: bool
+    show_row_headers: bool
+    show_col_headers: bool
+    show_row_stripes: bool
+    show_col_stripes: bool
+    show_last_column: bool
+    pivot_table_style_name: str
 
 class XLCfRule:
     def __init__(self) -> None: ...
