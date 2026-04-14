@@ -391,31 +391,35 @@ The full API documentation has been split into individual modules for easier rea
 
 `pyopenxlsx` is built for speed. By leveraging the C++ OpenXLSX-NX engine and providing optimized bulk operations, it significantly outperforms pure-Python alternatives.
 
+> **Note**: The following benchmarks were recorded on an Apple Silicon (arm64) M-series processor, comparing `pyopenxlsx` v1.3.1 against `openpyxl`.
+
 ### Benchmarks (pyopenxlsx vs openpyxl)
 
 | Scenario | pyopenxlsx | openpyxl | Speedup |
 | :--- | :--- | :--- | :--- |
-| **Load File** (20,000 cells) | **~0.95ms** | ~154.3ms | **162x** |
-| **Single Read** (1 cell in large doc) | **~2.6ms** | ~139.8ms | **53.7x** |
-| **Bulk Read** (20,000 cells via values_only) | **~7.8ms** | ~131.6ms | **16.8x** |
-| **Write Small** (1,000 cells) | **~4.7ms** | ~8.3ms | **1.7x** |
-| **Write Large** (50,000 cells) | **~124.4ms** | ~338.3ms | **2.7x** |
-| **Bulk Write Large** (50,000 cells, numpy/range) | **~39.8ms** | N/A | **8.5x** |
-| **Extreme Write** (1,000,000 cells) | **~1,539ms** | ~6,635ms | **4.3x** |
-| **Bulk Write Extreme** (1,000,000 cells, numpy) | **~649ms** | N/A | **10.2x** |
+| **Load File** (20,000 cells) | **~2.5ms** | ~169.0ms | **67x** |
+| **Single Read** (1 cell in large doc) | **~4.4ms** | ~181.7ms | **41x** |
+| **Bulk Read / Iterate** (20,000 cells) | **~10.0ms** | ~136.3ms* | **13.6x** |
+| **Write Small** (1,000 cells) | **~3.5ms** | ~8.0ms | **2.2x** |
+| **Write Large** (50,000 cells) | **~95.1ms** | ~316.9ms | **3.3x** |
+| **Bulk Write Large** (50,000 cells, numpy/range) | **~17.4ms** | N/A | **18.2x** |
+| **Extreme Write** (1,000,000 cells) | **~567ms** | ~6,172ms | **10.8x** |
+| **Bulk Write Extreme** (1,000,000 cells, numpy) | **~330ms** | N/A | **18.7x** |
+
+*\* `openpyxl` bulk read timed using `values_only=True`.*
 
 ### Resource Usage (1,000,000 cells)
 
 | Library | Execution Time | Memory Delta | CPU Load |
 | :--- | :--- | :--- | :--- |
-| **pyopenxlsx** (bulk write) | **~0.65s** | ~200 MB | ~99% |
-| **openpyxl** | ~6.6s | ~600 MB* | ~99% |
+| **pyopenxlsx** (bulk write) | **~0.33s** | ~200 MB | ~99% |
+| **openpyxl** | ~6.17s | ~600 MB* | ~99% |
 
 > [!NOTE]
 > *Memory delta for `openpyxl` can be misleading due to Python's garbage collection timing during the benchmark. However, `pyopenxlsx` consistently shows lower memory pressure for bulk operations as data is handled primarily in C++.
 
 ### Why is it faster?
-1. **C++ Foundation**: Core operations happen in highly optimized C++.
+1. **C++ Foundation**: Core operations happen in highly optimized C++. Recent updates eliminated `shared_ptr` heap allocations and deep copies for zero-allocation performance during high-throughput tasks.
 2. **Reduced Object Overhead**: `pyopenxlsx` minimizes the creation of many Python `Cell` objects during bulk operations.
 3. **Efficient Memory Mapping**: Leverages the memory-efficient design of OpenXLSX-NX.
 4. **Asynchronous I/O**: Key operations are available as non-blocking coroutines to maximize throughput in concurrent applications.
