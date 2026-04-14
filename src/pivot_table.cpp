@@ -1,6 +1,14 @@
 #include "bindings.hpp"
 
 void init_pivot_table(py::module_& m) {
+    m.def("create_pivot_options", [](std::string name, std::string source_range, std::string target_cell) {
+        return XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));
+    }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"));
+
+    m.def("create_pivot_options", [](std::string name, std::string source_range, std::string target_cell) {
+        return XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));
+    }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"));
+
     // Bind XLPivotField
     py::class_<XLPivotField>(m, "XLPivotField")
         .def(py::init<>())
@@ -21,8 +29,8 @@ void init_pivot_table(py::module_& m) {
 
     // Bind XLPivotTableOptions
     py::class_<XLPivotTableOptions>(m, "XLPivotTableOptions")
-        .def("__init__", [](XLPivotTableOptions *t, std::string name, std::string source_range, std::string target_cell) {
-            new (t) XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));
+        .def("__init__", [](XLPivotTableOptions *t, const std::string& name, const std::string& source_range, const std::string& target_cell) {
+            new (t) XLPivotTableOptions(name, source_range, target_cell);
         }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"))
         .def_prop_ro("name", &XLPivotTableOptions::name)
         .def_prop_ro("source_range", &XLPivotTableOptions::sourceRange)
@@ -34,7 +42,9 @@ void init_pivot_table(py::module_& m) {
         .def_prop_ro("pivot_table_style_name", &XLPivotTableOptions::pivotTableStyleName)
         .def("add_row_field", &XLPivotTableOptions::addRowField)
         .def("add_column_field", &XLPivotTableOptions::addColumnField)
-        .def("add_data_field", &XLPivotTableOptions::addDataField, py::arg("field_name"), py::arg("custom_name") = "", py::arg("subtotal") = XLPivotSubtotal::Sum, py::arg("num_fmt_id") = 0)
+        .def("add_data_field", &XLPivotTableOptions::addDataField, 
+             py::arg("field_name"), py::arg("custom_name") = "", 
+             py::arg("subtotal") = XLPivotSubtotal::Sum, py::arg("num_fmt_id") = 0)
         .def("add_filter_field", &XLPivotTableOptions::addFilterField)
         .def("set_pivot_table_style", &XLPivotTableOptions::setPivotTableStyle)
         .def("set_data_on_rows", &XLPivotTableOptions::setDataOnRows)
