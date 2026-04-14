@@ -2,7 +2,7 @@
 
 NB_MODULE(_openxlsx, m) {
     m.doc() = "Python bindings for OpenXLSX";
-    m.attr("__version__") = "1.3.0";
+    m.attr("__version__") = "1.4.0";
     init_constants(m);
     init_types(m);
     init_styles(m);
