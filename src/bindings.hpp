@@ -9,6 +9,31 @@
 #include <nanobind/stl/vector.h>
 
 #include <OpenXLSX.hpp>
+#include <XLAutoFilter.hpp>
+#include <XLChart.hpp>
+#include <XLChartsheet.hpp>
+#include <XLColor.hpp>
+#include <XLColumn.hpp>
+#include <XLComments.hpp>
+#include <XLConditionalFormatting.hpp>
+#include <XLDataValidation.hpp>
+#include <XLDateTime.hpp>
+#include <XLDrawing.hpp>
+#include <XLFormulaEngine.hpp>
+#include <XLMergeCells.hpp>
+#include <XLPageSetup.hpp>
+#include <XLPivotTable.hpp>
+#include <XLRichText.hpp>
+#include <XLRow.hpp>
+#include <XLSheet.hpp>
+#include <XLSparkline.hpp>
+#include <XLStreamReader.hpp>
+#include <XLStreamWriter.hpp>
+#include <XLStyles.hpp>
+#include <XLTables.hpp>
+#include <XLThreadedComments.hpp>
+#include <XLWorkbook.hpp>
+#include <XLWorksheet.hpp>
 #include <gsl/gsl>
 
 namespace py = nanobind;

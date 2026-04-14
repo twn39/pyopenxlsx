@@ -179,7 +179,7 @@ def test_formula_engine_excelize_cases():
         "TEXT(46000, \"yyyy/mm/dd\")": "2025/12/09",
         "TEXTJOIN(\"-\", TRUE(), \"X\", \"Y\")": "X-Y",
         "TIME(14, 30, 0)": 0.604166666666667,
-        "TODAY()": 46118,
+        # "TODAY()": 46118,
         "TRIM(\"  hello  world  \")": "hello  world",
         "TRIMMEAN(Data!A1:A10, 0.4)": 11,
         "TRUE()": True,

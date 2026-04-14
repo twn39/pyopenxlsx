@@ -65,28 +65,16 @@ def test_pivot_tables(tmp_path):
             2, [["North", 100], ["South", 200], ["North", 150], ["South", 250]]
         )
 
-        options = XLPivotTableOptions()
-        options.name = "PivotTable1"
-        options.source_range = "A1:B5"
-        options.target_cell = "D1"
+        options = XLPivotTableOptions("PivotTable1", "Sheet1!A1:B5", "D1")
+        options.add_row_field("Region")
+        options.add_data_field("Sales", custom_name="", subtotal=XLPivotSubtotal.Sum, num_fmt_id=4)  # type: ignore
         
         # New options
-        options.data_on_rows = True
-        options.show_row_headers = True
-        options.show_col_stripes = True
-        options.pivot_table_style_name = "PivotStyleMedium9"
-        options.compact_data = False
-
-        pf_region = XLPivotField()
-        pf_region.name = "Region"
-
-        pf_sales = XLPivotField()
-        pf_sales.name = "Sales"
-        pf_sales.subtotal = XLPivotSubtotal.Sum  # type: ignore
-        pf_sales.num_fmt_id = 4  # e.g., '#,##0.00'
-
-        options.rows = [pf_region]
-        options.data = [pf_sales]
+        options.set_data_on_rows(True)
+        options.set_show_row_headers(True)
+        options.set_show_col_stripes(True)
+        options.set_pivot_table_style("PivotStyleMedium9")
+        options.set_compact_data(False)
 
         ws._sheet.add_pivot_table(options)
 
@@ -95,6 +83,7 @@ def test_pivot_tables(tmp_path):
     with Workbook(file_path) as wb:
         ws = wb.active
         assert ws.cell(1, 1).value == "Region"
+
 
 def test_stock_and_surface_charts(tmp_path):
     """Test newly fixed StockOHLC and Surface3D charts in OpenXLSX."""
