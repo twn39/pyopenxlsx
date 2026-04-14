@@ -218,53 +218,29 @@ wb.save("styles.xlsx")
 
 ### Pivot Tables
 
-Create dynamic pivot tables based on worksheet data.
+> **⚠️ Important Notice (v1.3.1+)**:  
+> Creating new Pivot Tables from scratch via Python code is **temporarily disabled** while the Python bindings are refactored to support the underlying OpenXLSX `v1.9.1` zero-allocation Fluent Builder memory ownership model without leaks.
+
+However, `pyopenxlsx` **fully preserves** any existing Pivot Tables when reading and saving files. The most robust workflow is to use a pre-formatted Excel template containing a Pivot Table, and update the underlying raw data.
 
 ```python
-from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotField, XLPivotSubtotal
+from pyopenxlsx import load_workbook
 
-with Workbook() as wb:
-    # 1. Write source data
-    ws = wb.active
-    ws.title = "SalesData"
-    ws.write_row(1, ["Region", "Product", "Sales"])
-    ws.write_rows(2, [
-        ["North", "Apples", 100],
-        ["South", "Bananas", 300],
-        ["North", "Oranges", 150]
-    ])
-    
-    # 2. Create a separate sheet for the Pivot Table
-    ws_pivot = wb.create_sheet("PivotSheet")
-    
-    # 3. Configure options
-    options = XLPivotTableOptions()
-    options.name = "SalesPivot"
-    options.source_range = "SalesData!A1:C4"
-    options.target_cell = "A3" # Note: Target cell must NOT include sheet name
-    
-    # 4. Define fields
-    r = XLPivotField()
-    r.name = "Region"
-    r.subtotal = XLPivotSubtotal.Sum
-    options.rows = [r]
+# Load a workbook that already contains a Pivot Table and a "SalesData" sheet
+wb = load_workbook("template_with_pivot.xlsx")
+ws = wb.get_worksheet("SalesData")
 
-    c = XLPivotField()
-    c.name = "Product"
-    c.subtotal = XLPivotSubtotal.Sum
-    options.columns = [c]
+# 1. Overwrite or append new raw data
+ws.write_rows(2, [
+    ["North", "Apples", 500],
+    ["South", "Oranges", 750],
+    ["East", "Bananas", 300]
+])
 
-    d = XLPivotField()
-    d.name = "Sales"
-    d.subtotal = XLPivotSubtotal.Sum
-    d.custom_name = "Total Sales"
-    options.data = [d]
-    
-    # 5. Add to the new sheet
-    ws_pivot._sheet.add_pivot_table(options)
-    
-    wb.save("pivot.xlsx")
+# 2. Save the workbook
+# The Pivot Table structure, cache, and slicers remain completely intact and 
+# will reflect the new data the next time the user clicks "Refresh" in Excel.
+wb.save("updated_report.xlsx")
 ```
 
 ### Insert Images and Vector Shapes
