@@ -74,7 +74,7 @@ void init_tables(py::module_& m) {
              })
         .def("get_table", &XLTables::table)
         .def("add", py::overload_cast<std::string_view, std::string_view>(&XLTables::add),
-             py::arg("name"), py::arg("range"))
+             "name"_a, "range"_a)
         .def("add_range", py::overload_cast<std::string_view, const XLCellRange&>(&XLTables::add),
-             py::arg("name"), py::arg("range"));
+             "name"_a, "range"_a);
 }

@@ -3,19 +3,14 @@
 void init_pivot_table(py::module_& m) {
     m.def("create_pivot_options", [](std::string name, std::string source_range, std::string target_cell) {
         return XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));
-    }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"));
-
-    m.def("create_pivot_options", [](std::string name, std::string source_range, std::string target_cell) {
-        return XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));
-    }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"));
+    }, "name"_a, "source_range"_a, "target_cell"_a);
 
     // Bind XLPivotField
     py::class_<XLPivotField>(m, "XLPivotField")
-        .def(py::init<>())
-        .def_rw("name", &XLPivotField::name)
-        .def_rw("custom_name", &XLPivotField::customName)
-        .def_rw("subtotal", &XLPivotField::subtotal)
-        .def_rw("num_fmt_id", &XLPivotField::numFmtId);
+        .def_ro("name", &XLPivotField::name)
+        .def_ro("custom_name", &XLPivotField::customName)
+        .def_ro("subtotal", &XLPivotField::subtotal)
+        .def_ro("num_fmt_id", &XLPivotField::numFmtId);
 
     // Bind XLPivotSubtotal enum
     py::enum_<XLPivotSubtotal>(m, "XLPivotSubtotal")
@@ -29,9 +24,8 @@ void init_pivot_table(py::module_& m) {
 
     // Bind XLPivotTableOptions
     py::class_<XLPivotTableOptions>(m, "XLPivotTableOptions")
-        .def("__init__", [](XLPivotTableOptions *t, const std::string& name, const std::string& source_range, const std::string& target_cell) {
-            new (t) XLPivotTableOptions(name, source_range, target_cell);
-        }, py::arg("name"), py::arg("source_range"), py::arg("target_cell"))
+        .def(py::init<std::string, std::string, std::string>(), 
+             "name"_a, "source_range"_a, "target_cell"_a)
         .def_prop_ro("name", &XLPivotTableOptions::name)
         .def_prop_ro("source_range", &XLPivotTableOptions::sourceRange)
         .def_prop_ro("target_cell", &XLPivotTableOptions::targetCell)
@@ -40,27 +34,27 @@ void init_pivot_table(py::module_& m) {
         .def_prop_ro("data", &XLPivotTableOptions::data)
         .def_prop_ro("filters", &XLPivotTableOptions::filters)
         .def_prop_ro("pivot_table_style_name", &XLPivotTableOptions::pivotTableStyleName)
-        .def("add_row_field", &XLPivotTableOptions::addRowField)
-        .def("add_column_field", &XLPivotTableOptions::addColumnField)
+        .def("add_row_field", &XLPivotTableOptions::addRowField, py::rv_policy::reference)
+        .def("add_column_field", &XLPivotTableOptions::addColumnField, py::rv_policy::reference)
         .def("add_data_field", &XLPivotTableOptions::addDataField, 
-             py::arg("field_name"), py::arg("custom_name") = "", 
-             py::arg("subtotal") = XLPivotSubtotal::Sum, py::arg("num_fmt_id") = 0)
-        .def("add_filter_field", &XLPivotTableOptions::addFilterField)
-        .def("set_pivot_table_style", &XLPivotTableOptions::setPivotTableStyle)
-        .def("set_data_on_rows", &XLPivotTableOptions::setDataOnRows)
-        .def("set_row_grand_totals", &XLPivotTableOptions::setRowGrandTotals)
-        .def("set_col_grand_totals", &XLPivotTableOptions::setColGrandTotals)
-        .def("set_show_drill", &XLPivotTableOptions::setShowDrill)
-        .def("set_use_auto_formatting", &XLPivotTableOptions::setUseAutoFormatting)
-        .def("set_page_over_then_down", &XLPivotTableOptions::setPageOverThenDown)
-        .def("set_merge_item", &XLPivotTableOptions::setMergeItem)
-        .def("set_compact_data", &XLPivotTableOptions::setCompactData)
-        .def("set_show_error", &XLPivotTableOptions::setShowError)
-        .def("set_show_row_headers", &XLPivotTableOptions::setShowRowHeaders)
-        .def("set_show_col_headers", &XLPivotTableOptions::setShowColHeaders)
-        .def("set_show_row_stripes", &XLPivotTableOptions::setShowRowStripes)
-        .def("set_show_col_stripes", &XLPivotTableOptions::setShowColStripes)
-        .def("set_show_last_column", &XLPivotTableOptions::setShowLastColumn);
+             "field_name"_a, "custom_name"_a = "", 
+             "subtotal"_a = XLPivotSubtotal::Sum, "num_fmt_id"_a = 0, py::rv_policy::reference)
+        .def("add_filter_field", &XLPivotTableOptions::addFilterField, py::rv_policy::reference)
+        .def("set_pivot_table_style", &XLPivotTableOptions::setPivotTableStyle, py::rv_policy::reference)
+        .def("set_data_on_rows", &XLPivotTableOptions::setDataOnRows, py::rv_policy::reference)
+        .def("set_row_grand_totals", &XLPivotTableOptions::setRowGrandTotals, py::rv_policy::reference)
+        .def("set_col_grand_totals", &XLPivotTableOptions::setColGrandTotals, py::rv_policy::reference)
+        .def("set_show_drill", &XLPivotTableOptions::setShowDrill, py::rv_policy::reference)
+        .def("set_use_auto_formatting", &XLPivotTableOptions::setUseAutoFormatting, py::rv_policy::reference)
+        .def("set_page_over_then_down", &XLPivotTableOptions::setPageOverThenDown, py::rv_policy::reference)
+        .def("set_merge_item", &XLPivotTableOptions::setMergeItem, py::rv_policy::reference)
+        .def("set_compact_data", &XLPivotTableOptions::setCompactData, py::rv_policy::reference)
+        .def("set_show_error", &XLPivotTableOptions::setShowError, py::rv_policy::reference)
+        .def("set_show_row_headers", &XLPivotTableOptions::setShowRowHeaders, py::rv_policy::reference)
+        .def("set_show_col_headers", &XLPivotTableOptions::setShowColHeaders, py::rv_policy::reference)
+        .def("set_show_row_stripes", &XLPivotTableOptions::setShowRowStripes, py::rv_policy::reference)
+        .def("set_show_col_stripes", &XLPivotTableOptions::setShowColStripes, py::rv_policy::reference)
+        .def("set_show_last_column", &XLPivotTableOptions::setShowLastColumn, py::rv_policy::reference);
 
     // Bind XLPivotTable
     py::class_<XLPivotTable>(m, "XLPivotTable")

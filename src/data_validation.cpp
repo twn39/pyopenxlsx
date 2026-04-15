@@ -58,8 +58,8 @@ void init_data_validation(py::module_& m) {
         .def("set_formula1", &XLDataValidation::setFormula1)
         .def("set_formula2", &XLDataValidation::setFormula2)
         .def("set_prompt", &XLDataValidation::setPrompt)
-        .def("set_error", &XLDataValidation::setError, py::arg("title"), py::arg("msg"),
-             py::arg("style") = XLDataValidationErrorStyle::Stop)
+        .def("set_error", &XLDataValidation::setError, "title"_a, "msg"_a,
+             "style"_a = XLDataValidationErrorStyle::Stop)
         .def("set_show_drop_down", &XLDataValidation::setShowDropDown)
         .def("set_show_input_message", &XLDataValidation::setShowInputMessage)
         .def("set_show_error_message", &XLDataValidation::setShowErrorMessage)

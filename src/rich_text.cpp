@@ -91,7 +91,8 @@ void init_rich_text(py::module_& m) {
     py::class_<XLRichText>(m, "XLRichText")
         .def(py::init<>())
         .def(py::init<const std::string&>())
-        .def("add_run", py::overload_cast<const XLRichTextRun&>(&XLRichText::addRun))
+        .def("add_run", py::overload_cast<const XLRichTextRun&>(&XLRichText::addRun),
+             py::rv_policy::reference)
         .def("add_run", py::overload_cast<const std::string&>(&XLRichText::addRun),
              py::rv_policy::reference_internal)
         .def_prop_ro(

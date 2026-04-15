@@ -53,47 +53,47 @@ void init_defined_names(py::module_& m) {
             [](XLDefinedNames& self, std::string_view name, std::string_view formula) {
                 return self.append(name, formula, std::nullopt);
             },
-            py::arg("name"), py::arg("formula"))
+            "name"_a, "formula"_a)
         .def(
             "append",
             [](XLDefinedNames& self, std::string_view name, std::string_view formula,
                uint32_t localSheetId) { return self.append(name, formula, localSheetId); },
-            py::arg("name"), py::arg("formula"), py::arg("local_sheet_id"))
+            "name"_a, "formula"_a, "local_sheet_id"_a)
         .def(
             "remove",
             [](XLDefinedNames& self, std::string_view name) { self.remove(name, std::nullopt); },
-            py::arg("name"))
+            "name"_a)
         .def(
             "remove",
             [](XLDefinedNames& self, std::string_view name, uint32_t localSheetId) {
                 self.remove(name, localSheetId);
             },
-            py::arg("name"), py::arg("local_sheet_id"))
+            "name"_a, "local_sheet_id"_a)
         .def(
             "get",
             [](const XLDefinedNames& self, std::string_view name) {
                 return self.get(name, std::nullopt);
             },
-            py::arg("name"))
+            "name"_a)
         .def(
             "get",
             [](const XLDefinedNames& self, std::string_view name, uint32_t localSheetId) {
                 return self.get(name, localSheetId);
             },
-            py::arg("name"), py::arg("local_sheet_id"))
+            "name"_a, "local_sheet_id"_a)
         .def("all", &XLDefinedNames::all)
         .def(
             "exists",
             [](const XLDefinedNames& self, std::string_view name) {
                 return self.exists(name, std::nullopt);
             },
-            py::arg("name"))
+            "name"_a)
         .def(
             "exists",
             [](const XLDefinedNames& self, std::string_view name, uint32_t localSheetId) {
                 return self.exists(name, localSheetId);
             },
-            py::arg("name"), py::arg("local_sheet_id"))
+            "name"_a, "local_sheet_id"_a)
         .def("count", &XLDefinedNames::count)
         .def("__len__", &XLDefinedNames::count)
         .def("__getitem__",

@@ -6,58 +6,48 @@
 
 ## Code Example
 
+With the modern `XLPivotTableOptions` fluent builder API, configuring complex pivot tables is straightforward and memory-safe:
+
 ```python
 from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotField, XLPivotSubtotal, XLSlicerOptions
+from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotSubtotal, XLSlicerOptions
 
 with Workbook() as wb:
     # 1. Write source data to a sheet
     ws_data = wb.active
-    ws_data.title = "SalesData"
-    ws_data.write_row(1, ["Region", "Product", "Sales"])
+    ws_data.name = "SalesData"
+    ws_data.write_row(1, ["Date", "Region", "Product", "Sales Rep", "Units", "Revenue"])
     ws_data.write_rows(2, [
-        ["North", "Apples", 100],
-        ["South", "Bananas", 300],
-        ["North", "Oranges", 150]
+        ["2024-01-01", "North", "Laptop", "Alice", 50, 50000.0],
+        ["2024-01-02", "South", "Laptop", "Alice", 20, 20000.0],
+        ["2024-01-03", "North", "Mouse",  "Bob",   300, 6000.0]
     ])
     
     # 2. Create a separate sheet for the Pivot Table
     ws_pivot = wb.create_sheet("PivotSheet")
     
-    # 3. Configure options
-    options = XLPivotTableOptions()
-    options.name = "SalesPivot"
-    
+    # 3. Configure options using the Fluent Builder API
     # The source must include the sheet name!
-    options.source_range = "SalesData!A1:C4"
-    
     # The target must ONLY be the cell coordinate (no sheet name!)
-    options.target_cell = "A3" 
+    options = XLPivotTableOptions("SalesPivot", "SalesData!A1:F4", "B3")
     
-    # 4. Define fields
-    # Row Field
-    r = XLPivotField()
-    r.name = "Region"
-    r.subtotal = XLPivotSubtotal.Sum
-    options.rows = [r]
-
-    # Column Field
-    c = XLPivotField()
-    c.name = "Product"
-    c.subtotal = XLPivotSubtotal.Sum
-    options.columns = [c]
-
-    # Data (Value) Field
-    d = XLPivotField()
-    d.name = "Sales"
-    d.subtotal = XLPivotSubtotal.Sum
-    d.custom_name = "Total Sales"
-    options.data = [d]
+    # Chain methods to build the pivot table configuration
+    (options
+        .add_filter_field("Date")
+        .add_row_field("Region")
+        .add_row_field("Sales Rep")
+        .add_column_field("Product")
+        .add_data_field("Units", "Total Units Sold", XLPivotSubtotal.Sum, 3)     # 3 = '#,##0' format
+        .add_data_field("Revenue", "Total Revenue ($)", XLPivotSubtotal.Sum, 4)  # 4 = '#,##0.00' format
+        .set_pivot_table_style("PivotStyleMedium14")
+        .set_show_row_stripes(True)
+        .set_compact_data(True)
+    )
     
-    # 5. Add the pivot table to the new sheet
+    # 4. Add the pivot table to the new sheet
     ws_pivot._sheet.add_pivot_table(options)
 
-    # 6. Add a Pivot Slicer for the "Region" column
+    # 5. Add a Pivot Slicer for the "Region" column
     slicer_opts = XLSlicerOptions()
     slicer_opts.name = "RegionSlicer"
     slicer_opts.caption = "Filter by Region"
@@ -69,10 +59,25 @@ with Workbook() as wb:
     wb.save("pivot_demo.xlsx")
 ```
 
-## `XLPivotField` Configuration
-- `name`: Must exactly match the column header in the source data.
-- `subtotal`: The aggregation type (e.g., `XLPivotSubtotal.Sum`, `XLPivotSubtotal.Count`, `XLPivotSubtotal.Average`).
-- `custom_name`: Overrides the default "Sum of X" text in the UI (only applies to data fields).
+## `XLPivotTableOptions` Fluent Methods
+
+The `XLPivotTableOptions` object provides various chainable methods:
+
+- `add_row_field(field_name: str)`: Adds a field to the rows area.
+- `add_column_field(field_name: str)`: Adds a field to the columns area.
+- `add_filter_field(field_name: str)`: Adds a field to the report filter area.
+- `add_data_field(field_name: str, custom_name: str, subtotal: XLPivotSubtotal, num_fmt_id: int)`: Adds a field to the values area.
+  - `subtotal`: The aggregation type (e.g., `XLPivotSubtotal.Sum`, `XLPivotSubtotal.Count`, `XLPivotSubtotal.Average`).
+  - `custom_name`: Overrides the default "Sum of X" text in the UI.
+  - `num_fmt_id`: Standard Excel number format ID.
+
+### Layout & Style Methods
+- `set_pivot_table_style(style_name: str)`: Apply a predefined Excel style (e.g., `"PivotStyleLight16"`).
+- `set_show_row_stripes(value: bool)`: Enable/disable banded rows.
+- `set_show_col_stripes(value: bool)`: Enable/disable banded columns.
+- `set_row_grand_totals(value: bool)`: Show/hide grand totals for rows.
+- `set_col_grand_totals(value: bool)`: Show/hide grand totals for columns.
+- `set_compact_data(value: bool)`: Enable/disable compact layout.
 
 ## `XLSlicerOptions` Configuration
 - `name`: Internal unique name for the slicer cache.

@@ -670,7 +670,6 @@ class XLVectorShapeOptions:
     vert_align: str
     macro: str
 
-
 class XLShapeTextVAlign(Enum):
     Center: int
     Top: int
@@ -1244,13 +1243,13 @@ class XLChartType(Enum):
     RadarFilled: int
     RadarMarkers: int
 
-class XLPivotSubtotal(Enum):
-    Sum: int
-    Average: int
-    Count: int
-    Max: int
-    Min: int
-    Product: int
+class XLPivotSubtotal:
+    Sum: "XLPivotSubtotal"
+    Average: "XLPivotSubtotal"
+    Count: "XLPivotSubtotal"
+    Max: "XLPivotSubtotal"
+    Min: "XLPivotSubtotal"
+    Product: "XLPivotSubtotal"
 
 class XLAxisOrientation(Enum):
     MinMax: int
@@ -1301,11 +1300,14 @@ class XLCfOperator(Enum):
     Invalid: int
 
 class XLPivotField:
-    def __init__(self) -> None: ...
-    name: str
-    subtotal: XLPivotSubtotal
-    custom_name: str
-    num_fmt_id: int
+    @property
+    def name(self) -> str: ...
+    @property
+    def subtotal(self) -> XLPivotSubtotal: ...
+    @property
+    def custom_name(self) -> str: ...
+    @property
+    def num_fmt_id(self) -> int: ...
 
 class XLPivotTableOptions:
     def __init__(self, name: str, source_range: str, target_cell: str) -> None: ...
@@ -1325,10 +1327,15 @@ class XLPivotTableOptions:
     def filters(self) -> List[XLPivotField]: ...
     @property
     def pivot_table_style_name(self) -> str: ...
-
     def add_row_field(self, field_name: str) -> "XLPivotTableOptions": ...
     def add_column_field(self, field_name: str) -> "XLPivotTableOptions": ...
-    def add_data_field(self, field_name: str, custom_name: str = "", subtotal: XLPivotSubtotal = ..., num_fmt_id: int = 0) -> "XLPivotTableOptions": ...
+    def add_data_field(
+        self,
+        field_name: str,
+        custom_name: str = "",
+        subtotal: XLPivotSubtotal = ...,
+        num_fmt_id: int = 0,
+    ) -> "XLPivotTableOptions": ...
     def add_filter_field(self, field_name: str) -> "XLPivotTableOptions": ...
     def set_pivot_table_style(self, style_name: str) -> "XLPivotTableOptions": ...
     def set_data_on_rows(self, value: bool) -> "XLPivotTableOptions": ...

@@ -483,31 +483,31 @@ void init_worksheet(py::module_& m) {
     // Bind XLVmlDrawing
     py::class_<XLVmlDrawing>(m, "XLVmlDrawing")
         .def("shape_count", &XLVmlDrawing::shapeCount)
-        .def("shape", &XLVmlDrawing::shape, py::arg("index"))
-        .def("delete_shape", py::overload_cast<uint32_t>(&XLVmlDrawing::deleteShape), py::arg("index"))
-        .def("delete_shape_by_ref", py::overload_cast<std::string_view>(&XLVmlDrawing::deleteShape), py::arg("cell_ref"))
-        .def("create_shape", &XLVmlDrawing::createShape, py::arg("shape_template") = XLShape());
+        .def("shape", &XLVmlDrawing::shape, "index"_a)
+        .def("delete_shape", py::overload_cast<uint32_t>(&XLVmlDrawing::deleteShape), "index"_a)
+        .def("delete_shape_by_ref", py::overload_cast<std::string_view>(&XLVmlDrawing::deleteShape), "cell_ref"_a)
+        .def("create_shape", &XLVmlDrawing::createShape, "shape_template"_a = XLShape());
     // Bind XLDrawing
     py::class_<XLDrawing>(m, "XLDrawing")
         .def("image_count", &XLDrawing::imageCount)
-        .def("image", &XLDrawing::image, py::arg("index"))
-        .def("add_image", &XLDrawing::addImage, py::arg("r_id"), py::arg("name"),
-             py::arg("description"), py::arg("row"), py::arg("col"), py::arg("width"),
-             py::arg("height"), py::arg("options") = XLImageOptions())
-        .def("add_scaled_image", &XLDrawing::addScaledImage, py::arg("r_id"), py::arg("name"),
-             py::arg("description"), py::arg("data"), py::arg("row"), py::arg("col"),
-             py::arg("scaling_factor") = 1.0)
-        .def("add_shape", &XLDrawing::addShape, py::arg("row"), py::arg("col"),
-             py::arg("options") = XLVectorShapeOptions());
+        .def("image", &XLDrawing::image, "index"_a)
+        .def("add_image", &XLDrawing::addImage, "r_id"_a, "name"_a,
+             "description"_a, "row"_a, "col"_a, "width"_a,
+             "height"_a, "options"_a = XLImageOptions())
+        .def("add_scaled_image", &XLDrawing::addScaledImage, "r_id"_a, "name"_a,
+             "description"_a, "data"_a, "row"_a, "col"_a,
+             "scaling_factor"_a = 1.0)
+        .def("add_shape", &XLDrawing::addShape, "row"_a, "col"_a,
+             "options"_a = XLVectorShapeOptions());
 
     // Bind XLColumn
     py::class_<XLColumn>(m, "XLColumn")
         .def("width", &XLColumn::width)
-        .def("set_width", &XLColumn::setWidth, py::arg("width"))
+        .def("set_width", &XLColumn::setWidth, "width"_a)
         .def("is_hidden", &XLColumn::isHidden)
-        .def("set_hidden", &XLColumn::setHidden, py::arg("state"))
+        .def("set_hidden", &XLColumn::setHidden, "state"_a)
         .def("format", &XLColumn::format)
-        .def("set_format", &XLColumn::setFormat, py::arg("cellFormatIndex"));
+        .def("set_format", &XLColumn::setFormat, "cellFormatIndex"_a);
 
     // XLPaneState Enum
     py::enum_<XLPaneState>(m, "XLPaneState")
@@ -560,11 +560,11 @@ void init_worksheet(py::module_& m) {
         .def("has_vml_drawing", &XLWorksheet::hasVmlDrawing)
         .def("has_panes", &XLWorksheet::hasPanes)
         .def("freeze_panes", py::overload_cast<uint16_t, uint32_t>(&XLWorksheet::freezePanes),
-             py::arg("column"), py::arg("row"))
+             "column"_a, "row"_a)
         .def("freeze_panes", py::overload_cast<const std::string&>(&XLWorksheet::freezePanes),
-             py::arg("cellRef"))
-        .def("split_panes", &XLWorksheet::splitPanes, py::arg("xSplit"), py::arg("ySplit"),
-             py::arg("topLeftCell") = "", py::arg("activePane") = XLPane::BottomRight)
+             "cellRef"_a)
+        .def("split_panes", &XLWorksheet::splitPanes, "xSplit"_a, "ySplit"_a,
+             "topLeftCell"_a = "", "activePane"_a = XLPane::BottomRight)
         .def("clear_panes", &XLWorksheet::clearPanes)
         .def("has_auto_filter", &XLWorksheet::hasAutoFilter)
         .def("auto_filter", &XLWorksheet::autoFilter)
@@ -573,18 +573,18 @@ void init_worksheet(py::module_& m) {
             [](XLWorksheet& self, const std::string& range) {
                 self.setAutoFilter(self.range(range));
             },
-            py::arg("range"))
+            "range"_a)
         .def("autofilter_object", &XLWorksheet::autofilterObject)
         .def("clear_auto_filter", &XLWorksheet::clearAutoFilter)
-        .def("set_zoom", &XLWorksheet::setZoom, py::arg("scale"))
+        .def("set_zoom", &XLWorksheet::setZoom, "scale"_a)
         .def("zoom", &XLWorksheet::zoom)
-        .def("add_hyperlink", &XLWorksheet::addHyperlink, py::arg("cellRef"), py::arg("url"),
-             py::arg("tooltip") = "")
-        .def("add_internal_hyperlink", &XLWorksheet::addInternalHyperlink, py::arg("cellRef"),
-             py::arg("location"), py::arg("tooltip") = "")
-        .def("has_hyperlink", &XLWorksheet::hasHyperlink, py::arg("cellRef"))
-        .def("get_hyperlink", &XLWorksheet::getHyperlink, py::arg("cellRef"))
-        .def("remove_hyperlink", &XLWorksheet::removeHyperlink, py::arg("cellRef"))
+        .def("add_hyperlink", &XLWorksheet::addHyperlink, "cellRef"_a, "url"_a,
+             "tooltip"_a = "")
+        .def("add_internal_hyperlink", &XLWorksheet::addInternalHyperlink, "cellRef"_a,
+             "location"_a, "tooltip"_a = "")
+        .def("has_hyperlink", &XLWorksheet::hasHyperlink, "cellRef"_a)
+        .def("get_hyperlink", &XLWorksheet::getHyperlink, "cellRef"_a)
+        .def("remove_hyperlink", &XLWorksheet::removeHyperlink, "cellRef"_a)
         .def("data_validations", &XLWorksheet::dataValidations, py::rv_policy::reference_internal)
         .def("page_setup", &XLWorksheet::pageSetup)
         .def("page_margins", &XLWorksheet::pageMargins)
@@ -629,35 +629,35 @@ void init_worksheet(py::module_& m) {
                 py::gil_scoped_release release;
                 self.mergeCells(rangeReference, emptyHiddenCells);
             },
-            py::arg("rangeReference"), py::arg("emptyHiddenCells") = false)
-        .def("insert_row", &XLWorksheet::insertRow, py::arg("row_number"), py::arg("count") = 1)
+            "rangeReference"_a, "emptyHiddenCells"_a = false)
+        .def("insert_row", &XLWorksheet::insertRow, "row_number"_a, "count"_a = 1)
         .def("delete_row", py::overload_cast<uint32_t>(&XLWorksheet::deleteRow),
-             py::arg("row_number"))
+             "row_number"_a)
         .def("delete_row", py::overload_cast<uint32_t, uint32_t>(&XLWorksheet::deleteRow),
-             py::arg("row_number"), py::arg("count"))
-        .def("insert_column", &XLWorksheet::insertColumn, py::arg("col_number"),
-             py::arg("count") = 1)
-        .def("delete_column", &XLWorksheet::deleteColumn, py::arg("col_number"),
-             py::arg("count") = 1)
+             "row_number"_a, "count"_a)
+        .def("insert_column", &XLWorksheet::insertColumn, "col_number"_a,
+             "count"_a = 1)
+        .def("delete_column", &XLWorksheet::deleteColumn, "col_number"_a,
+             "count"_a = 1)
         .def(
             "unmerge_cells",
             [](XLWorksheet& self, const std::string& rangeReference) {
                 py::gil_scoped_release release;
                 self.unmergeCells(rangeReference);
             },
-            py::arg("rangeReference"))
+            "rangeReference"_a)
         .def("column_format",
              py::overload_cast<const std::string&>(&XLWorksheet::getColumnFormat, py::const_))
         .def("merges", &XLWorksheet::merges, py::rv_policy::reference_internal)
         .def("set_column_format",
              py::overload_cast<const std::string&, XLStyleIndex>(&XLWorksheet::setColumnFormat),
-             py::arg("column"), py::arg("cellFormatIndex"))
+             "column"_a, "cellFormatIndex"_a)
         .def("set_column_format",
              py::overload_cast<uint16_t, XLStyleIndex>(&XLWorksheet::setColumnFormat),
-             py::arg("column"), py::arg("cellFormatIndex"))
+             "column"_a, "cellFormatIndex"_a)
         .def("row_format", &XLWorksheet::getRowFormat)
-        .def("set_row_format", &XLWorksheet::setRowFormat, py::arg("row"),
-             py::arg("cellFormatIndex"))
+        .def("set_row_format", &XLWorksheet::setRowFormat, "row"_a,
+             "cellFormatIndex"_a)
         .def(
             "protect",
             [](XLWorksheet& self, const XLSheetProtectionOptions& options,
@@ -665,28 +665,28 @@ void init_worksheet(py::module_& m) {
                 py::gil_scoped_release release;
                 return self.protect(options, password);
             },
-            py::arg("options"), py::arg("password") = "")
+            "options"_a, "password"_a = "")
         .def(
             "protect_sheet",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.protectSheet(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "protect_objects",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.protectObjects(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "protect_scenarios",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.protectScenarios(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def("sheet_protected", &XLWorksheet::sheetProtected)
         .def("objects_protected", &XLWorksheet::objectsProtected)
         .def("scenarios_protected", &XLWorksheet::scenariosProtected)
@@ -697,7 +697,7 @@ void init_worksheet(py::module_& m) {
                 py::gil_scoped_release release;
                 self.setPassword(password);
             },
-            py::arg("password"))
+            "password"_a)
         .def("clear_password",
              [](XLWorksheet& self) {
                  py::gil_scoped_release release;
@@ -724,186 +724,186 @@ void init_worksheet(py::module_& m) {
                 py::gil_scoped_release release;
                 self.allowInsertColumns(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_insert_rows_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowInsertRows(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_insert_hyperlinks_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowInsertHyperlinks(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_delete_columns_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowDeleteColumns(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_delete_rows_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowDeleteRows(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_select_locked_cells_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowSelectLockedCells(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_select_unlocked_cells_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowSelectUnlockedCells(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_auto_filter_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowAutoFilter(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_sort_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowSort(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_pivot_tables_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowPivotTables(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_format_cells_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowFormatCells(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_format_columns_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowFormatColumns(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def(
             "set_format_rows_allowed",
             [](XLWorksheet& self, bool set) {
                 py::gil_scoped_release release;
                 self.allowFormatRows(set);
             },
-            py::arg("set") = true)
+            "set"_a = true)
         .def("comments", &XLWorksheet::comments, py::rv_policy::reference_internal)
-        .def("add_image", &add_image_to_worksheet, py::arg("image_data"), py::arg("extension"),
-             py::arg("row") = 1, py::arg("col") = 1, py::arg("width") = 0, py::arg("height") = 0)
+        .def("add_image", &add_image_to_worksheet, "image_data"_a, "extension"_a,
+             "row"_a = 1, "col"_a = 1, "width"_a = 0, "height"_a = 0)
         // Bulk read APIs for performance optimization
         .def("get_rows_data", &get_rows_data,
              "Get all rows data as list[list[Any]] - optimized for bulk read")
-        .def("get_row_values", &get_row_values, py::arg("row"),
+        .def("get_row_values", &get_row_values, "row"_a,
              "Get a single row's values as list[Any]")
-        .def("get_range_data", &get_range_data, py::arg("start_row"), py::arg("start_col"),
-             py::arg("end_row"), py::arg("end_col"),
+        .def("get_range_data", &get_range_data, "start_row"_a, "start_col"_a,
+             "end_row"_a, "end_col"_a,
              "Get a range of cells as list[list[Any]] - optimized bulk read for specific range")
-        .def("get_cell_value", &get_cell_value, py::arg("row"), py::arg("col"),
+        .def("get_cell_value", &get_cell_value, "row"_a, "col"_a,
              "Get a single cell's value directly without creating a Cell object")
-        .def("write_range_data", &write_range_typed<double>, py::arg("start_row"),
-             py::arg("start_col"), py::arg("data"),
+        .def("write_range_data", &write_range_typed<double>, "start_row"_a,
+             "start_col"_a, "data"_a,
              "Write a 2D numpy array or buffer to a worksheet range")
-        .def("write_range_data", &write_range_typed<int64_t>, py::arg("start_row"),
-             py::arg("start_col"), py::arg("data"))
-        .def("write_range_data", &write_range_typed<bool>, py::arg("start_row"),
-             py::arg("start_col"), py::arg("data"))
-        .def("get_range_values", &get_range_values, py::arg("start_row"), py::arg("start_col"),
-             py::arg("end_row"), py::arg("end_col"),
+        .def("write_range_data", &write_range_typed<int64_t>, "start_row"_a,
+             "start_col"_a, "data"_a)
+        .def("write_range_data", &write_range_typed<bool>, "start_row"_a,
+             "start_col"_a, "data"_a)
+        .def("get_range_values", &get_range_values, "start_row"_a, "start_col"_a,
+             "end_row"_a, "end_col"_a,
              "Read a range of numeric cells into a 2D numpy array of doubles")
         // Performance-optimized write APIs - bypass Python Cell object creation
-        .def("set_cell_value", &set_cell_value, py::arg("row"), py::arg("col"), py::arg("value"),
+        .def("set_cell_value", &set_cell_value, "row"_a, "col"_a, "value"_a,
              "Set a cell's value directly without creating a Cell object. "
              "10-20x faster than ws.cell(row, col).value = val for bulk operations")
-        .def("write_rows_data", &write_rows_data, py::arg("start_row"), py::arg("start_col"),
-             py::arg("rows"),
+        .def("write_rows_data", &write_rows_data, "start_row"_a, "start_col"_a,
+             "rows"_a,
              "Write a 2D Python list to a worksheet range. "
              "Optimized for any Python data (strings, mixed types). "
              "For pure numeric data, use write_range_data with numpy for best performance")
-        .def("write_row_data", &write_row_data, py::arg("row"), py::arg("start_col"),
-             py::arg("values"), "Write a single row of Python data")
-        .def("set_cells_batch", &set_cells_batch, py::arg("cells"),
+        .def("write_row_data", &write_row_data, "row"_a, "start_col"_a,
+             "values"_a, "Write a single row of Python data")
+        .def("set_cells_batch", &set_cells_batch, "cells"_a,
              "Batch set multiple cell values: [(row, col, value), ...]. "
              "Efficient for non-contiguous cell updates")
         .def("stream_writer", &XLWorksheet::streamWriter)
         .def("stream_reader", &XLWorksheet::streamReader)
         .def("peek_cell", py::overload_cast<const std::string&>(&XLWorksheet::peekCell, py::const_),
-             py::arg("ref"))
+             "ref"_a)
         .def("peek_cell", py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::peekCell, py::const_),
-             py::arg("row"), py::arg("col"))
-        .def("auto_fit_column", &XLWorksheet::autoFitColumn, py::arg("column_number"))
-        .def("add_sort_condition", &XLWorksheet::addSortCondition, py::arg("ref"),
-             py::arg("col_id"), py::arg("descending") = false)
+             "row"_a, "col"_a)
+        .def("auto_fit_column", &XLWorksheet::autoFitColumn, "column_number"_a)
+        .def("add_sort_condition", &XLWorksheet::addSortCondition, "ref"_a,
+             "col_id"_a, "descending"_a = false)
         .def("apply_auto_filter", &XLWorksheet::applyAutoFilter)
         .def("add_conditional_formatting",
              py::overload_cast<const std::string&, const XLCfRule&>(
                  &XLWorksheet::addConditionalFormatting),
-             py::arg("sqref"), py::arg("rule"))
+             "sqref"_a, "rule"_a)
         .def("add_conditional_formatting_dxf",
              py::overload_cast<const std::string&, const XLCfRule&, const XLDxf&>(
                  &XLWorksheet::addConditionalFormatting),
-             py::arg("sqref"), py::arg("rule"), py::arg("dxf"))
+             "sqref"_a, "rule"_a, "dxf"_a)
         .def("remove_conditional_formatting",
              py::overload_cast<const std::string&>(&XLWorksheet::removeConditionalFormatting),
-             py::arg("sqref"))
+             "sqref"_a)
         .def("clear_all_conditional_formatting", &XLWorksheet::clearAllConditionalFormatting)
         .def("header_footer", &XLWorksheet::headerFooter)
-        .def("set_print_area", &XLWorksheet::setPrintArea, py::arg("sqref"))
-        .def("set_print_title_rows", &XLWorksheet::setPrintTitleRows, py::arg("first_row"),
-             py::arg("last_row"))
-        .def("set_print_title_cols", &XLWorksheet::setPrintTitleCols, py::arg("first_col"),
-             py::arg("last_col"))
+        .def("set_print_area", &XLWorksheet::setPrintArea, "sqref"_a)
+        .def("set_print_title_rows", &XLWorksheet::setPrintTitleRows, "first_row"_a,
+             "last_row"_a)
+        .def("set_print_title_cols", &XLWorksheet::setPrintTitleCols, "first_col"_a,
+             "last_col"_a)
         .def("add_sparkline",
              py::overload_cast<const std::string&, const std::string&, XLSparklineType>(
                  &XLWorksheet::addSparkline),
-             py::arg("location"), py::arg("data_range"), py::arg("type") = XLSparklineType::Line)
+             "location"_a, "data_range"_a, "type"_a = XLSparklineType::Line)
         .def("add_sparkline",
              py::overload_cast<const std::string&, const std::string&, const XLSparklineOptions&>(
                  &XLWorksheet::addSparkline),
-             py::arg("location"), py::arg("data_range"), py::arg("options"))
+             "location"_a, "data_range"_a, "options"_a)
         .def("insert_image",
              py::overload_cast<const std::string&, const std::string&>(&XLWorksheet::insertImage),
-             py::arg("cell_reference"), py::arg("image_path"))
+             "cell_reference"_a, "image_path"_a)
         .def("insert_image_opt",
              py::overload_cast<const std::string&, const std::string&, const XLImageOptions&>(
                  &XLWorksheet::insertImage),
-             py::arg("cell_reference"), py::arg("image_path"), py::arg("options"))
+             "cell_reference"_a, "image_path"_a, "options"_a)
         .def("add_chart",
              py::overload_cast<XLChartType, std::string_view, uint32_t, uint32_t, uint32_t,
                                uint32_t>(&XLWorksheet::addChart),
-             py::arg("type"), py::arg("name"), py::arg("row"), py::arg("col"), py::arg("width"),
-             py::arg("height"))
+             "type"_a, "name"_a, "row"_a, "col"_a, "width"_a,
+             "height"_a)
         .def("add_chart_anchor",
              py::overload_cast<XLChartType, const XLChartAnchor&>(&XLWorksheet::addChart),
-             py::arg("type"), py::arg("anchor"))
-        .def("add_pivot_table", &XLWorksheet::addPivotTable, py::arg("options"))
-        .def("add_table_slicer", &XLWorksheet::addTableSlicer, py::arg("cell_reference"),
-             py::arg("table"), py::arg("column_name"), py::arg("options") = XLSlicerOptions())
-        .def("add_pivot_slicer", &XLWorksheet::addPivotSlicer, py::arg("cell_reference"),
-             py::arg("pivot_table"), py::arg("column_name"), py::arg("options") = XLSlicerOptions())
-        .def("add_comment", &XLWorksheet::addComment, py::arg("cell_ref"), py::arg("text"),
-             py::arg("author") = "")
+             "type"_a, "anchor"_a)
+        .def("add_pivot_table", &XLWorksheet::addPivotTable, "options"_a)
+        .def("add_table_slicer", &XLWorksheet::addTableSlicer, "cell_reference"_a,
+             "table"_a, "column_name"_a, "options"_a = XLSlicerOptions())
+        .def("add_pivot_slicer", &XLWorksheet::addPivotSlicer, "cell_reference"_a,
+             "pivot_table"_a, "column_name"_a, "options"_a = XLSlicerOptions())
+        .def("add_comment", &XLWorksheet::addComment, "cell_ref"_a, "text"_a,
+             "author"_a = "")
         
         
         ;

@@ -20,7 +20,7 @@ void init_formula_engine(py::module_& m) {
                 CellData cd = CellData::from(result);
                 return cd.to_python();
             },
-            py::arg("formula"), py::arg("wks") = py::none(),
+            "formula"_a, "wks"_a = py::none(),
             "Evaluate a formula string. Optionally provide an XLWorksheet to resolve cell "
             "references.");
 }

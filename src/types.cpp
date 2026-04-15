@@ -110,8 +110,8 @@ void init_types(py::module_& m) {
             "set",
             py::overload_cast<const std::string&, const std::string&, uint16_t, uint16_t, uint16_t>(
                 &XLComments::set),
-            py::arg("cellRef"), py::arg("comment"), py::arg("author_id") = 0,
-            py::arg("widthCols") = 4, py::arg("heightRows") = 6)
+            "cellRef"_a, "comment"_a, "author_id"_a = 0,
+            "widthCols"_a = 4, "heightRows"_a = 6)
         .def("shape", py::overload_cast<const std::string&>(&XLComments::shape))
         .def("delete_comment", &XLComments::deleteComment)
         .def("author_count", &XLComments::authorCount)
@@ -121,11 +121,10 @@ void init_types(py::module_& m) {
     // Bind XLDateTime
     py::class_<XLDateTime>(m, "XLDateTime")
         .def(py::init<>())
-        .def("__init__", [](XLDateTime* t, double serial) { new (t) XLDateTime(serial); })
-        .def("__init__",
-             [](XLDateTime* t, long long timestamp) {
-                 new (t) XLDateTime((time_t)timestamp);
-             })  // support unix timestamp
+        .def(py::init<double>())
+        .def("__init__", [](XLDateTime *t, long long timestamp) {
+             new (t) XLDateTime(static_cast<time_t>(timestamp));
+        }) // support unix timestamp
         .def("serial", &XLDateTime::serial)
         .def("as_datetime", [](const XLDateTime& self) {
             std::tm t = self.tm();

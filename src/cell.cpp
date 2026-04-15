@@ -80,5 +80,5 @@ void init_cell(py::module_& m) {
         .def("has_formula", [](XLCell& self) { return self.hasFormula(); })
         .def("cell_reference", &XLCell::cellReference)
         .def("cell_format", &XLCell::cellFormat)
-        .def("set_cell_format", &XLCell::setCellFormat);
+        .def("set_cell_format", &XLCell::setCellFormat, py::rv_policy::reference);
 }

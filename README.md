@@ -218,30 +218,37 @@ wb.save("styles.xlsx")
 
 ### Pivot Tables
 
-> **⚠️ Important Notice (v1.3.1+)**:  
-> Creating new Pivot Tables from scratch via Python code is **temporarily disabled** while the Python bindings are refactored to support the underlying OpenXLSX `v1.9.1` zero-allocation Fluent Builder memory ownership model without leaks.
-
-However, `pyopenxlsx` **fully preserves** any existing Pivot Tables when reading and saving files. The most robust workflow is to use a pre-formatted Excel template containing a Pivot Table, and update the underlying raw data.
+`pyopenxlsx` provides a robust, memory-safe Fluent Builder API for generating Data Pivot Tables directly from source data.
 
 ```python
-from pyopenxlsx import load_workbook
+from pyopenxlsx import Workbook
+from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotSubtotal
 
-# Load a workbook that already contains a Pivot Table and a "SalesData" sheet
-wb = load_workbook("template_with_pivot.xlsx")
-ws = wb.get_worksheet("SalesData")
-
-# 1. Overwrite or append new raw data
-ws.write_rows(2, [
-    ["North", "Apples", 500],
-    ["South", "Oranges", 750],
-    ["East", "Bananas", 300]
-])
-
-# 2. Save the workbook
-# The Pivot Table structure, cache, and slicers remain completely intact and 
-# will reflect the new data the next time the user clicks "Refresh" in Excel.
-wb.save("updated_report.xlsx")
+with Workbook() as wb:
+    # 1. Write source data to a sheet
+    ws_data = wb.active
+    ws_data.name = "SalesData"
+    ws_data.write_row(1, ["Region", "Product", "Sales"])
+    ws_data.write_rows(2, [["North", "Apples", 100], ["South", "Bananas", 300]])
+    
+    # 2. Create a separate sheet for the Pivot Table
+    ws_pivot = wb.create_sheet("PivotReport")
+    
+    # 3. Configure options using the Fluent Builder API
+    options = XLPivotTableOptions("SalesPivot", "SalesData!A1:C3", "B3")
+    (options
+        .add_row_field("Region")
+        .add_column_field("Product")
+        .add_data_field("Sales", "Total Sales", XLPivotSubtotal.Sum)
+        .set_pivot_table_style("PivotStyleMedium14")
+    )
+    
+    # 4. Add the pivot table
+    ws_pivot._sheet.add_pivot_table(options)
+    wb.save("pivot_demo.xlsx")
 ```
+
+For advanced configuration and Slicers, see the [Pivot Tables API](docs/07_pivot_tables.md).
 
 ### Insert Images and Vector Shapes
 

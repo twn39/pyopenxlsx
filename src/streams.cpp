@@ -27,7 +27,7 @@ void init_streams(py::module_& m) {
                     self.appendRow(data);
                 }
             },
-            py::arg("values"))
+            "values"_a)
         .def(
             "append_rows",
             [](XLStreamWriter& self, py::iterable rows) {
@@ -54,14 +54,14 @@ void init_streams(py::module_& m) {
                     }
                 }
             },
-            py::arg("rows"))
+            "rows"_a)
         .def("close", &XLStreamWriter::close)
         // FIX: __enter__ must return the *same* Python object (via py::borrow), not a raw C++
         // pointer. Returning &self caused nanobind to create a second Python wrapper around the
         // same C++ object, resulting in double cleanup() / double-free when either wrapper was GC'd.
         .def("__enter__", [](py::handle self) -> py::object { return py::borrow(self); })
         .def("__exit__", [](XLStreamWriter& self, py::object, py::object, py::object) { self.close(); },
-             py::arg("exc_type") = py::none(), py::arg("exc_value") = py::none(), py::arg("traceback") = py::none());
+             "exc_type"_a = py::none(), "exc_value"_a = py::none(), "traceback"_a = py::none());
 
     py::class_<XLStreamReader>(m, "XLStreamReader")
         .def("has_next", &XLStreamReader::hasNext)
@@ -82,7 +82,7 @@ void init_streams(py::module_& m) {
         // wrapper object, not a second C++ wrapper that would double-free on destruction.
         .def("__enter__", [](py::handle self) -> py::object { return py::borrow(self); })
         .def("__exit__", [](XLStreamReader& self, py::object, py::object, py::object) { self.close(); },
-             py::arg("exc_type") = py::none(), py::arg("exc_value") = py::none(), py::arg("traceback") = py::none())
+             "exc_type"_a = py::none(), "exc_value"_a = py::none(), "traceback"_a = py::none())
         // FIX: __iter__ must also return the same Python object, not a new C++ reference wrapper.
         .def("__iter__", [](py::handle self) -> py::object { return py::borrow(self); })
         .def("__next__", [](XLStreamReader& self) {

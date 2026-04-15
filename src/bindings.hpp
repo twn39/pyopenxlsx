@@ -38,6 +38,7 @@
 
 namespace py = nanobind;
 using namespace OpenXLSX;
+using namespace nanobind::literals;
 
 // 子模块初始化函数声明
 void init_constants(py::module_& m);

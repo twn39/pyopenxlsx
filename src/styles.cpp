@@ -102,13 +102,13 @@ void init_styles(py::module_& m) {
         .def("color", &XLFont::fontColor)
         .def("set_color", &XLFont::setFontColor)
         .def("bold", &XLFont::bold)
-        .def("set_bold", &XLFont::setBold, py::arg("set") = true)
+        .def("set_bold", &XLFont::setBold, "set"_a = true)
         .def("italic", &XLFont::italic)
-        .def("set_italic", &XLFont::setItalic, py::arg("set") = true)
+        .def("set_italic", &XLFont::setItalic, "set"_a = true)
         .def("strikethrough", &XLFont::strikethrough)
-        .def("set_strikethrough", &XLFont::setStrikethrough, py::arg("set") = true)
+        .def("set_strikethrough", &XLFont::setStrikethrough, "set"_a = true)
         .def("underline", &XLFont::underline)
-        .def("set_underline", &XLFont::setUnderline, py::arg("style") = XLUnderlineSingle)
+        .def("set_underline", &XLFont::setUnderline, "style"_a = XLUnderlineSingle)
         .def("scheme", &XLFont::scheme)
         .def("set_scheme", &XLFont::setScheme)
         .def("vert_align", &XLFont::vertAlign)
@@ -118,8 +118,8 @@ void init_styles(py::module_& m) {
     py::class_<XLFill>(m, "XLFill")
         .def(py::init<>())
         .def("fill_type", &XLFill::fillType)
-        .def("set_fill_type", &XLFill::setFillType, py::arg("newFillType"),
-             py::arg("force") = false)
+        .def("set_fill_type", &XLFill::setFillType, "newFillType"_a,
+             "force"_a = false)
         .def("pattern_type", &XLFill::patternType)
         .def("set_pattern_type", &XLFill::setPatternType)
         .def("color", &XLFill::color)
@@ -142,16 +142,16 @@ void init_styles(py::module_& m) {
         .def("top", &XLBorder::top)
         .def("bottom", &XLBorder::bottom)
         .def("diagonal", &XLBorder::diagonal)
-        .def("set_left", &XLBorder::setLeft, py::arg("lineStyle"), py::arg("lineColor"),
-             py::arg("lineTint") = 0.0)
-        .def("set_right", &XLBorder::setRight, py::arg("lineStyle"), py::arg("lineColor"),
-             py::arg("lineTint") = 0.0)
-        .def("set_top", &XLBorder::setTop, py::arg("lineStyle"), py::arg("lineColor"),
-             py::arg("lineTint") = 0.0)
-        .def("set_bottom", &XLBorder::setBottom, py::arg("lineStyle"), py::arg("lineColor"),
-             py::arg("lineTint") = 0.0)
-        .def("set_diagonal", &XLBorder::setDiagonal, py::arg("lineStyle"), py::arg("lineColor"),
-             py::arg("lineTint") = 0.0);
+        .def("set_left", &XLBorder::setLeft, "lineStyle"_a, "lineColor"_a,
+             "lineTint"_a = 0.0)
+        .def("set_right", &XLBorder::setRight, "lineStyle"_a, "lineColor"_a,
+             "lineTint"_a = 0.0)
+        .def("set_top", &XLBorder::setTop, "lineStyle"_a, "lineColor"_a,
+             "lineTint"_a = 0.0)
+        .def("set_bottom", &XLBorder::setBottom, "lineStyle"_a, "lineColor"_a,
+             "lineTint"_a = 0.0)
+        .def("set_diagonal", &XLBorder::setDiagonal, "lineStyle"_a, "lineColor"_a,
+             "lineTint"_a = 0.0);
 
     // Bind XLAlignment
     py::class_<XLAlignment>(m, "XLAlignment")
@@ -163,11 +163,11 @@ void init_styles(py::module_& m) {
         .def("rotation", &XLAlignment::textRotation)
         .def("set_rotation", &XLAlignment::setTextRotation)
         .def("wrap_text", &XLAlignment::wrapText)
-        .def("set_wrap_text", &XLAlignment::setWrapText, py::arg("set") = true)
+        .def("set_wrap_text", &XLAlignment::setWrapText, "set"_a = true)
         .def("indent", &XLAlignment::indent)
         .def("set_indent", &XLAlignment::setIndent)
         .def("shrink_to_fit", &XLAlignment::shrinkToFit)
-        .def("set_shrink_to_fit", &XLAlignment::setShrinkToFit, py::arg("set") = true);
+        .def("set_shrink_to_fit", &XLAlignment::setShrinkToFit, "set"_a = true);
 
     // Bind XLCellFormat
     py::class_<XLCellFormat>(m, "XLCellFormat")
@@ -181,54 +181,54 @@ void init_styles(py::module_& m) {
         .def("number_format_id", &XLCellFormat::numberFormatId)
         .def("set_number_format_id", &XLCellFormat::setNumberFormatId)
         .def("apply_number_format", &XLCellFormat::applyNumberFormat)
-        .def("set_apply_number_format", &XLCellFormat::setApplyNumberFormat, py::arg("set") = true)
-        .def("alignment", &XLCellFormat::alignment, py::arg("createIfMissing") = false)
+        .def("set_apply_number_format", &XLCellFormat::setApplyNumberFormat, "set"_a = true)
+        .def("alignment", &XLCellFormat::alignment, "createIfMissing"_a = false)
         .def("apply_font", &XLCellFormat::applyFont)
-        .def("set_apply_font", &XLCellFormat::setApplyFont, py::arg("set") = true)
+        .def("set_apply_font", &XLCellFormat::setApplyFont, "set"_a = true)
         .def("apply_fill", &XLCellFormat::applyFill)
-        .def("set_apply_fill", &XLCellFormat::setApplyFill, py::arg("set") = true)
+        .def("set_apply_fill", &XLCellFormat::setApplyFill, "set"_a = true)
         .def("apply_border", &XLCellFormat::applyBorder)
-        .def("set_apply_border", &XLCellFormat::setApplyBorder, py::arg("set") = true)
+        .def("set_apply_border", &XLCellFormat::setApplyBorder, "set"_a = true)
         .def("apply_alignment", &XLCellFormat::applyAlignment)
-        .def("set_apply_alignment", &XLCellFormat::setApplyAlignment, py::arg("set") = true)
+        .def("set_apply_alignment", &XLCellFormat::setApplyAlignment, "set"_a = true)
         .def("locked", &XLCellFormat::locked)
-        .def("set_locked", &XLCellFormat::setLocked, py::arg("set") = true)
+        .def("set_locked", &XLCellFormat::setLocked, "set"_a = true)
         .def("hidden", &XLCellFormat::hidden)
-        .def("set_hidden", &XLCellFormat::setHidden, py::arg("set") = true)
+        .def("set_hidden", &XLCellFormat::setHidden, "set"_a = true)
         .def("apply_protection", &XLCellFormat::applyProtection)
-        .def("set_apply_protection", &XLCellFormat::setApplyProtection, py::arg("set") = true);
+        .def("set_apply_protection", &XLCellFormat::setApplyProtection, "set"_a = true);
 
     // Bind XLFonts
     py::class_<XLFonts>(m, "XLFonts")
         .def("count", &XLFonts::count)
         .def("font_by_index", &XLFonts::fontByIndex, py::keep_alive<0, 1>())
         .def("__getitem__", &XLFonts::operator[], py::keep_alive<0, 1>())
-        .def("create", &XLFonts::create, py::arg("copyFrom") = XLFont{},
-             py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+        .def("create", &XLFonts::create, "copyFrom"_a = XLFont{},
+             "styleEntriesPrefix"_a = XLDefaultStyleEntriesPrefix);
 
     // Bind XLFills
     py::class_<XLFills>(m, "XLFills")
         .def("count", &XLFills::count)
         .def("fill_by_index", &XLFills::fillByIndex, py::keep_alive<0, 1>())
         .def("__getitem__", &XLFills::operator[], py::keep_alive<0, 1>())
-        .def("create", &XLFills::create, py::arg("copyFrom") = XLFill{},
-             py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+        .def("create", &XLFills::create, "copyFrom"_a = XLFill{},
+             "styleEntriesPrefix"_a = XLDefaultStyleEntriesPrefix);
 
     // Bind XLBorders
     py::class_<XLBorders>(m, "XLBorders")
         .def("count", &XLBorders::count)
         .def("border_by_index", &XLBorders::borderByIndex, py::keep_alive<0, 1>())
         .def("__getitem__", &XLBorders::operator[], py::keep_alive<0, 1>())
-        .def("create", &XLBorders::create, py::arg("copyFrom") = XLBorder{},
-             py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+        .def("create", &XLBorders::create, "copyFrom"_a = XLBorder{},
+             "styleEntriesPrefix"_a = XLDefaultStyleEntriesPrefix);
 
     // Bind XLCellFormats
     py::class_<XLCellFormats>(m, "XLCellFormats")
         .def("count", &XLCellFormats::count)
         .def("cell_format_by_index", &XLCellFormats::cellFormatByIndex, py::keep_alive<0, 1>())
         .def("__getitem__", &XLCellFormats::operator[], py::keep_alive<0, 1>())
-        .def("create", &XLCellFormats::create, py::arg("copyFrom") = XLCellFormat{},
-             py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+        .def("create", &XLCellFormats::create, "copyFrom"_a = XLCellFormat{},
+             "styleEntriesPrefix"_a = XLDefaultStyleEntriesPrefix);
 
     // Bind XLStyles
     py::class_<XLStyles>(m, "XLStyles")
@@ -253,8 +253,8 @@ void init_styles(py::module_& m) {
              py::keep_alive<0, 1>())
         .def("number_format_by_id", &XLNumberFormats::numberFormatById, py::keep_alive<0, 1>())
         .def("__getitem__", &XLNumberFormats::operator[], py::keep_alive<0, 1>())
-        .def("create", &XLNumberFormats::create, py::arg("copyFrom") = XLNumberFormat{},
-             py::arg("styleEntriesPrefix") = XLDefaultStyleEntriesPrefix);
+        .def("create", &XLNumberFormats::create, "copyFrom"_a = XLNumberFormat{},
+             "styleEntriesPrefix"_a = XLDefaultStyleEntriesPrefix);
 
     // Bind XLDxf
     py::class_<XLDxf>(m, "XLDxf")

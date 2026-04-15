@@ -1,10 +1,10 @@
-import pytest
 from pyopenxlsx import Workbook
+
 
 def test_vml_drawing_shapes():
     wb = Workbook()
     ws = wb.active
-    
+
     # We should have a VML drawing attached to the worksheet implicitly when we try to use shapes?
     # Wait, the VML drawing is created automatically when needed, or maybe it returns a valid XLVmlDrawing even if empty.
     vml = ws._sheet.vml_drawing()
@@ -29,7 +29,7 @@ def test_vml_drawing_shapes():
     client_data = shape.client_data()
     client_data.set_row(5)
     client_data.set_column(2)
-    
+
     assert client_data.row() == 5
     assert client_data.column() == 2
 

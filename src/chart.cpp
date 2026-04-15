@@ -81,8 +81,8 @@ void init_chart(py::module_& m) {
         .def("set_title", &XLChartSeries::setTitle)
         .def("set_smooth", &XLChartSeries::setSmooth)
         .def("set_marker_style", &XLChartSeries::setMarkerStyle)
-        .def("set_data_labels", &XLChartSeries::setDataLabels, py::arg("show_value"),
-             py::arg("show_category_name") = false, py::arg("show_percent") = false);
+        .def("set_data_labels", &XLChartSeries::setDataLabels, "show_value"_a,
+             "show_category_name"_a = false, "show_percent"_a = false);
 
     py::class_<XLAxis>(m, "XLAxis")
         .def("set_title", &XLAxis::setTitle)
@@ -97,7 +97,7 @@ void init_chart(py::module_& m) {
         .def("set_orientation", &XLAxis::setOrientation)
         .def("set_crosses", &XLAxis::setCrosses)
         .def("set_crosses_at", &XLAxis::setCrossesAt)
-        .def("set_number_format", &XLAxis::setNumberFormat, py::arg("format_code"), py::arg("source_linked") = false)
+        .def("set_number_format", &XLAxis::setNumberFormat, "format_code"_a, "source_linked"_a = false)
         .def("set_major_gridlines", &XLAxis::setMajorGridlines)
         .def("set_minor_gridlines", &XLAxis::setMinorGridlines);
 
@@ -113,37 +113,37 @@ void init_chart(py::module_& m) {
         .def("add_series",
              py::overload_cast<const XLWorksheet&, const XLCellRange&, std::string_view,
                                std::optional<XLChartType>, bool>(&XLChart::addSeries),
-             py::arg("wks"), py::arg("values"), py::arg("title") = "",
-             py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
+             "wks"_a, "values"_a, "title"_a = "",
+             "target_chart_type"_a = py::none(), "use_secondary_axis"_a = false)
         .def("add_series",
              py::overload_cast<const XLWorksheet&, const XLCellRange&, const XLCellRange&,
                                std::string_view, std::optional<XLChartType>, bool>(
                  &XLChart::addSeries),
-             py::arg("wks"), py::arg("values"), py::arg("categories"), py::arg("title") = "",
-             py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
+             "wks"_a, "values"_a, "categories"_a, "title"_a = "",
+             "target_chart_type"_a = py::none(), "use_secondary_axis"_a = false)
         .def("add_series_ref",
              py::overload_cast<std::string_view, std::string_view, std::string_view,
                                std::optional<XLChartType>, bool>(&XLChart::addSeries),
-             py::arg("values_ref"), py::arg("title") = "", py::arg("categories_ref") = "",
-             py::arg("target_chart_type") = py::none(), py::arg("use_secondary_axis") = false)
+             "values_ref"_a, "title"_a = "", "categories_ref"_a = "",
+             "target_chart_type"_a = py::none(), "use_secondary_axis"_a = false)
         .def("add_bubble_series",
              py::overload_cast<std::string_view, std::string_view, std::string_view, std::string_view>(&XLChart::addBubbleSeries),
-             py::arg("x_val_ref"), py::arg("y_val_ref"), py::arg("size_ref"), py::arg("title") = "")
+             "x_val_ref"_a, "y_val_ref"_a, "size_ref"_a, "title"_a = "")
         .def("add_bubble_series",
              py::overload_cast<const XLWorksheet&, const XLCellRange&, const XLCellRange&, const XLCellRange&, std::string_view>(&XLChart::addBubbleSeries),
-             py::arg("wks"), py::arg("x_values"), py::arg("y_values"), py::arg("sizes"), py::arg("title") = "")
+             "wks"_a, "x_values"_a, "y_values"_a, "sizes"_a, "title"_a = "")
         .def("set_title", &XLChart::setTitle)
         .def("set_style", &XLChart::setStyle)
         .def("set_legend_position", &XLChart::setLegendPosition)
         .def("x_axis", &XLChart::xAxis)
         .def("y_axis", &XLChart::yAxis)
         .def("axis", &XLChart::axis)
-        .def("set_show_data_labels", &XLChart::setShowDataLabels, py::arg("show_value"),
-             py::arg("show_category") = false, py::arg("show_percent") = false)
+        .def("set_show_data_labels", &XLChart::setShowDataLabels, "show_value"_a,
+             "show_category"_a = false, "show_percent"_a = false)
         .def("set_series_smooth", &XLChart::setSeriesSmooth)
         .def("set_series_marker", &XLChart::setSeriesMarker)
         .def("set_overlap", &XLChart::setOverlap)
         .def("set_hole_size", &XLChart::setHoleSize)
-        .def("set_rotation", &XLChart::setRotation, py::arg("x"), py::arg("y"), py::arg("perspective") = 30)
+        .def("set_rotation", &XLChart::setRotation, "x"_a, "y"_a, "perspective"_a = 30)
         .def("set_plot_area_color", &XLChart::setPlotAreaColor);
 }

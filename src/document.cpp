@@ -183,21 +183,21 @@ void init_document(py::module_& m) {
                 py::gil_scoped_release release;
                 self.open(path);
             },
-            py::arg("path"))
+            "path"_a)
         .def(
             "open",
             [](XLDocument& self, const std::string& path, const std::string& password) {
                 py::gil_scoped_release release;
                 self.open(path, password);
             },
-            py::arg("path"), py::arg("password"))
+            "path"_a, "password"_a)
         .def(
             "create",
             [](XLDocument& self, const std::string& name, bool forceOverwrite) {
                 py::gil_scoped_release release;
                 self.create(name, forceOverwrite);
             },
-            py::arg("name"), py::arg("force_overwrite") = true)
+            "name"_a, "force_overwrite"_a = true)
         .def("close",
              [](XLDocument& self) {
                  py::gil_scoped_release release;
@@ -241,7 +241,7 @@ void init_document(py::module_& m) {
             [](XLDocument& self, const std::string& name) {
                 return self.customProperties().property(name);
             },
-            py::arg("name"), "Get a custom document property by name")
+            "name"_a, "Get a custom document property by name")
         .def(
             "set_custom_property",
             [](XLDocument& self, const std::string& name, py::object value) {
@@ -258,13 +258,13 @@ void init_document(py::module_& m) {
                                                         py::cast<std::string>(py::str(value)));
                 }
             },
-            py::arg("name"), py::arg("value"), "Set a custom document property")
+            "name"_a, "value"_a, "Set a custom document property")
         .def(
             "delete_custom_property",
             [](XLDocument& self, const std::string& name) {
                 self.customProperties().deleteProperty(name);
             },
-            py::arg("name"), "Delete a custom document property by name")
+            "name"_a, "Delete a custom document property by name")
         .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
         .def("persons", &XLDocument::persons, py::rv_policy::reference_internal)
         .def(
@@ -274,7 +274,7 @@ void init_document(py::module_& m) {
                 py::gil_scoped_release release;
                 return self.addImage(name, std::move(imgData));
             },
-            py::arg("name"), py::arg("data"),
+            "name"_a, "data"_a,
             "Add an image to the document archive. Returns the path in the archive.")
         .def(
             "get_image",
@@ -283,7 +283,7 @@ void init_document(py::module_& m) {
                 std::string data = self.getImage(path);
                 return py::bytes(data.data(), data.size());
             },
-            py::arg("path"), "Get image data as bytes from the document archive.")
+            "path"_a, "Get image data as bytes from the document archive.")
         .def(
             "get_embedded_images",
             [](XLDocument& self) {
@@ -292,7 +292,7 @@ void init_document(py::module_& m) {
             },
             "Get list of embedded images in the document. Returns list of dicts with 'name', "
             "'path', 'extension' keys.")
-        .def("get_image_data", &get_image_data, py::arg("image_path"),
+        .def("get_image_data", &get_image_data, "image_path"_a,
              "Get image data as bytes. image_path can be full path (e.g., 'xl/media/image1.png') "
              "or just filename (e.g., 'image1.png').")
         .def(
@@ -308,7 +308,7 @@ void init_document(py::module_& m) {
                 auto& archive = get_archive(self);
                 return archive.hasEntry(path);
             },
-            py::arg("path"),
+            "path"_a,
             "Check if the underlying zip archive contains an entry with the given path.")
         .def(
             "get_archive_entry",
@@ -324,7 +324,7 @@ void init_document(py::module_& m) {
                 }
                 return py::bytes(data.data(), data.size());
             },
-            py::arg("path"), "Get the raw bytes of an entry from the underlying zip archive.")
+            "path"_a, "Get the raw bytes of an entry from the underlying zip archive.")
         .def(
             "__enter__", [](XLDocument& self) -> XLDocument& { return self; },
             py::rv_policy::reference)
@@ -333,5 +333,5 @@ void init_document(py::module_& m) {
             [](XLDocument& self, py::handle exc_type, py::handle exc_value, py::handle traceback) {
                 self.close();
             },
-            py::arg("exc_type").none(), py::arg("exc_value").none(), py::arg("traceback").none());
+            "exc_type"_a.none(), "exc_value"_a.none(), "traceback"_a.none());
 }

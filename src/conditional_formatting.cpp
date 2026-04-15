@@ -21,17 +21,17 @@ void init_conditional_formatting(py::module_& m) {
     m.def("XLColorScaleRule", py::overload_cast<const XLColor&, const XLColor&>(&XLColorScaleRule));
     m.def("XLColorScaleRule",
           py::overload_cast<const XLColor&, const XLColor&, const XLColor&>(&XLColorScaleRule));
-    m.def("XLDataBarRule", &XLDataBarRule, py::arg("color"), py::arg("show_value") = true);
+    m.def("XLDataBarRule", &XLDataBarRule, "color"_a, "show_value"_a = true);
     m.def("XLCellIsRule", py::overload_cast<XLCfOperator, const std::string&>(&XLCellIsRule));
     m.def("XLCellIsRule", py::overload_cast<const std::string&, const std::string&>(&XLCellIsRule));
     m.def("XLFormulaRule", &XLFormulaRule);
-    m.def("XLIconSetRule", &XLIconSetRule, py::arg("icon_set_name") = "3TrafficLights1",
-          py::arg("show_value") = true, py::arg("reverse") = false);
-    m.def("XLTop10Rule", &XLTop10Rule, py::arg("rank") = 10, py::arg("percent") = false,
-          py::arg("bottom") = false);
-    m.def("XLAboveAverageRule", &XLAboveAverageRule, py::arg("above_average") = true,
-          py::arg("equal_average") = false, py::arg("std_dev") = 0);
-    m.def("XLDuplicateValuesRule", &XLDuplicateValuesRule, py::arg("unique") = false);
+    m.def("XLIconSetRule", &XLIconSetRule, "icon_set_name"_a = "3TrafficLights1",
+          "show_value"_a = true, "reverse"_a = false);
+    m.def("XLTop10Rule", &XLTop10Rule, "rank"_a = 10, "percent"_a = false,
+          "bottom"_a = false);
+    m.def("XLAboveAverageRule", &XLAboveAverageRule, "above_average"_a = true,
+          "equal_average"_a = false, "std_dev"_a = 0);
+    m.def("XLDuplicateValuesRule", &XLDuplicateValuesRule, "unique"_a = false);
     m.def("XLContainsTextRule", &XLContainsTextRule);
     m.def("XLNotContainsTextRule", &XLNotContainsTextRule);
     m.def("XLContainsBlanksRule", &XLContainsBlanksRule);

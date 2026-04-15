@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyopenxlsx"
-version = "1.4.0"
+version = "1.4.2"
 description = "Python bindings for OpenXLSX-NX using nanobind"
 readme = "README.md"
 authors = [{name = "curry tang", email = "twn39@163.com"}]
@@ -103,6 +103,7 @@ dev = [
     "sphinx-autodoc-typehints>=3.6.1",
     "myst-parser>=5.0.0",
     "pip>=26.0.1",
+    "pandas>=3.0.2",
 ]
 
 [tool.pytest.ini_options]

@@ -680,7 +680,9 @@ class Worksheet:
         """Async version of get_cell_value()."""
         return await asyncio.to_thread(self.get_cell_value, row, column)
 
-    def write_dataframe(self, df, start_row=1, start_col=1, header=True, index=False, column_styles=None):
+    def write_dataframe(
+        self, df, start_row=1, start_col=1, header=True, index=False, column_styles=None
+    ):
         """
         Export a pandas DataFrame to the worksheet.
 
@@ -693,7 +695,6 @@ class Worksheet:
             column_styles (dict): Optional dictionary mapping column names or 0-based indices to style IDs.
                                   e.g. {"Date": date_style_id}
         """
-        import pandas as pd  # type: ignore
         import numpy as np
 
         if index:
@@ -705,7 +706,7 @@ class Worksheet:
         # If dates are pandas Timestamps, convert them to standard datetime
         for col in df.select_dtypes(include=["datetime64", "datetimetz"]).columns:
             df[col] = df[col].dt.to_pydatetime()
-            
+
         if column_styles:
             # When styles are requested, we use stream_writer for O(1) style application
             # Convert column_styles to a mapping of column_index -> style_id
@@ -715,19 +716,19 @@ class Worksheet:
                     col_idx_styles[df.columns.get_loc(k)] = v
                 elif isinstance(k, int):
                     col_idx_styles[k] = v
-            
+
             writer = self.stream_writer()
-            
+
             # Since stream_writer writes to the very end of the stream, we must pad empty rows if start_row > 1
-            # Note: stream_writer writes exactly from the next available row. 
-            # If start_row > 1 and the sheet is empty, we'd need to pad. 
-            # To be safe and since stream_writer is generally for append-only, 
+            # Note: stream_writer writes exactly from the next available row.
+            # If start_row > 1 and the sheet is empty, we'd need to pad.
+            # To be safe and since stream_writer is generally for append-only,
             # we rely on it just appending. If strict positioning is needed, write_rows is better.
             # But let's assume it appends from where we are.
-            
+
             if header:
                 writer.append_row(df.columns.tolist())
-            
+
             # Use itertuples for fast iteration while allowing column-specific styling
             for row in df.itertuples(index=False, name=None):
                 styled_row = []
@@ -737,7 +738,7 @@ class Worksheet:
                     else:
                         styled_row.append(val)
                 writer.append_row(styled_row)
-                
+
             writer.close()
         else:
             if header:
@@ -775,7 +776,7 @@ class Worksheet:
         Returns:
             A pandas DataFrame.
         """
-        import pandas as pd  # type: ignore
+        import pandas as pd
 
         if end_row is None:
             end_row = self.max_row
@@ -786,7 +787,7 @@ class Worksheet:
         columns = None
 
         # Use highly efficient stream_reader to bypass DOM allocation overhead.
-        # Note: stream_reader reads from the underlying saved XML file, so uncommitted 
+        # Note: stream_reader reads from the underlying saved XML file, so uncommitted
         # changes (data written but not yet saved via wb.save()) won't be reflected.
         reader = self.stream_reader()
 
@@ -794,10 +795,10 @@ class Worksheet:
         while reader.has_next():
             row_vals = reader.next_row()
             curr_row = reader.current_row()
-            
+
             if curr_row < start_row:
                 continue
-                
+
             if curr_row > end_row:
                 break
 
@@ -817,13 +818,14 @@ class Worksheet:
                 data.append(sliced_row)
 
         df = pd.DataFrame(data, columns=columns)
-        
-        # Heuristically convert columns that look like serial dates (float > 30000, e.g. year 1980+) 
+
+        # Heuristically convert columns that look like serial dates (float > 30000, e.g. year 1980+)
         # But doing so blindly is dangerous. For now, we leave it as float and let the user handle
         # `pd.to_datetime(df['Date'], unit='D', origin='1899-12-30')` if they need peak performance.
         # To balance correctness and speed, we will NOT use `.cell()` loop.
 
         return df
+
     async def read_dataframe_async(
         self, start_row=1, start_col=1, end_row=None, end_col=None, header=True
     ):
@@ -1021,7 +1023,9 @@ class Worksheet:
         """Set the columns to repeat at left on printed pages."""
         self._sheet.set_print_title_cols(first_col, last_col)
 
-    def add_sparkline(self, location: str, data_range: str, sparkline_type=None, options=None):
+    def add_sparkline(
+        self, location: str, data_range: str, sparkline_type=None, options=None
+    ):
         """Add a sparkline to the worksheet."""
         if options is not None:
             self._sheet.add_sparkline(location, data_range, options)
