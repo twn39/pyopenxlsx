@@ -1,4 +1,5 @@
 #include "bindings.hpp"
+#include "internal_access.hpp"
 
 void init_styles(py::module_& m) {
     // Bind Style Enums
@@ -142,6 +143,8 @@ void init_styles(py::module_& m) {
         .def("top", &XLBorder::top)
         .def("bottom", &XLBorder::bottom)
         .def("diagonal", &XLBorder::diagonal)
+        .def("diagonal_up", &XLBorder::diagonalUp)
+        .def("diagonal_down", &XLBorder::diagonalDown)
         .def("set_left", &XLBorder::setLeft, "lineStyle"_a, "lineColor"_a,
              "lineTint"_a = 0.0)
         .def("set_right", &XLBorder::setRight, "lineStyle"_a, "lineColor"_a,
@@ -151,7 +154,9 @@ void init_styles(py::module_& m) {
         .def("set_bottom", &XLBorder::setBottom, "lineStyle"_a, "lineColor"_a,
              "lineTint"_a = 0.0)
         .def("set_diagonal", &XLBorder::setDiagonal, "lineStyle"_a, "lineColor"_a,
-             "lineTint"_a = 0.0);
+             "lineTint"_a = 0.0)
+        .def("set_diagonal_up", &XLBorder::setDiagonalUp, "set"_a = true)
+        .def("set_diagonal_down", &XLBorder::setDiagonalDown, "set"_a = true);
 
     // Bind XLAlignment
     py::class_<XLAlignment>(m, "XLAlignment")
@@ -267,4 +272,12 @@ void init_styles(py::module_& m) {
         .def("border", &XLDxf::border)
         .def("has_font", &XLDxf::hasFont)
         .def("summary", &XLDxf::summary);
+
+    // Bind XLNumberFormatter
+    py::class_<XLNumberFormatter>(m, "XLNumberFormatter")
+        .def(py::init<const std::string&>(), "formatString"_a)
+        .def("format", [](const XLNumberFormatter& self, py::object val) {
+            CellData cd = CellData::from_python(val);
+            return self.format(cd.to_xlcellvalue());
+        }, "value"_a, "Formats the given Python value according to the format string");
 }

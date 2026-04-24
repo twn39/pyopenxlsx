@@ -21,6 +21,7 @@
 #include <XLDrawing.hpp>
 #include <XLFormulaEngine.hpp>
 #include <XLMergeCells.hpp>
+#include <XLNumberFormatter.hpp>
 #include <XLPageSetup.hpp>
 #include <XLPivotTable.hpp>
 #include <XLRichText.hpp>
