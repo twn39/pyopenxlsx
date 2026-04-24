@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_page_setup(py::module_& m) {
     // XLPageOrientation Enum
     py::enum_<XLPageOrientation>(m, "XLPageOrientation")

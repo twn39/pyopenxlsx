@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_rich_text(py::module_& m) {
     // Bind XLRichTextRun
     py::class_<XLRichTextRun>(m, "XLRichTextRun")

@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_comments(py::module_& m) {
     py::class_<XLThreadedComment>(m, "XLThreadedComment")
         .def(py::init<>())

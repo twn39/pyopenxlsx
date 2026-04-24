@@ -2,6 +2,10 @@
 
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 namespace {
 struct XLDefinedNameIterator {
     std::vector<XLDefinedName> names;

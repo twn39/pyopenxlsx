@@ -63,6 +63,12 @@ nanobind_add_module(_openxlsx
     src/formula_engine.cpp
 )
 
+if(SKBUILD_PROJECT_VERSION)
+    target_compile_definitions(_openxlsx PRIVATE PYOPENXLSX_VERSION=${SKBUILD_PROJECT_VERSION})
+else()
+    target_compile_definitions(_openxlsx PRIVATE PYOPENXLSX_VERSION=unknown)
+endif()
+
 # Link dependencies
 target_link_libraries(_openxlsx PRIVATE OpenXLSX::OpenXLSX Microsoft.GSL::GSL)
 

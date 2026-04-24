@@ -2,6 +2,10 @@
 
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_chart(py::module_& m) {
     py::enum_<XLChartType>(m, "XLChartType")
         .value("Bar", XLChartType::Bar)

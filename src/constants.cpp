@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_constants(py::module_& m) {
     // Bind XLContentType enum
     py::enum_<XLContentType>(m, "XLContentType")

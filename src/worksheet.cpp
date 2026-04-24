@@ -5,6 +5,10 @@
 
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void add_image_to_worksheet(XLWorksheet& ws, py::bytes imageData, const std::string& extension,
                             uint32_t row, uint16_t col, double width, double height) {
     // Use public APIs instead of Rob hack / reinterpret_cast

@@ -2,6 +2,10 @@
 
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_autofilter(py::module_& m) {
     py::enum_<XLFilterLogic>(m, "XLFilterLogic")
         .value("And", XLFilterLogic::And)

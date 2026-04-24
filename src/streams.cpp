@@ -1,6 +1,10 @@
 #include "bindings.hpp"
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_streams(py::module_& m) {
     py::class_<XLStreamWriter>(m, "XLStreamWriter")
         .def_prop_ro("is_active", &XLStreamWriter::isStreamActive)

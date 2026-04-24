@@ -1,6 +1,10 @@
 #include "bindings.hpp"
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_styles(py::module_& m) {
     // Bind Style Enums
     py::enum_<XLUnderlineStyle>(m, "XLUnderlineStyle")

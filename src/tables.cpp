@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_tables(py::module_& m) {
     py::enum_<XLTotalsRowFunction>(m, "XLTotalsRowFunction")
         .value("None", XLTotalsRowFunction::None)

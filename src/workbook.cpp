@@ -1,5 +1,9 @@
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_workbook(py::module_& m) {
     // Bind XLWorkbook
     py::class_<XLWorkbook>(m, "XLWorkbook")

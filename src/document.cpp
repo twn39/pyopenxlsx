@@ -1,6 +1,10 @@
 
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 // Structure to hold image info
 struct ImageInfo {
     std::string name;       // e.g., "image1.png"

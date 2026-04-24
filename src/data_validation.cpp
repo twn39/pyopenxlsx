@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_data_validation(py::module_& m) {
     // Bind XLDataValidationConfig
     py::class_<XLDataValidationConfig>(m, "XLDataValidationConfig")

@@ -1,5 +1,9 @@
 #include "internal_access.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_cell(py::module_& m) {
     // Bind XLMergeCells
     py::class_<XLMergeCells>(m, "XLMergeCells")

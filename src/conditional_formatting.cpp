@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_conditional_formatting(py::module_& m) {
     py::enum_<XLCfOperator>(m, "XLCfOperator")
         .value("LessThan", XLCfOperator::LessThan)

@@ -2,6 +2,10 @@
 
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_types(py::module_& m) {
     // Bind XLContentItem
     py::class_<XLContentItem>(m, "XLContentItem")

@@ -1,5 +1,9 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 void init_pivot_table(py::module_& m) {
     m.def("create_pivot_options", [](std::string name, std::string source_range, std::string target_cell) {
         return XLPivotTableOptions(std::move(name), std::move(source_range), std::move(target_cell));

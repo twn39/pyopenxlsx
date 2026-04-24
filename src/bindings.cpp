@@ -1,8 +1,21 @@
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 NB_MODULE(_openxlsx, m) {
     m.doc() = "Python bindings for OpenXLSX";
-    m.attr("__version__") = "1.4.0";
+
+#ifdef PYOPENXLSX_VERSION
+    m.attr("__version__") = STR(PYOPENXLSX_VERSION);
+#else
+    m.attr("__version__") = "unknown";
+#endif
+
     init_constants(m);
     init_types(m);
     init_styles(m);

@@ -22,6 +22,10 @@
 
 #include "bindings.hpp"
 
+using namespace OpenXLSX;
+using namespace nanobind::literals;
+
+
 // ============================================================
 // OpenXLSX Internal Access (Using exposed APIs)
 // ============================================================
