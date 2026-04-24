@@ -8,6 +8,10 @@
 #include <nanobind/stl/tuple.h>
 #include <nanobind/stl/vector.h>
 
+// datetime.h requires Python.h to be included first.
+// nanobind/nanobind.h above guarantees Python.h is already included.
+#include <datetime.h>
+
 #include <OpenXLSX.hpp>
 #include <XLAutoFilter.hpp>
 #include <XLChart.hpp>

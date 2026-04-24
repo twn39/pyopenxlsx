@@ -1,4 +1,5 @@
 #include "bindings.hpp"
+#include "internal_access.hpp"
 
 using namespace OpenXLSX;
 using namespace nanobind::literals;
