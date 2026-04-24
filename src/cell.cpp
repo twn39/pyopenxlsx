@@ -33,9 +33,14 @@ void init_cell(py::module_& m) {
         .def("clear", &XLCellRange::clear)
         .def(
             "__iter__",
-            [](const XLCellRange& self) {
-                return py::make_iterator(py::type<XLCellRange>(), "iterator", self.begin(),
-                                         self.end());
+            // FIX (P13): scope must be the module (m), not py::type<XLCellRange>().
+            // Using the class object as scope registers the iterator state type nested
+            // under the class rather than at module level — non-standard nanobind convention.
+            // Capture m by value (refcount bump) — capturing by reference [&m] would
+            // produce a dangling reference once init_cell() returns.
+            [m = py::module_(m)](const XLCellRange& self) {
+                return py::make_iterator(m, "XLCellRangeIterator",
+                                         self.begin(), self.end());
             },
             py::keep_alive<0, 1>());
 
