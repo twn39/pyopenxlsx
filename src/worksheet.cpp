@@ -908,7 +908,25 @@ void init_worksheet(py::module_& m) {
              "pivot_table"_a, "column_name"_a, "options"_a = XLSlicerOptions())
         .def("add_comment", &XLWorksheet::addComment, "cell_ref"_a, "text"_a,
              "author"_a = "")
-        
-        
+        // FIX (P12): XLWorksheet::addComment is overloaded — void (legacy) vs XLThreadedComment
+        // (threaded).  Both overloads share identical parameter types, so py::overload_cast cannot
+        // disambiguate on argument types alone.  Explicit lambdas with declared return types force
+        // the compiler to pick the correct overload.
+        .def(
+            "add_threaded_comment",
+            [](XLWorksheet& self, std::string_view cellRef,
+               std::string_view text, std::string_view author) -> XLThreadedComment {
+                return self.addComment(cellRef, text, author);
+            },
+            "cell_ref"_a, "text"_a, "author"_a = "",
+            "Add a modern threaded comment to a cell. Returns the XLThreadedComment object.")
+        .def(
+            "add_threaded_reply",
+            [](XLWorksheet& self, const std::string& parentId,
+               const std::string& text, const std::string& author) -> XLThreadedComment {
+                return self.addReply(parentId, text, author);
+            },
+            "parent_id"_a, "text"_a, "author"_a = "",
+            "Add a reply to an existing threaded comment. Returns the XLThreadedComment object.")
         ;
 }
