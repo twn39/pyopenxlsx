@@ -296,27 +296,20 @@ void set_cell_value(XLWorksheet& ws, uint32_t row, uint16_t col, py::object valu
     Expects(row >= 1 && row <= kExcelMaxRows);
     Expects(col >= 1 && col <= kExcelMaxCols);
 
-    if (value.is_none()) {
+    // Convert Python value while holding the GIL (all Python API calls happen here).
+    // FIX (P9): previously each branch had its own gil_scoped_release, causing up to
+    // 5 unnecessary lock/unlock round-trips per call.  Using CellData::from_python()
+    // also fixes a functional gap: datetime, numpy scalars, and XLRichText were
+    // silently rejected here with TypeError while Cell.value accepted them.
+    CellData cd = CellData::from_python(value);
+
+    // One contiguous GIL-free window for the C++ DOM write.
+    // Note: ws.cell() is stored in a named variable — apply_to() takes XLCell&
+    // and cannot bind directly to the temporary returned by ws.cell().
+    {
         py::gil_scoped_release release;
-        ws.cell(row, col).value().clear();
-    } else if (py::isinstance<py::bool_>(value)) {
-        bool val = py::cast<bool>(value);
-        py::gil_scoped_release release;
-        ws.cell(row, col).value() = val;
-    } else if (py::isinstance<py::int_>(value)) {
-        int64_t val = py::cast<int64_t>(value);
-        py::gil_scoped_release release;
-        ws.cell(row, col).value() = val;
-    } else if (py::isinstance<py::float_>(value)) {
-        double val = py::cast<double>(value);
-        py::gil_scoped_release release;
-        ws.cell(row, col).value() = val;
-    } else if (py::isinstance<py::str>(value)) {
-        std::string val = py::cast<std::string>(value);
-        py::gil_scoped_release release;
-        ws.cell(row, col).value() = val;
-    } else {
-        throw py::type_error("Unsupported type for cell value");
+        XLCell cell = ws.cell(row, col);
+        cd.apply_to(cell);
     }
 }
 
