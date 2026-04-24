@@ -272,7 +272,7 @@ void init_document(py::module_& m) {
         .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
         .def("persons", &XLDocument::persons, py::rv_policy::reference_internal)
         .def(
-            "__enter__",
+            "add_image",
             [](XLDocument& self, const std::string& name, py::bytes data) {
                 std::string imgData(static_cast<const char*>(data.data()), data.size());
                 py::gil_scoped_release release;
