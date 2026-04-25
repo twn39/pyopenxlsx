@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union, Dict, overload
+from typing import Any, Iterable, Iterator, List, Literal, Optional, Tuple, Union, Dict, overload
 from .cell import Cell
 from .range import Range
 from .merge import MergeCells
@@ -41,7 +41,33 @@ class Worksheet:
     async def append_async(self, iterable: Iterable[Any]) -> None: ...
     @property
     def rows(self) -> Iterator[Tuple[Cell, ...]]: ...
-    def __getitem__(self, key: str) -> Cell: ...
+    @overload
+    def iter_rows(
+        self,
+        min_row: Optional[int] = None,
+        max_row: Optional[int] = None,
+        min_col: Optional[int] = None,
+        max_col: Optional[int] = None,
+        values_only: Literal[True] = ...,
+    ) -> Iterator[Tuple[Any, ...]]: ...
+    @overload
+    def iter_rows(
+        self,
+        min_row: Optional[int] = None,
+        max_row: Optional[int] = None,
+        min_col: Optional[int] = None,
+        max_col: Optional[int] = None,
+        values_only: Literal[False] = ...,
+    ) -> Iterator[Tuple[Cell, ...]]: ...
+    def iter_rows(
+        self,
+        min_row: Optional[int] = None,
+        max_row: Optional[int] = None,
+        min_col: Optional[int] = None,
+        max_col: Optional[int] = None,
+        values_only: bool = False,
+    ) -> Iterator[Tuple[Any, ...]]: ...
+
     def cell(self, row: int, column: int, value: Optional[Any] = None) -> Cell: ...
     @overload
     def range(self, address: str) -> Range: ...
