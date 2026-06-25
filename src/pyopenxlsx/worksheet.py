@@ -33,6 +33,11 @@ class Worksheet:
         self._cells_mru = deque(maxlen=64)
 
     @property
+    def _closed(self):
+        """Return True if the parent workbook has been closed."""
+        return self._workbook._closed if self._workbook is not None else False
+
+    @property
     def title(self):
         return self._sheet.name()
 
@@ -175,6 +180,8 @@ class Worksheet:
         return self.iter_rows()
 
     def __getitem__(self, key):
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         if isinstance(key, str):
             if key in self._cells:
                 c = self._cells[key]
@@ -187,6 +194,8 @@ class Worksheet:
         raise TypeError("Only string references (e.g., 'A1') are supported")
 
     def cell(self, row, column, value=None):
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         key = (row, column)
         if key in self._cells:
             c = self._cells[key]
@@ -958,6 +967,8 @@ class Worksheet:
     # ============================================================
 
     def set_cell_value(self, row: int, column: int, value):
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         """
         Set a cell's value directly without creating a Cell object.
 
@@ -985,6 +996,8 @@ class Worksheet:
         await asyncio.to_thread(self.set_cell_value, row, column, value)
 
     def write_rows(self, start_row: int, data, start_col: int = 1):
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         """
         Write a 2D Python list to a worksheet range.
 

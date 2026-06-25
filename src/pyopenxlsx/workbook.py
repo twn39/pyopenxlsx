@@ -196,6 +196,7 @@ class Workbook:
         self._sheets = WeakValueDictionary()
         self._styles = None
         self._date_format_cache = {}
+        self._closed = False
 
     @property
     def has_macro(self):
@@ -221,6 +222,8 @@ class Workbook:
         await asyncio.to_thread(self.save, filename, force_overwrite, password)
 
     def close(self):
+        if getattr(self, "_closed", False):
+            return
         self._doc.close()
         # Clean up temporary file if it was created
         if self._temp_file and os.path.exists(self._temp_file):
@@ -229,6 +232,7 @@ class Workbook:
             except OSError:
                 pass  # Ignore errors during cleanup
             self._temp_file = None
+        self._closed = True
 
     async def close_async(self):
         await asyncio.to_thread(self.close)
@@ -444,6 +448,8 @@ class Workbook:
 
     @property
     def workbook(self):
+        if getattr(self, "_closed", False):
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         return self._wb
 
     @property
