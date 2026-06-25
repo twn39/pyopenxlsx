@@ -1,0 +1,15 @@
+{
+  "include": [
+    "src",
+    "tests"
+  ],
+  "exclude": [
+    "dist",
+    "third_party",
+    "build",
+    ".venv",
+    "docs"
+  ],
+  "output": ".codegraph",
+  "cache": true
+}

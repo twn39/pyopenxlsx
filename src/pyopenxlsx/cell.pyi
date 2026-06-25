@@ -4,7 +4,7 @@ from .formula import Formula
 from ._openxlsx import XLCell, XLFont, XLFill, XLBorder, XLAlignment
 
 class Cell:
-    __slots__ = ("_cell", "_worksheet_ref", "_workbook_ref", "__weakref__")
+    __slots__ = ("_cell", "_worksheet_val", "__weakref__")
     _cell: XLCell
     @property
     def _worksheet(self) -> Optional[Any]: ...

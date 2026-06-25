@@ -1,4 +1,5 @@
 import asyncio
+from collections import deque
 from weakref import WeakValueDictionary
 
 from ._openxlsx import XLSheetState
@@ -26,6 +27,10 @@ class Worksheet:
         # Use WeakValueDictionary to avoid keeping Cell objects alive indefinitely
         # Cells will be garbage collected when no external references remain
         self._cells = WeakValueDictionary()
+        # Performance optimization: Keep strong references to the last N accessed cells.
+        # This prevents immediate garbage collection of transient Cell objects in loops
+        # while keeping the overall cache clean and safe.
+        self._cells_mru = deque(maxlen=64)
 
     @property
     def title(self):
@@ -157,9 +162,7 @@ class Worksheet:
             # Cell-object path: identical semantics to ws.rows but
             # honours the requested row/column bounds.
             for r in range(_min_row, _max_row + 1):
-                yield tuple(
-                    self.cell(r, c) for c in range(_min_col, _max_col + 1)
-                )
+                yield tuple(self.cell(r, c) for c in range(_min_col, _max_col + 1))
 
     @property
     def rows(self):
@@ -174,9 +177,12 @@ class Worksheet:
     def __getitem__(self, key):
         if isinstance(key, str):
             if key in self._cells:
-                return self._cells[key]
+                c = self._cells[key]
+                self._cells_mru.append(c)
+                return c
             c = Cell(self._sheet.cell(key), self)
             self._cells[key] = c
+            self._cells_mru.append(c)
             return c
         raise TypeError("Only string references (e.g., 'A1') are supported")
 
@@ -190,6 +196,7 @@ class Worksheet:
 
         if value is not None:
             c.value = value
+        self._cells_mru.append(c)
         return c
 
     def _get_cached_cell(self, raw_cell):
@@ -197,9 +204,12 @@ class Worksheet:
         ref = raw_cell.cell_reference()
         key = (ref.row(), ref.column())
         if key in self._cells:
-            return self._cells[key]
+            c = self._cells[key]
+            self._cells_mru.append(c)
+            return c
         c = Cell(raw_cell, self)
         self._cells[key] = c
+        self._cells_mru.append(c)
         return c
 
     def range(self, *args):

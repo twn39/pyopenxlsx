@@ -1,7 +1,6 @@
 from .formula import Formula
 from .styles import is_date_format
 from datetime import datetime, date, timedelta
-from weakref import ref as weakref
 
 
 def datetime_to_serial(val):
@@ -19,31 +18,31 @@ class Cell:
     """
     Represents an Excel cell.
 
-    Uses weak references to worksheet and workbook to avoid circular references
-    that could delay garbage collection.
+    OPTIMIZATION PRINCIPLE:
+    Direct reference model is used for `_worksheet_val` instead of `weakref`.
+    Because the Worksheet keeps a WeakValueDictionary `_cells` cache of Cell objects,
+    there is no strong reference cycle between Worksheet and Cell.
+    This eliminates the allocation of 2 `weakref` objects for every Cell creation,
+    massively improving performance in loops and preventing GC thrashing.
     """
 
     # Include __weakref__ to allow weak references to Cell objects
     # This enables WeakValueDictionary caching in Worksheet
-    __slots__ = ("_cell", "_worksheet_ref", "_workbook_ref", "__weakref__")
+    __slots__ = ("_cell", "_worksheet_val", "__weakref__")
 
     def __init__(self, raw_cell, worksheet=None):
         self._cell = raw_cell
-        # Use weak references to avoid circular references with Worksheet
-        self._worksheet_ref = weakref(worksheet) if worksheet else None
-        self._workbook_ref = (
-            weakref(worksheet._workbook) if worksheet and worksheet._workbook else None
-        )
+        self._worksheet_val = worksheet
 
     @property
     def _worksheet(self):
-        """Get the worksheet, or None if it has been garbage collected."""
-        return self._worksheet_ref() if self._worksheet_ref else None
+        """Get the worksheet, or None if not set."""
+        return self._worksheet_val
 
     @property
     def _workbook(self):
-        """Get the workbook, or None if it has been garbage collected."""
-        return self._workbook_ref() if self._workbook_ref else None
+        """Get the workbook, or None if not set."""
+        return self._worksheet_val._workbook if self._worksheet_val else None
 
     @property
     def comment(self):
