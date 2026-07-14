@@ -337,11 +337,18 @@ class Worksheet(
         """
         Get a stream writer for this worksheet.
 
+        Returns a :class:`~pyopenxlsx.streams.StreamWriter` that applies the
+        same date/datetime coercion and ``auto_date_formats`` behaviour as
+        bulk worksheet writes.
+
         :param use_shared_strings: When True, reuse shared-string table entries (saves space for
             repeated text at the cost of a bounded local cache).
         :param max_unique_strings: Cap on unique strings cached when use_shared_strings is True.
         """
-        return self._sheet.stream_writer(use_shared_strings, max_unique_strings)
+        from .streams import StreamWriter
+
+        native = self._sheet.stream_writer(use_shared_strings, max_unique_strings)
+        return StreamWriter(native, self._workbook)
 
     def stream_reader(
         self, options=None, *, empty_rows=None, apply_number_formats=None
@@ -354,6 +361,8 @@ class Worksheet(
         :param apply_number_formats: When True, format numeric cells as display strings where
             applicable (used by next_row_strings).
         """
+        from .streams import StreamReader
+
         if options is None and (
             empty_rows is not None or apply_number_formats is not None
         ):
@@ -365,8 +374,10 @@ class Worksheet(
             if apply_number_formats is not None:
                 options.apply_number_formats = apply_number_formats
         if options is None:
-            return self._sheet.stream_reader()
-        return self._sheet.stream_reader(options)
+            native = self._sheet.stream_reader()
+        else:
+            native = self._sheet.stream_reader(options)
+        return StreamReader(native)
 
     def auto_fit_column(self, column_number: int):
         """Auto-fit the specified column."""

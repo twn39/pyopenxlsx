@@ -93,7 +93,11 @@ class WorksheetFeaturesMixin:
         self._sheet.apply_auto_filter()
 
     def add_conditional_formatting(self, sqref: str, rule):
-        """Add conditional formatting to a range."""
+        """Add conditional formatting to a range.
+
+        Prefer builders from :mod:`pyopenxlsx.conditional_formatting`
+        (e.g. ``color_scale``, ``data_bar``) or native ``XL*`` rule objects.
+        """
         self._sheet.add_conditional_formatting(sqref, rule)
 
     def remove_conditional_formatting(self, sqref: str):
@@ -135,22 +139,39 @@ class WorksheetFeaturesMixin:
         col: int = 5,
         width: int = 400,
         height: int = 300,
+        *,
+        wrap: bool = True,
     ):
         """
         Add a chart to the worksheet (high-level facade over the native sheet).
 
-        Equivalent to ``ws._sheet.add_chart(...)`` but preferred for public use.
-        """
-        return self._sheet.add_chart(chart_type, name, row, col, width, height)
+        ``chart_type`` may be an ``XLChartType`` or a friendly name such as
+        ``\"bar\"`` / ``\"column\"`` (see :func:`pyopenxlsx.chart.chart_type`).
 
-    def add_chart_anchor(self, chart_type, anchor):
+        Returns a :class:`~pyopenxlsx.chart.Chart` wrapper when *wrap* is True
+        (default); set ``wrap=False`` for the raw native object.
+        """
+        from .chart import Chart, chart_type as resolve_chart_type
+
+        resolved = resolve_chart_type(chart_type)
+        native = self._sheet.add_chart(resolved, name, row, col, width, height)
+        return Chart(native) if wrap else native
+
+    def add_chart_anchor(self, chart_type, anchor, *, wrap: bool = True):
         """Add a chart using an ``XLChartAnchor`` (high-level facade)."""
-        return self._sheet.add_chart_anchor(chart_type, anchor)
+        from .chart import Chart, chart_type as resolve_chart_type
+
+        resolved = resolve_chart_type(chart_type)
+        native = self._sheet.add_chart_anchor(resolved, anchor)
+        return Chart(native) if wrap else native
 
     def add_pivot_table(self, options):
         """
-        Add a pivot table from ``XLPivotTableOptions`` (high-level facade).
-
-        Equivalent to ``ws._sheet.add_pivot_table(options)``.
+        Add a pivot table from ``XLPivotTableOptions`` or a
+        :class:`~pyopenxlsx.pivot.PivotTableBuilder`.
         """
+        from .pivot import PivotTableBuilder
+
+        if isinstance(options, PivotTableBuilder):
+            options = options.options
         return self._sheet.add_pivot_table(options)

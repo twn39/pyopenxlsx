@@ -1,17 +1,9 @@
+from . import _coercion
 from .formula import Formula
-from .styles import is_date_format
-from datetime import datetime, date, timedelta
 
-
-def datetime_to_serial(val):
-    if isinstance(val, date) and not isinstance(val, datetime):
-        val = datetime.combine(val, datetime.min.time())
-    delta = val - datetime(1899, 12, 30)
-    return delta.total_seconds() / 86400.0
-
-
-def serial_to_datetime(serial):
-    return datetime(1899, 12, 30) + timedelta(days=serial)
+# Re-export for public / historical import paths (``from pyopenxlsx.cell import …``).
+datetime_to_serial = _coercion.datetime_to_serial
+serial_to_datetime = _coercion.serial_to_datetime
 
 
 class Cell:
@@ -123,19 +115,18 @@ class Cell:
     def value(self, val):
         if self._closed is True:
             raise ValueError("I/O operation on closed Workbook/Worksheet.")
-        if isinstance(val, (date, datetime)):
-            is_datetime = isinstance(val, datetime)
-            serial = datetime_to_serial(val)
-            self._cell.value = serial
-            wb = self._workbook
-            if (
-                wb is not None
-                and getattr(wb, "auto_date_formats", False)
-                and not self.is_date
-            ):
-                self.style_index = wb._get_auto_date_style(is_datetime=is_datetime)
+        storage, date_kind = _coercion.coerce_cell_value(val)
+        self._cell.value = storage
+        if date_kind is None:
             return
-        self._cell.value = val
+        wb = self._workbook
+        if not _coercion.workbook_wants_auto_date(wb):
+            return
+        if self.is_date:
+            return
+        self.style_index = wb._get_auto_date_style(
+            is_datetime=(date_kind == _coercion.DATE_KIND_DATETIME)
+        )
 
     @property
     def formula(self):
@@ -208,42 +199,4 @@ class Cell:
         """
         if self._closed is True:
             raise ValueError("I/O operation on closed Workbook/Worksheet.")
-        if self._workbook is None:
-            return False
-
-        style_idx = self.style_index
-        if style_idx < 0:
-            return False
-
-        # Check cache
-        if style_idx in self._workbook._date_format_cache:
-            return self._workbook._date_format_cache[style_idx]
-
-        # Get styles from workbook
-        styles = self._workbook.styles
-        cfs = styles.cell_formats()
-        if style_idx >= cfs.count():
-            self._workbook._date_format_cache[style_idx] = False
-            return False
-
-        cf = cfs.cell_format_by_index(style_idx)
-        nf_id = cf.number_format_id()
-
-        # Check standard formats
-        if is_date_format(nf_id):
-            self._workbook._date_format_cache[style_idx] = True
-            return True
-
-        # Check custom formats via string
-        nfs = styles.number_formats()
-        try:
-            val = nfs.number_format_by_id(nf_id)
-            if val:
-                res = is_date_format(val.format_code())
-                self._workbook._date_format_cache[style_idx] = res
-                return res
-        except Exception:
-            pass
-
-        self._workbook._date_format_cache[style_idx] = False
-        return False
+        return _coercion.style_is_date_format(self._workbook, self.style_index)

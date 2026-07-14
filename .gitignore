@@ -21,3 +21,5 @@ demoGEMINI.md
 AUDIT_*.md
 .codegraph
 AGENTS.md
+samples/**/*.xlsx
+samples/**/*.md

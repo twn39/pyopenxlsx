@@ -6,9 +6,16 @@ from .cell import Cell
 
 class Range:
     """
-    Represents a range of Excel cells.
+    Lightweight view over a rectangular block of cells.
 
-    Uses weak references to avoid circular references with Worksheet.
+    Architectural role
+    ------------------
+    ``Range`` is a **geometry + iteration** façade: address, dimensions,
+    cell iteration, and clear. Prefer delegating multi-cell style, bulk
+    write, drawing, or workbook I/O to ``Worksheet`` / bulk APIs rather
+    than growing kitchen-sink methods on this type.
+
+    Uses a weak reference to the parent worksheet to avoid cycles.
     """
 
     __slots__ = ("_range", "_worksheet_ref")

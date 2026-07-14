@@ -142,16 +142,33 @@ from pyopenxlsx import Workbook
 
 with Workbook() as wb:
     ws = wb.active
-    ws["A1"].value = "Google"
-    # External link
+    # One-shot helper: set display text + link (URL → external automatically)
+    ws.link("A1", "https://www.google.com", text="Google", tooltip="Search")
+
+    # Or explicit external / internal APIs
     ws.add_hyperlink("A1", "https://www.google.com", tooltip="Search")
-    
-    # Internal link to another sheet
     ws2 = wb.create_sheet("Data")
-    ws["A2"].value = "See Data"
-    ws.add_internal_hyperlink("A2", "Data!A1")
-    
+    ws.link("A2", "Data!A1", text="See Data", internal=True)
+
     wb.save("links.xlsx")
+```
+
+### Defined Names (Named Ranges)
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    ws.write_rows(1, [["x"], [1], [2], [3]])
+
+    # Prefer define() — idempotent; accepts sheet title or Worksheet
+    wb.defined_names.define("SalesCol", "Sheet1!$A$2:$A$4")
+    wb.defined_names.define("LocalX", "Sheet1!$A$1", sheet=ws)
+
+    assert "SalesCol" in wb.defined_names
+    assert wb.defined_names["SalesCol"].refers_to() == "Sheet1!$A$2:$A$4"
+    wb.save("names.xlsx")
 ```
 
 ### Read a Workbook
@@ -235,37 +252,48 @@ wb.save("styles.xlsx")
 
 ### Pivot Tables
 
-`pyopenxlsx` provides a robust, memory-safe Fluent Builder API for generating Data Pivot Tables directly from source data.
+High-level fluent builder (preferred):
 
 ```python
-from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLPivotTableOptions, XLPivotSubtotal
+from pyopenxlsx import Workbook, PivotTableBuilder
 
 with Workbook() as wb:
-    # 1. Write source data to a sheet
     ws_data = wb.active
     ws_data.name = "SalesData"
     ws_data.write_row(1, ["Region", "Product", "Sales"])
     ws_data.write_rows(2, [["North", "Apples", 100], ["South", "Bananas", 300]])
-    
-    # 2. Create a separate sheet for the Pivot Table
+
     ws_pivot = wb.create_sheet("PivotReport")
-    
-    # 3. Configure options using the Fluent Builder API
-    options = XLPivotTableOptions("SalesPivot", "SalesData!A1:C3", "B3")
-    (options
-        .add_row_field("Region")
-        .add_column_field("Product")
-        .add_data_field("Sales", "Total Sales", XLPivotSubtotal.Sum)
-        .set_pivot_table_style("PivotStyleMedium14")
+    (
+        PivotTableBuilder("SalesPivot", "SalesData!A1:C3", "B3")
+        .rows("Region")
+        .columns("Product")
+        .data("Sales", name="Total Sales", subtotal="sum")
+        .style("PivotStyleMedium14")
+        .add_to(ws_pivot)
     )
-    
-    # 4. Add the pivot table
-    ws_pivot._sheet.add_pivot_table(options)
     wb.save("pivot_demo.xlsx")
 ```
 
-For advanced configuration and Slicers, see the [Pivot Tables API](docs/07_pivot_tables.md).
+Native ``XLPivotTableOptions`` remains available via ``pyopenxlsx._openxlsx`` for
+advanced cases. See also the [Pivot Tables API](docs/07_pivot_tables.md).
+
+### Charts
+
+```python
+from pyopenxlsx import Workbook
+
+with Workbook() as wb:
+    ws = wb.active
+    ws.write_rows(1, [["Cat", "Val"], ["A", 10], ["B", 20]])
+    (
+        ws.add_chart("column", "Chart1", row=5, col=3)
+        .title("Values")
+        .legend("bottom")
+        .series("Sheet1!$B$2:$B$3", name="Val", categories_ref="Sheet1!$A$2:$A$3")
+    )
+    wb.save("chart_demo.xlsx")
+```
 
 ### Insert Images and Vector Shapes
 
@@ -319,46 +347,38 @@ wb.save("comments.xlsx")
 
 ### Conditional Formatting
 
-Highlight specific data using visual rules like color scales and data bars.
+Highlight data with builders (hex/RGB) or native ``XL*`` rules:
 
 ```python
-from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLColorScaleRule, XLDataBarRule, XLColor
+from pyopenxlsx import Workbook, conditional_formatting as cf
 
 wb = Workbook()
 ws = wb.active
 ws.write_rows(1, [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
-# 1. Color Scale Rule (Red to Green)
-scale_rule = XLColorScaleRule(XLColor(255, 0, 0), XLColor(0, 255, 0))
-ws.add_conditional_formatting("A1:C1", scale_rule)
-
-# 2. Data Bar Rule (Blue bars)
-bar_rule = XLDataBarRule(XLColor(0, 0, 255), show_value=True)
-ws.add_conditional_formatting("A2:C2", bar_rule)
+ws.add_conditional_formatting("A1:C1", cf.color_scale("#FF0000", "#00FF00"))
+ws.add_conditional_formatting("A2:C2", cf.data_bar((0, 0, 255)))
+ws.add_conditional_formatting("A3:C3", cf.cell_is(">", "5"))
 
 wb.save("conditional_formatting.xlsx")
 ```
 
 ### High Performance Streams (Low Memory I/O)
 
-For writing massive datasets without consuming memory for Python objects, use the direct stream writer.
+For writing massive datasets without consuming memory for Python objects, use the direct stream writer. Date/datetime values follow the same coercion and ``auto_date_formats`` rules as bulk writes.
 
 ```python
+from datetime import date
 from pyopenxlsx import Workbook
 
 with Workbook() as wb:
     ws = wb.active
-    
-    # Open a direct XML stream writer
-    writer = ws.stream_writer()
-    
-    writer.append_row(["ID", "Timestamp", "Value"])
-    for i in range(1_000_000):
-        # Writes directly to disk/archive; highly memory efficient
-        writer.append_row([i, "2023-01-01", 99.9])
-        
-    writer.close()
+
+    with ws.stream_writer() as writer:
+        writer.append_row(["ID", "When", "Value"])
+        for i in range(1_000_000):
+            writer.append_row([i, date(2023, 1, 1), 99.9])
+
     wb.save("massive_data.xlsx")
 ```
 
@@ -392,6 +412,25 @@ The full API documentation has been split into individual modules for easier rea
 `pyopenxlsx` is built for speed. By leveraging the C++ OpenXLSX-NX engine and providing optimized bulk operations, it significantly outperforms pure-Python alternatives.
 
 > **Note**: The following benchmarks were recorded on an Apple Silicon (arm64) M-series processor, comparing `pyopenxlsx` v1.3.1 against `openpyxl`.
+
+### Running benchmarks
+
+```bash
+# Developer suite (recommended; skips ~1M extreme writes)
+uv run pytest tests/test_benchmark.py -m benchmark_fast --benchmark-only -q
+
+# Extreme ~1M-cell writes (slow)
+uv run pytest tests/test_benchmark.py -m benchmark_extreme --benchmark-only -q
+
+# Export + compare against a baseline JSON
+uv run pytest tests/test_benchmark.py -m benchmark_fast \
+  --benchmark-only --benchmark-json=benchmark.json
+uv run python scripts/compare_benchmarks.py baseline.json benchmark.json
+```
+
+Groups include fair same-dtype writes (`write_large_str` / `write_large_float`),
+date coercion (`write_large_dates`), mixed types, split read (`read_point` vs
+`read_scan`), and symmetric iterate (`iterate_cell` / `iterate_values`).
 
 ### Benchmarks (pyopenxlsx vs openpyxl)
 

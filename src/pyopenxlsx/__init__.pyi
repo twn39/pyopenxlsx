@@ -36,7 +36,11 @@ from .styles import (
 )
 from .cell import Cell as Cell
 from .formula import Formula as Formula
-from .formula_engine import FormulaEngine as FormulaEngine
+from .formula_engine import (
+    FormulaEngine as FormulaEngine,
+    CalculationEngine as CalculationEngine,
+    calculation_options as calculation_options,
+)
 from .range import Range as Range
 from .worksheet import Worksheet as Worksheet
 from .column import Column as Column
@@ -46,6 +50,16 @@ from .workbook import (
     load_workbook_async as load_workbook_async,
 )
 from .merge import MergeCells as MergeCells
+from .chart import Chart as Chart, add_chart as add_chart, chart_type as chart_type
+from .pivot import (
+    PivotTableBuilder as PivotTableBuilder,
+    pivot_table as pivot_table,
+    pivot_subtotal as pivot_subtotal,
+)
+from .streams import StreamWriter as StreamWriter, StreamReader as StreamReader
+from .defined_names import DefinedName as DefinedName, DefinedNames as DefinedNames
+from .hyperlink import link as link_cell
+from . import conditional_formatting as conditional_formatting
 
 XLPatternNone: XLPatternType
 XLPatternSolid: XLPatternType
@@ -66,6 +80,8 @@ __all__ = [
     "MergeCells",
     "Formula",
     "FormulaEngine",
+    "CalculationEngine",
+    "calculation_options",
     "Cell",
     "Range",
     "Column",
@@ -79,6 +95,18 @@ __all__ = [
     "Style",
     "Protection",
     "is_date_format",
+    "Chart",
+    "add_chart",
+    "chart_type",
+    "PivotTableBuilder",
+    "pivot_table",
+    "pivot_subtotal",
+    "StreamWriter",
+    "StreamReader",
+    "DefinedName",
+    "DefinedNames",
+    "link_cell",
+    "conditional_formatting",
     "XLColor",
     "XLSheetState",
     "XLUnderlineStyle",

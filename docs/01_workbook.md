@@ -59,10 +59,18 @@ Asynchronous version of `load_workbook`.
   ```
 
 ### `defined_names`
-- **Type:** `XLDefinedNames`
-- **Description:** Manage named ranges (Defined Names) across the workbook.
+- **Type:** `DefinedNames` (façade over native `XLDefinedNames`)
+- **Description:** Manage named ranges across the workbook.
   ```python
-  wb.defined_names.append("GlobalTotal", "Sheet1!$A$1")
+  # Preferred: define() is idempotent; sheet= accepts Worksheet or title
+  wb.defined_names.define("GlobalTotal", "Sheet1!$A$1")
+  wb.defined_names.define("LocalX", "Sheet1!$B$1", sheet=wb.active)
+
+  assert "GlobalTotal" in wb.defined_names
+  assert wb.defined_names["GlobalTotal"].refers_to() == "Sheet1!$A$1"
+
+  # Legacy-compatible append still works
+  wb.defined_names.append("Other", "Sheet1!$C$1")
   ```
 
 ---

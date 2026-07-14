@@ -4,165 +4,17 @@ import os
 from weakref import WeakValueDictionary
 
 from . import _openxlsx
-from ._openxlsx import XLProperty, XLLineStyle, XLPatternType
+from .properties import CustomProperties, DocumentProperties
 from .worksheet import Worksheet
-from .styles import Style
 
-
-class DocumentProperties:
-    """
-    High-level wrapper for Excel document properties.
-    Supports both Core and App/Extended properties.
-    """
-
-    _PROPERTY_MAP = {
-        "title": XLProperty.Title,
-        "subject": XLProperty.Subject,
-        "creator": XLProperty.Creator,
-        "keywords": XLProperty.Keywords,
-        "description": XLProperty.Description,
-        "last_modified_by": XLProperty.LastModifiedBy,
-        "last_printed": XLProperty.LastPrinted,
-        "created": XLProperty.CreationDate,
-        "modified": XLProperty.ModificationDate,
-        "category": XLProperty.Category,
-        "application": XLProperty.Application,
-        "doc_security": XLProperty.DocSecurity,
-        "scale_crop": XLProperty.ScaleCrop,
-        "manager": XLProperty.Manager,
-        "company": XLProperty.Company,
-        "links_up_to_date": XLProperty.LinksUpToDate,
-        "shared_doc": XLProperty.SharedDoc,
-        "hyperlink_base": XLProperty.HyperlinkBase,
-        "hyperlinks_changed": XLProperty.HyperlinksChanged,
-        "app_version": XLProperty.AppVersion,
-    }
-
-    def __init__(self, doc):
-        self._doc = doc
-
-    def __getitem__(self, key):
-        if isinstance(key, XLProperty):
-            return self._doc.property(key)
-
-        prop = self._PROPERTY_MAP.get(key.lower().replace(" ", "_"))
-        if prop is not None:
-            return self._doc.property(prop)
-
-        # Fallback to string-based lookup in AppProperties (most flexible)
-        return self._doc.app_properties().property(key)
-
-    def __setitem__(self, key, value):
-        if isinstance(key, XLProperty):
-            self._doc.set_property(key, str(value))
-            return
-
-        prop = self._PROPERTY_MAP.get(key.lower().replace(" ", "_"))
-        if prop is not None:
-            self._doc.set_property(prop, str(value))
-        else:
-            # Fallback to string-based set in AppProperties
-            self._doc.app_properties().set_property(key, str(value))
-
-    def __delitem__(self, key):
-        if isinstance(key, XLProperty):
-            self._doc.delete_property(key)
-            return
-
-        prop = self._PROPERTY_MAP.get(key.lower().replace(" ", "_"))
-        if prop is not None:
-            self._doc.delete_property(prop)
-        else:
-            self._doc.app_properties().delete_property(key)
-
-    @property
-    def title(self):
-        return self[XLProperty.Title]
-
-    @title.setter
-    def title(self, value):
-        self[XLProperty.Title] = value
-
-    @property
-    def creator(self):
-        return self[XLProperty.Creator]
-
-    @creator.setter
-    def creator(self, value):
-        self[XLProperty.Creator] = value
-
-    @property
-    def last_modified_by(self):
-        return self[XLProperty.LastModifiedBy]
-
-    @last_modified_by.setter
-    def last_modified_by(self, value):
-        self[XLProperty.LastModifiedBy] = value
-
-    @property
-    def subject(self):
-        return self[XLProperty.Subject]
-
-    @subject.setter
-    def subject(self, value):
-        self[XLProperty.Subject] = value
-
-    @property
-    def description(self):
-        return self[XLProperty.Description]
-
-    @description.setter
-    def description(self, value):
-        self[XLProperty.Description] = value
-
-    @property
-    def keywords(self):
-        return self[XLProperty.Keywords]
-
-    @keywords.setter
-    def keywords(self, value):
-        self[XLProperty.Keywords] = value
-
-    @property
-    def category(self):
-        return self[XLProperty.Category]
-
-    @category.setter
-    def category(self, value):
-        self[XLProperty.Category] = value
-
-    @property
-    def company(self):
-        return self[XLProperty.Company]
-
-    @company.setter
-    def company(self, value):
-        self[XLProperty.Company] = value
-
-
-class CustomProperties:
-    """
-    Proxy for custom document properties.
-    """
-
-    def __init__(self, doc):
-        self._doc = doc
-
-    def __getitem__(self, name):
-        return self._doc.custom_property(name)
-
-    def __setitem__(self, name, value):
-        self._doc.set_custom_property(name, str(value))
-
-    def __delitem__(self, name):
-        self._doc.delete_custom_property(name)
-
-    def __contains__(self, name):
-        try:
-            val = self._doc.custom_property(name)
-            return val != ""
-        except Exception:
-            return False
+# Re-export for historical ``from pyopenxlsx.workbook import DocumentProperties``.
+__all__ = [
+    "Workbook",
+    "DocumentProperties",
+    "CustomProperties",
+    "load_workbook",
+    "load_workbook_async",
+]
 
 
 class Workbook:
@@ -199,8 +51,9 @@ class Workbook:
         # Cached style indices for auto date/datetime number formats
         self._auto_date_style_idx = None
         self._auto_datetime_style_idx = None
-        # When True, assigning date/datetime to Cell.value (or set_cell_value)
-        # applies a default number format if the cell is not already date-formatted.
+        # When True, assigning date/datetime via Cell.value, set_cell_value,
+        # write_row(s), set_cells, or append_row applies a default number format
+        # if the cell is not already date-formatted.
         self.auto_date_formats = True
         self._closed = False
 
@@ -311,9 +164,11 @@ class Workbook:
     @property
     def defined_names(self):
         """
-        Access the collection of defined names (named ranges) in the workbook.
+        Access defined names (named ranges) via :class:`~pyopenxlsx.defined_names.DefinedNames`.
         """
-        return self._wb.defined_names()
+        from .defined_names import DefinedNames
+
+        return DefinedNames(self._wb.defined_names(), self)
 
     @property
     def properties(self):
@@ -339,167 +194,22 @@ class Workbook:
         number_format=None,
         protection=None,
     ):
-        style_obj = None
-        if isinstance(font, Style):
-            style_obj = font
-            font = style_obj.font
-            fill = style_obj.fill
-            border = style_obj.border
-            alignment = style_obj.alignment
-            number_format = style_obj.number_format
-            protection = style_obj.protection
+        """Register a cell style and return its style index.
 
-        # Create a new cell format entry (default)
-        index = self.styles.cell_formats().create()
-        xf = self.styles.cell_formats().cell_format_by_index(index)
+        Implementation lives in :mod:`pyopenxlsx._style_registry` so this
+        method stays a thin public entry point.
+        """
+        from ._style_registry import register_cell_style
 
-        if font is not None:
-            if isinstance(font, int):
-                xf.set_font_index(font)
-            else:
-                fonts = self.styles.fonts()
-                idx = fonts.create()
-                target_font = fonts.font_by_index(idx)
-                target_font.set_name(font.name())
-                target_font.set_size(font.size())
-                target_font.set_bold(font.bold())
-                target_font.set_italic(font.italic())
-                if hasattr(font, "underline"):
-                    from ._openxlsx import XLUnderlineStyle
-
-                    u = font.underline()
-                    # Skip default "None" underline to avoid emitting invalid OOXML
-                    # that openpyxl rejects (empty/invalid u attribute values).
-                    if u is not None and u != getattr(XLUnderlineStyle, "None"):
-                        target_font.set_underline(u)
-                if hasattr(font, "strikethrough") and font.strikethrough():
-                    target_font.set_strikethrough(True)
-                if font.color():
-                    target_font.set_color(font.color())
-                xf.set_font_index(idx)
-            xf.set_apply_font(True)
-
-        if fill is not None:
-            if isinstance(fill, int):
-                xf.set_fill_index(fill)
-            else:
-                fills = self.styles.fills()
-                idx = fills.create()
-                target_fill = fills.fill_by_index(idx)
-
-                # Check for None pattern
-                p_type = fill.pattern_type()
-                if p_type != getattr(XLPatternType, "None"):
-                    target_fill.set_pattern_type(p_type)
-
-                if fill.color():
-                    target_fill.set_color(fill.color())
-                if fill.background_color():
-                    target_fill.set_background_color(fill.background_color())
-                xf.set_fill_index(idx)
-            xf.set_apply_fill(True)
-
-        if border is not None:
-            if isinstance(border, int):
-                xf.set_border_index(border)
-            else:
-                borders = self.styles.borders()
-                idx = borders.create()
-                target_border = borders.border_by_index(idx)
-
-                line_none = getattr(XLLineStyle, "None")
-
-                left_side = border.left()
-                if left_side and left_side.style() and left_side.style() != line_none:
-                    target_border.set_left(left_side.style(), left_side.color())
-
-                r = border.right()
-                if r and r.style() and r.style() != line_none:
-                    target_border.set_right(r.style(), r.color())
-
-                t = border.top()
-                if t and t.style() and t.style() != line_none:
-                    target_border.set_top(t.style(), t.color())
-
-                b = border.bottom()
-                if b and b.style() and b.style() != line_none:
-                    target_border.set_bottom(b.style(), b.color())
-
-                d = border.diagonal()
-                if d and d.style() and d.style() != line_none:
-                    target_border.set_diagonal(d.style(), d.color())
-
-                xf.set_border_index(idx)
-            xf.set_apply_border(True)
-
-        if alignment:
-            target_align = xf.alignment(True)
-            if alignment.horizontal():
-                target_align.set_horizontal(alignment.horizontal())
-            if alignment.vertical():
-                target_align.set_vertical(alignment.vertical())
-            target_align.set_wrap_text(alignment.wrap_text())
-            if hasattr(alignment, "indent"):
-                target_align.set_indent(alignment.indent())
-            if hasattr(alignment, "text_rotation"):
-                target_align.set_rotation(alignment.text_rotation())
-            if hasattr(alignment, "shrink_to_fit"):
-                target_align.set_shrink_to_fit(alignment.shrink_to_fit())
-            xf.set_apply_alignment(True)
-
-        if number_format:
-            if isinstance(number_format, int):
-                # Assume it's a numberFormatId
-                xf.set_number_format_id(number_format)
-            elif isinstance(number_format, str):
-                # Check if this format code already exists
-                nfs = self.styles.number_formats()
-                found = False
-                target_id = 0
-
-                count = nfs.count()
-                for i in range(count):
-                    nf = nfs.number_format_by_index(i)
-                    if nf.format_code() == number_format:
-                        target_id = nf.number_format_id()
-                        found = True
-                        break
-
-                if found:
-                    xf.set_number_format_id(target_id)
-                else:
-                    # Create new custom format
-                    max_id = 163
-                    for i in range(count):
-                        nf = nfs.number_format_by_index(i)
-                        if nf.number_format_id() > max_id:
-                            max_id = nf.number_format_id()
-
-                    new_id = max_id + 1
-
-                    # Create new empty number format entry
-                    nfs.create()
-                    # Retrieve it (assume appended)
-                    nf = nfs.number_format_by_index(nfs.count() - 1)
-                    nf.set_number_format_id(new_id)
-                    nf.set_format_code(number_format)
-
-                    xf.set_number_format_id(new_id)
-
-            xf.set_apply_number_format(True)
-
-        if protection:
-            target_prot = xf
-            if hasattr(protection, "locked"):
-                target_prot.set_locked(protection.locked)
-            if hasattr(protection, "hidden"):
-                target_prot.set_hidden(protection.hidden)
-            xf.set_apply_protection(True)
-
-        if style_obj:
-            style_obj.style_index = index
-
-        return index
+        return register_cell_style(
+            self.styles,
+            font=font,
+            fill=fill,
+            border=border,
+            alignment=alignment,
+            number_format=number_format,
+            protection=protection,
+        )
 
     async def add_style_async(
         self,

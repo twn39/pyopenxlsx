@@ -115,6 +115,10 @@ extend-exclude = ["src/pyopenxlsx/_openxlsx.pyi"]
 addopts = "--cov=pyopenxlsx --cov-report=term-missing --cov-report=html"
 testpaths = ["tests"]
 norecursedirs = ["third_party"]
+markers = [
+    "benchmark_fast: developer-scale benchmarks (no ~1M extreme writes)",
+    "benchmark_extreme: large ~1M-cell write benchmarks (slow, opt-in)",
+]
 
 [tool.coverage.run]
 source = ["src/pyopenxlsx"]

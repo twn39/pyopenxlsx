@@ -1,56 +1,100 @@
 # Formula Engine API
 
-`pyopenxlsx` exposes the underlying OpenXLSX-NX C++ formula engine to allow static evaluation of Excel formulas within Python, without needing to open Microsoft Excel.
+`pyopenxlsx` exposes the OpenXLSX-NX formula engine so you can evaluate Excel formulas in Python without Microsoft Excel. Two façades are provided:
+
+| Class | Role |
+| --- | --- |
+| `FormulaEngine` | Stateless evaluation of a single formula string |
+| `CalculationEngine` | Sheet/workbook recalculation with dependency tracking |
 
 ## FormulaEngine
-
-The `FormulaEngine` class parses and evaluates formula strings.
 
 ```python
 from pyopenxlsx import Workbook, FormulaEngine
 
 engine = FormulaEngine()
 
-# Basic evaluation (no cell references needed)
-result = engine.evaluate("=1 + 2 * 3")
-print(result) # Output: 7
-
-# String operations
-result = engine.evaluate('="Hello " & "World"')
-print(result) # Output: "Hello World"
-
-# Logical operations
-result = engine.evaluate("=IF(10 > 5, TRUE, FALSE)")
-print(result) # Output: True
+# Basic evaluation (optional leading '=')
+assert engine.evaluate("1 + 2 * 3") == 7
+assert engine.evaluate('="Hello " & "World"') == "Hello World"
+assert engine.evaluate("=IF(10 > 5, TRUE, FALSE)") is True
 ```
 
-### Contextual Evaluation (Resolving Cell References)
+### Contextual evaluation
 
-If your formula contains references to cells (like `A1`, `B2`), you must provide a `Worksheet` context so the engine can look up the values of those cells.
+Pass a high-level `Worksheet` so cell references resolve against live data:
 
 ```python
 from pyopenxlsx import Workbook, FormulaEngine
 
 wb = Workbook()
 ws = wb.active
-
-# Populate some data
 ws["A1"].value = 10
 ws["A2"].value = 20
 ws["B1"].value = 5
 
 engine = FormulaEngine()
+assert engine.evaluate("SUM(A1:A2) * B1", ws) == 150
+# or keyword form
+assert engine.evaluate("SUM(A1:A2)", worksheet=ws) == 30
+```
 
-# Pass the worksheet context to evaluate
-result = engine.evaluate("=SUM(A1:A2) * B1", worksheet=ws)
-print(result) # Output: 150 ((10 + 20) * 5)
+### Relative context (`ROW` / `COLUMN`)
+
+```python
+# Current cell context for parameterless ROW()/COLUMN()
+engine.evaluate("ROW()", current_row=5, current_col=2, current_sheet="Sheet1")
+```
+
+### Convenience methods
+
+```python
+engine.sum("A1:A10", worksheet=ws)
+engine.average("B1:B10", worksheet=ws)
+engine.evaluate_many(["SUM(A1:A3)", "AVERAGE(A1:A3)"], worksheet=ws)
+```
+
+### `evaluate` signature
+
+```text
+evaluate(
+    formula: str,
+    worksheet=None,
+    *,
+    session=None,
+    reporter=None,
+    current_row=None,
+    current_col=None,
+    current_sheet=None,
+) -> Any
+```
+
+- **formula**: With or without a leading `=`.
+- **worksheet**: High-level `Worksheet` or `None` for pure expressions.
+- **Returns**: Python scalar (`int` / `float` / `str` / `bool`), or raises on failure.
+
+## CalculationEngine
+
+Recalculate formulas stored in cells with dependency tracking:
+
+```python
+from pyopenxlsx import Workbook, CalculationEngine
+
+wb = Workbook()
+ws = wb.active
+ws["A1"].value = 10
+ws["A2"].formula = "A1*2"
+
+calc = CalculationEngine(ws)  # or Workbook
+calc.rebuild()
+n = calc.recalculate()
+assert ws["A2"].value == 20  # after write-back options / cell update semantics
 ```
 
 ### Methods
 
-#### `evaluate(formula: str, worksheet: Optional[Worksheet] = None) -> Any`
-Evaluates the formula string.
-- **Parameters:**
-  - `formula`: The string to evaluate. Can start with or without the `=` sign.
-  - `worksheet`: (Optional) The `pyopenxlsx.Worksheet` object to use for resolving cell references (e.g. `A1`).
-- **Returns:** The calculated primitive Python value (e.g. `int`, `float`, `str`, `bool`), or raises an error if evaluation fails.
+- `rebuild()`, `recalculate()`, `recalculate_all()`
+- `calc_cell_value(a1)`, `mark_dirty(a1)`, `set_input_value(a1, value)`
+- Properties: `formula_count`, `dirty_count`
+
+Optional native `XLCalculationOptions` control write-back and defined-name usage.

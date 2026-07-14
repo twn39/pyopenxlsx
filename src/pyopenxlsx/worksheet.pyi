@@ -19,10 +19,10 @@ from .autofilter import AutoFilter
 from ._openxlsx import (
     XLWorksheet,
     XLDrawing,
-    XLStreamWriter,
-    XLStreamReader,
     XLThreadedComment,
 )
+from .streams import StreamWriter, StreamReader
+from .chart import Chart
 
 class Worksheet:
     _sheet: XLWorksheet
@@ -166,6 +166,15 @@ class Worksheet:
         height: Optional[int] = None,
     ) -> None: ...
     def add_hyperlink(self, cell_ref: str, url: str, tooltip: str = "") -> None: ...
+    def link(
+        self,
+        cell_ref: str,
+        target: str,
+        *,
+        text: Optional[str] = ...,
+        tooltip: str = ...,
+        internal: Optional[bool] = ...,
+    ) -> None: ...
     def add_internal_hyperlink(
         self, cell_ref: str, location: str, tooltip: str = ""
     ) -> None: ...
@@ -299,8 +308,12 @@ class Worksheet:
         col: int = 5,
         width: int = 400,
         height: int = 300,
-    ) -> Any: ...
-    def add_chart_anchor(self, chart_type: Any, anchor: Any) -> Any: ...
+        *,
+        wrap: bool = ...,
+    ) -> Union[Chart, Any]: ...
+    def add_chart_anchor(
+        self, chart_type: Any, anchor: Any, *, wrap: bool = ...
+    ) -> Union[Chart, Any]: ...
     def add_pivot_table(self, options: Any) -> Any: ...
     @property
     def table(self) -> Any: ...
@@ -315,14 +328,14 @@ class Worksheet:
     def add_table(self, name: str, range_string: str) -> Any: ...
     def stream_writer(
         self, use_shared_strings: bool = False, max_unique_strings: int = 100000
-    ) -> XLStreamWriter: ...
+    ) -> StreamWriter: ...
     def stream_reader(
         self,
         options: Any = None,
         *,
         empty_rows: Any = None,
         apply_number_formats: Optional[bool] = None,
-    ) -> XLStreamReader: ...
+    ) -> StreamReader: ...
     def slicers(self) -> Any: ...
     def delete_slicer(self, name: str) -> None: ...
     def insert_image_bytes(

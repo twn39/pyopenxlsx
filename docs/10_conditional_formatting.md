@@ -1,45 +1,51 @@
 # Conditional Formatting API
 
-`pyopenxlsx` supports adding conditional formatting rules to highlight interesting cells, emphasize unusual values, and visualize data using data bars, color scales, and icon sets.
+`pyopenxlsx` supports conditional formatting rules (color scales, data bars, cell comparisons, formulas, icon sets, and more). Prefer builders in `pyopenxlsx.conditional_formatting` for concise call sites; native `XL*` factories remain available.
 
-## Adding a Rule
-
-You can apply conditional formatting to a worksheet range using `ws.add_conditional_formatting()`.
+## High-level builders (recommended)
 
 ```python
-from pyopenxlsx import Workbook
-from pyopenxlsx._openxlsx import XLColorScaleRule, XLDataBarRule, XLColor
+from pyopenxlsx import Workbook, conditional_formatting as cf
 
 with Workbook() as wb:
     ws = wb.active
     ws.write_rows(1, [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    
-    # 1. Color Scale Rule (2-Color)
-    # Highlights cells based on their value relative to the range
-    color_min = XLColor(255, 0, 0) # Red
-    color_max = XLColor(0, 255, 0) # Green
-    scale_rule = XLColorScaleRule(color_min, color_max)
-    ws.add_conditional_formatting("A1:C1", scale_rule)
-    
-    # 2. Data Bar Rule
-    # Adds a horizontal bar inside the cell proportional to its value
-    bar_color = XLColor(0, 0, 255) # Blue
-    bar_rule = XLDataBarRule(bar_color, show_value=True)
-    ws.add_conditional_formatting("A2:C2", bar_rule)
-    
+
+    # Hex or RGB tuples
+    ws.add_conditional_formatting("A1:C1", cf.color_scale("#FF0000", "#00FF00"))
+    ws.add_conditional_formatting("A2:C2", cf.data_bar((0, 0, 255), show_value=True))
+    ws.add_conditional_formatting("A3:C3", cf.cell_is(">", "5"))
+    ws.add_conditional_formatting("A1:C3", cf.formula_rule("A1>5"))
+    ws.add_conditional_formatting("A1:C3", cf.top10(3))
+    ws.add_conditional_formatting("A1:C3", cf.icon_set("3TrafficLights1"))
+
     wb.save("conditional_formatting.xlsx")
 ```
 
-## Supported Rule Types
+### Builder functions
 
-Currently, the underlying C++ engine exposes specific specialized rules via Python bindings:
-- **`XLColorScaleRule(min_color: XLColor, max_color: XLColor)`**: Creates a gradient color scale between two colors.
-- **`XLDataBarRule(color: XLColor, show_value: bool)`**: Creates a data bar with the specified color. If `show_value` is `False`, the underlying cell text is hidden.
+| Function | Description |
+| --- | --- |
+| `color_scale(start, end, mid=None)` | 2- or 3-stop colour scale |
+| `data_bar(color, *, show_value=True)` | Data bars |
+| `cell_is(operator, formula, formula2=None)` | Comparison (`">"`, `">="`, `"between"`, … or `XLCfOperator`) |
+| `formula_rule(formula)` | Expression rule |
+| `icon_set` / `top10` / `above_average` | Rank and icon rules |
+| `contains_text` / `duplicate_values` / blanks / errors | Text and uniqueness rules |
 
-*Note: More rule types (e.g., standard formula-based rules, icon sets) may be available through the underlying C++ API and will be fully exposed in future releases.*
+## Native rules
 
-## Managing Rules
+```python
+from pyopenxlsx._openxlsx import XLColorScaleRule, XLDataBarRule, XLColor
 
-- `ws.add_conditional_formatting(sqref: str, rule: XLCfRule)`: Applies a rule to the given range (e.g., `"A1:D10"`).
-- `ws.remove_conditional_formatting(sqref: str)`: Removes all conditional formatting rules matching the exact range reference.
-- `ws.clear_all_conditional_formatting()`: Clears all conditional formatting rules from the entire worksheet.
+scale = XLColorScaleRule(XLColor(255, 0, 0), XLColor(0, 255, 0))
+ws.add_conditional_formatting("A1:C1", scale)
+bar = XLDataBarRule(XLColor(0, 0, 255), show_value=True)
+ws.add_conditional_formatting("A2:C2", bar)
+```
+
+## Managing rules
+
+- `ws.add_conditional_formatting(sqref, rule)`
+- `ws.remove_conditional_formatting(sqref)`
+- `ws.clear_all_conditional_formatting()`

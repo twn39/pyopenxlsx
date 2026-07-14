@@ -109,6 +109,15 @@ ws.apply_auto_filter()
 
 ## Hyperlinks & Comments
 
+### `link(ref, target, *, text=None, tooltip="", internal=None)`
+One-shot helper: optional display text + external/internal target. URLs are
+treated as external when `internal` is omitted.
+
+```python
+ws.link("A1", "https://example.com", text="Example", tooltip="go")
+ws.link("A2", "Sheet2!A1", text="Jump", internal=True)
+```
+
 ### `add_hyperlink(ref: str, url: str, tooltip: str = "")`
 Adds an external hyperlink to a cell.
 
@@ -117,6 +126,13 @@ Adds an internal link to another sheet or cell (e.g. `"Sheet2!A1"`).
 
 ### `has_hyperlink(ref: str) -> bool` / `get_hyperlink(ref: str) -> str` / `remove_hyperlink(ref: str)`
 Helpers to check, retrieve, or remove hyperlinks.
+
+### `add_chart(type, name, row=5, col=5, width=400, height=300, *, wrap=True)`
+Adds a chart. `type` may be `XLChartType` or a friendly name (`"bar"`, `"column"`, …).
+Returns a fluent `Chart` when `wrap=True` (default).
+
+### `add_pivot_table(options)`
+Creates a pivot from `PivotTableBuilder` or native `XLPivotTableOptions`.
 
 ### `add_comment(cell_ref: str, text: str, author: str)`
 Adds a comment to a specific cell.
@@ -153,8 +169,9 @@ Unmerges a previously merged range.
 ---
 
 ## Documented in Other Modules
-- For conditional formatting: `add_conditional_formatting`, `remove_conditional_formatting`, `clear_all_conditional_formatting`.
-- For streams: `stream_writer`, `stream_reader`.
+- Conditional formatting: `add_conditional_formatting` (see `10_conditional_formatting.md`).
+- Streams: `stream_writer` / `stream_reader` return `StreamWriter` / `StreamReader` (see `11_streams.md`).
+- Charts & pivots: `12_charts.md`, `07_pivot_tables.md`.
 
 ### Missing Methods & Properties (Internal/Proxy)
 

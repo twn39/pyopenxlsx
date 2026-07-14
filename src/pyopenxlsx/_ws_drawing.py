@@ -142,6 +142,31 @@ class WorksheetDrawingMixin:
         """
         self._sheet.add_internal_hyperlink(cell_ref, location, tooltip)
 
+    def link(
+        self,
+        cell_ref,
+        target,
+        *,
+        text=None,
+        tooltip="",
+        internal=None,
+    ):
+        """Add a hyperlink with optional display text (external or internal).
+
+        See :func:`pyopenxlsx.hyperlink.link`. When *internal* is omitted,
+        URLs are treated as external and other targets as internal locations.
+        """
+        from .hyperlink import link as link_cell
+
+        link_cell(
+            self,
+            cell_ref,
+            target,
+            text=text,
+            tooltip=tooltip,
+            internal=internal,
+        )
+
     def has_hyperlink(self, cell_ref):
         """Check if a cell has a hyperlink."""
         return self._sheet.has_hyperlink(cell_ref)

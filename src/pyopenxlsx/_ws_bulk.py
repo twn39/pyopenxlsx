@@ -320,6 +320,9 @@ class WorksheetBulkMixin:
         - WeakValueDictionary cache operations
         - Multiple Python/C++ boundary crossings
 
+        Date/datetime values use the same coercion and ``auto_date_formats``
+        behaviour as ``Cell.value``.
+
         :param row: Row number (1-indexed)
         :param column: Column number (1-indexed)
         :param value: Value to set (str, int, float, bool, date/datetime, or None)
@@ -333,37 +336,28 @@ class WorksheetBulkMixin:
         """
         if self._closed is True:
             raise ValueError("I/O operation on closed Workbook/Worksheet.")
-        from datetime import date, datetime
+        from . import _coercion
 
-        from .cell import datetime_to_serial
-
-        if isinstance(value, (date, datetime)):
-            is_datetime = isinstance(value, datetime)
-            serial = datetime_to_serial(value)
-            self._sheet.set_cell_value(row, column, serial)
-            wb = self._workbook
-            if wb is not None and getattr(wb, "auto_date_formats", False):
-                # Apply date style on the fast path when default format is in use.
-                raw = self._sheet.cell(row, column)
-                if raw.cell_format() == 0:
-                    raw.set_cell_format(
-                        wb._get_auto_date_style(is_datetime=is_datetime)
-                    )
-            return
-        self._sheet.set_cell_value(row, column, value)
+        storage, date_kind = _coercion.coerce_cell_value(value)
+        self._sheet.set_cell_value(row, column, storage)
+        if date_kind is not None:
+            _coercion.apply_auto_date_style(
+                self._workbook, self._sheet, row, column, date_kind
+            )
 
     async def set_cell_value_async(self, row: int, column: int, value):
         """Async version of set_cell_value()."""
         await asyncio.to_thread(self.set_cell_value, row, column, value)
 
     def write_rows(self, start_row: int, data, start_col: int = 1):
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
         """
         Write a 2D Python list to a worksheet range.
 
         This is optimized for any Python data (strings, mixed types, etc.).
         For pure numeric data, use write_range() with numpy for best performance.
+
+        Date/datetime cells receive the same serial conversion and optional
+        auto number formats as ``Cell.value`` / ``set_cell_value``.
 
         :param start_row: Starting row number (1-indexed)
         :param data: 2D list/tuple of values [[row1_val1, row1_val2, ...], [row2_val1, ...], ...]
@@ -378,12 +372,22 @@ class WorksheetBulkMixin:
             ]
             ws.write_rows(1, data)
         """
-        # Convert to list if it's a tuple or other sequence
-        if not isinstance(data, list):
-            data = [list(row) if not isinstance(row, list) else row for row in data]
-        else:
-            data = [list(row) if not isinstance(row, list) else row for row in data]
-        self._sheet.write_rows_data(start_row, start_col, data)
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        from . import _coercion
+
+        # Normalize to list-of-lists, then coerce dates once for all paths.
+        rows = [list(row) if not isinstance(row, list) else row for row in data]
+        coerced, hits = _coercion.coerce_rows_data(rows)
+        self._sheet.write_rows_data(start_row, start_col, coerced)
+        if hits:
+            _coercion.apply_auto_date_styles_batch(
+                self._workbook,
+                self._sheet,
+                hits,
+                start_row=start_row,
+                start_col=start_col,
+            )
 
     async def write_rows_async(self, start_row: int, data, start_col: int = 1):
         """Async version of write_rows()."""
@@ -400,9 +404,23 @@ class WorksheetBulkMixin:
         Example:
             ws.write_row(1, ["Name", "Age", "City"])
         """
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        from . import _coercion
+
         if not isinstance(values, list):
             values = list(values)
-        self._sheet.write_row_data(row, start_col, values)
+        coerced, hits = _coercion.coerce_row_values(values)
+        self._sheet.write_row_data(row, start_col, coerced)
+        if hits:
+            rel = [(0, c, kind) for c, kind in hits]
+            _coercion.apply_auto_date_styles_batch(
+                self._workbook,
+                self._sheet,
+                rel,
+                start_row=row,
+                start_col=start_col,
+            )
 
     async def write_row_async(self, row: int, values, start_col: int = 1):
         """Async version of write_row()."""
@@ -415,6 +433,9 @@ class WorksheetBulkMixin:
         This is optimal for non-contiguous cell updates where you can't use
         write_rows() or write_range().
 
+        Date/datetime values follow the same coercion / auto-format rules as
+        ``set_cell_value``.
+
         :param cells: Iterable of (row, col, value) tuples
 
         Example::
@@ -426,9 +447,24 @@ class WorksheetBulkMixin:
                 (20, 1, "Footer"),
             ])
         """
-        # Convert to list of tuples if needed
-        cell_list = [(r, c, v) for r, c, v in cells]
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        from . import _coercion
+
+        cell_list = []
+        hits = []
+        for r, c, v in cells:
+            storage, kind = _coercion.coerce_cell_value(v)
+            cell_list.append((r, c, storage))
+            if kind is not None:
+                # Batch helper expects relative offsets; use absolute via start 0.
+                hits.append((r, c, kind))
         self._sheet.set_cells_batch(cell_list)
+        if hits:
+            # hits store absolute row/col; start_row/col = 0 so offset == absolute.
+            _coercion.apply_auto_date_styles_batch(
+                self._workbook, self._sheet, hits, start_row=0, start_col=0
+            )
 
     async def set_cells_async(self, cells):
         """Async version of set_cells()."""
@@ -436,4 +472,23 @@ class WorksheetBulkMixin:
 
     def append_row(self, values):
         """Append a row of values at the end of the used range."""
-        self._sheet.append_row(values)
+        if self._closed is True:
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        from . import _coercion
+
+        if not isinstance(values, list):
+            values = list(values)
+        coerced, hits = _coercion.coerce_row_values(values)
+        # Capture used range before append to locate the new row.
+        next_row = self.max_row + 1 if self.max_row else 1
+        self._sheet.append_row(coerced)
+        if hits:
+            rel = [(0, c, kind) for c, kind in hits]
+            _coercion.apply_auto_date_styles_batch(
+                self._workbook,
+                self._sheet,
+                rel,
+                start_row=next_row,
+                start_col=1,
+            )
+
