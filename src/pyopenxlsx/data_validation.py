@@ -252,7 +252,7 @@ class DataValidations:
             "not_between": XLDataValidationOperator.NotBetween,
             "not_equal": XLDataValidationOperator.NotEqual,
         }
-        config.operator_ = ops.get(operator.lower(), XLDataValidationOperator.Between)  # type: ignore
+        config.operator_ = ops.get(operator.lower(), XLDataValidationOperator.Between)
 
         config.formula1 = str(formula1)
         config.formula2 = str(formula2)

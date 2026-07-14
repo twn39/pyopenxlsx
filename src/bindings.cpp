@@ -4,12 +4,11 @@
 using namespace OpenXLSX;
 using namespace nanobind::literals;
 
-
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
 NB_MODULE(_openxlsx, m) {
-    m.doc() = "Python bindings for OpenXLSX";
+    m.doc() = "Python bindings for OpenXLSX (complete surface)";
 
 #ifdef PYOPENXLSX_VERSION
     m.attr("__version__") = STR(PYOPENXLSX_VERSION);
@@ -17,23 +16,29 @@ NB_MODULE(_openxlsx, m) {
     m.attr("__version__") = "unknown";
 #endif
 
+    // Order matters: types used as return values / defaults must be registered first.
+    init_exceptions(m);
     init_constants(m);
     init_types(m);
     init_styles(m);
-    init_document(m);
-    init_workbook(m);
+    init_relationships(m);
+    init_sheet(m);
     init_tables(m);
-    init_worksheet(m);
+    init_pivot_table(m);
+    init_chart(m);
+    init_comments(m);
+    init_streams(m);
+    init_row(m);
     init_cell(m);
     init_data_validation(m);
     init_page_setup(m);
     init_rich_text(m);
     init_defined_names(m);
     init_autofilter(m);
-    init_chart(m);
-    init_comments(m);
-    init_pivot_table(m);
-    init_streams(m);
     init_conditional_formatting(m);
     init_formula_engine(m);
+    // Document/workbook/worksheet last — they return many of the types above.
+    init_document(m);
+    init_workbook(m);
+    init_worksheet(m);
 }

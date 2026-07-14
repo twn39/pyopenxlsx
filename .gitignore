@@ -19,3 +19,5 @@ compile_commands.json
 htmlcov
 demoGEMINI.md
 AUDIT_*.md
+.codegraph
+AGENTS.md

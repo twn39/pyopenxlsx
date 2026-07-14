@@ -29,6 +29,23 @@
 -   **Advanced Content**: Support for **images**, **vector shapes**, **hyperlinks** (external/internal), and modern **threaded comments**.
 -   **Memory Safety**: Combines C++ efficiency with Python's automatic memory management.
 
+## Performance: object path vs bulk path
+
+Prefer bulk / native APIs for hot loops; per-cell `Cell` wrappers are convenient but allocate Python objects.
+
+| Path | Examples | When to use |
+| :--- | :--- | :--- |
+| **Bulk / fast** | `set_cell_value`, `write_row(s)`, `set_cells`, `write_range`, `get_range_values`, `stream_writer` / `stream_reader` | Large grids, numeric dumps, ETL |
+| **Object / ergonomic** | `ws.cell(r, c).value`, `ws["A1"]`, property access | Sparse edits, styling, interactive code |
+
+Date/datetime writes apply a default number format when `Workbook.auto_date_formats` is `True` (default). Set `wb.auto_date_formats = False` to keep raw Excel serial floats without style changes.
+
+## Async and threading notes
+
+- Async helpers (`save_async`, `write_rows_async`, `load_workbook_async`, …) use `asyncio.to_thread` and do **not** make a single workbook safe for concurrent writers.
+- Do not share one `Workbook` / `Worksheet` across threads for simultaneous mutation; use one book per task or serialize access.
+- Prefer bulk sync APIs inside a single `to_thread` call over many fine-grained `*_async` calls (thread-pool overhead).
+
 ## Tech Stack
 
 | Component | Technology |

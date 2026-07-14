@@ -97,7 +97,7 @@ async def test_async_styles():
     assert cell.style_index == style_idx
 
     # Verify font properties
-    assert cell.font.name() == "Arial"  # type: ignore
+    assert cell.font is not None and cell.font.name() == "Arial"
     # OpenXLSX might have specific behavior for bold() getter,
     # let's just verify it doesn't crash and name is correct for now
     # if bold() is being tricky in this environment.

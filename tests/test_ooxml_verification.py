@@ -25,15 +25,15 @@ def test_ooxml_elements_verification(tmp_path):
     validations = ws.data_validations
     v1 = validations.append()
     v1.sqref = "D1:D10"
-    v1.type = XLDataValidationType.List  # type: ignore
+    v1.type = XLDataValidationType.List
     v1.set_list(["One", "Two", "Three"])
     v1.set_prompt("Select", "Choose a number")
 
     # 4. Add a Numeric Validation
     v2 = validations.append()
     v2.sqref = "E1:E10"
-    v2.type = XLDataValidationType.Whole  # type: ignore
-    v2.operator = XLDataValidationOperator.Between  # type: ignore
+    v2.type = XLDataValidationType.Whole
+    v2.operator = XLDataValidationOperator.Between
     v2.formula1 = "1"
     v2.formula2 = "100"
 

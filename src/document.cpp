@@ -272,6 +272,71 @@ void init_document(py::module_& m) {
         .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
         .def("persons", &XLDocument::persons, py::rv_policy::reference_internal)
         .def(
+            "validate_package_invariants",
+            [](const XLDocument& self) {
+                py::gil_scoped_release release;
+                self.validatePackageInvariants();
+            },
+            "Validate package-level OOXML invariants (also run automatically on save).")
+        .def("delete_macro", &XLDocument::deleteMacro)
+        .def("set_compression_level", &XLDocument::setCompressionLevel, "level"_a)
+        .def("compression_level", &XLDocument::compressionLevel)
+        .def("set_default_author", &XLDocument::setDefaultAuthor, "author"_a)
+        .def("default_author", &XLDocument::defaultAuthor)
+        .def("next_table_id", &XLDocument::nextTableId)
+        .def("validate_sheet_name", &XLDocument::validateSheetName, "sheet_name"_a,
+             "throw_on_invalid"_a = false)
+        .def("has_persons", &XLDocument::hasPersons)
+        .def("cleanup_shared_strings",
+             [](XLDocument& self) {
+                 py::gil_scoped_release release;
+                 self.cleanupSharedStrings();
+             })
+        .def("set_formula_needs_recalculation", &XLDocument::setFormulaNeedsRecalculation,
+             "status"_a = true)
+        .def(
+            "create_chart",
+            [](XLDocument& self, XLChartType type) { return self.createChart(type); },
+            "type"_a = XLChartType::Bar,
+            "Create a chart part (not yet anchored on a worksheet).")
+        .def(
+            "create_pivot_table",
+            [](XLDocument& self) { return self.createPivotTable(); },
+            "Create a pivot table package part.")
+        .def(
+            "string_count",
+            [](const XLDocument& self) { return self.stringCount(); })
+        .def(
+            "get_string_index",
+            [](const XLDocument& self, std::string_view s) { return self.getStringIndex(s); },
+            "str"_a)
+        .def(
+            "string_exists",
+            [](const XLDocument& self, std::string_view s) { return self.stringExists(s); },
+            "str"_a)
+        .def(
+            "get_string",
+            [](const XLDocument& self, int32_t index) {
+                return std::string(self.getStringView(index));
+            },
+            "index"_a)
+        .def("has_sheet_relationships", &XLDocument::hasSheetRelationships, "sheet_xml_no"_a,
+             "is_chartsheet"_a = false)
+        .def("has_sheet_vml_drawing", &XLDocument::hasSheetVmlDrawing, "sheet_xml_no"_a)
+        .def("has_sheet_comments", &XLDocument::hasSheetComments, "sheet_xml_no"_a)
+        .def("has_sheet_threaded_comments", &XLDocument::hasSheetThreadedComments, "sheet_xml_no"_a)
+        .def("has_sheet_drawing", &XLDocument::hasSheetDrawing, "sheet_xml_no"_a)
+        .def("has_sheet_tables", &XLDocument::hasSheetTables, "sheet_xml_no"_a)
+        .def("sheet_relationships", &XLDocument::sheetRelationships, "sheet_xml_no"_a,
+             "is_chartsheet"_a = false)
+        .def("sheet_drawing", &XLDocument::sheetDrawing, "sheet_xml_no"_a)
+        .def("create_drawing", &XLDocument::createDrawing)
+        .def("drawing", &XLDocument::drawing, "path"_a)
+        .def("sheet_vml_drawing", &XLDocument::sheetVmlDrawing, "sheet_xml_no"_a)
+        .def("sheet_comments", &XLDocument::sheetComments, "sheet_xml_no"_a)
+        .def("sheet_threaded_comments", &XLDocument::sheetThreadedComments, "sheet_xml_no"_a)
+        .def("sheet_tables", &XLDocument::sheetTables, "sheet_xml_no"_a)
+        .def(
             "add_image",
             [](XLDocument& self, const std::string& name, py::bytes data) {
                 std::string imgData(static_cast<const char*>(data.data()), data.size());

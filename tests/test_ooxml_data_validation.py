@@ -113,9 +113,8 @@ def test_data_validation_ime_mode(tmp_path):
 
     dv = ws.data_validations.append()
     dv.sqref = "A1"
-    dv.type = XLDataValidationType.Custom  # type: ignore
-    dv.ime_mode = XLIMEMode.Hiragana  # type: ignore
-
+    dv.type = XLDataValidationType.Custom
+    dv.ime_mode = XLIMEMode.Hiragana
     path = tmp_path / "ooxml_ime.xlsx"
     wb.save(str(path))
 
@@ -125,4 +124,4 @@ def test_data_validation_ime_mode(tmp_path):
     root = ET.fromstring(xml_data)
     ns = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
     v = root.find(".//main:dataValidation", ns)
-    assert v.get("imeMode") == "hiragana"  # type: ignore
+    assert v is not None and v.get("imeMode") == "hiragana"

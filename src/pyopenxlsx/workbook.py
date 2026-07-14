@@ -196,12 +196,30 @@ class Workbook:
         self._sheets = WeakValueDictionary()
         self._styles = None
         self._date_format_cache = {}
+        # Cached style indices for auto date/datetime number formats
+        self._auto_date_style_idx = None
+        self._auto_datetime_style_idx = None
+        # When True, assigning date/datetime to Cell.value (or set_cell_value)
+        # applies a default number format if the cell is not already date-formatted.
+        self.auto_date_formats = True
         self._closed = False
 
     @property
     def has_macro(self):
         """Check if the loaded document contains a VBA macro project."""
         return self._doc.has_macro()
+
+    def _get_auto_date_style(self, is_datetime: bool = True) -> int:
+        """Return (and cache) a style index for automatic date/datetime formats."""
+        if is_datetime:
+            if self._auto_datetime_style_idx is None:
+                self._auto_datetime_style_idx = self.add_style(
+                    number_format="yyyy-mm-dd hh:mm:ss"
+                )
+            return self._auto_datetime_style_idx
+        if self._auto_date_style_idx is None:
+            self._auto_date_style_idx = self.add_style(number_format="yyyy-mm-dd")
+        return self._auto_date_style_idx
 
     def save(self, filename=None, force_overwrite=True, password=None):
         if filename:
@@ -217,6 +235,41 @@ class Workbook:
                 self._doc.save()
         else:
             raise ValueError("No filename specified")
+
+    def validate_package_invariants(self):
+        """Validate package-level OOXML invariants (also run automatically on save)."""
+        self._doc.validate_package_invariants()
+
+    def sheet_names(self):
+        return self._wb.sheet_names()
+
+    def worksheet_names(self):
+        return self._wb.worksheet_names()
+
+    def chartsheet_names(self):
+        return self._wb.chartsheet_names()
+
+    def add_chartsheet(self, name: str):
+        self._wb.add_chartsheet(name)
+        return self[name] if name in self.sheet_names() else None
+
+    def set_sheet_index(self, name: str, index: int):
+        self._wb.set_sheet_index(name, index)
+
+    def protect(self, lock_structure=True, lock_windows=False, password=""):
+        self._wb.protect(lock_structure, lock_windows, password)
+
+    def unprotect(self):
+        self._wb.unprotect()
+
+    def is_protected(self) -> bool:
+        return self._wb.is_protected()
+
+    def set_full_calculation_on_load(self):
+        self._wb.set_full_calculation_on_load()
+
+    def cleanup_shared_strings(self):
+        self._doc.cleanup_shared_strings()
 
     async def save_async(self, filename=None, force_overwrite=True, password=None):
         await asyncio.to_thread(self.save, filename, force_overwrite, password)
@@ -311,7 +364,16 @@ class Workbook:
                 target_font.set_size(font.size())
                 target_font.set_bold(font.bold())
                 target_font.set_italic(font.italic())
-                # TODO: Handle underline, etc. if added to Font class
+                if hasattr(font, "underline"):
+                    from ._openxlsx import XLUnderlineStyle
+
+                    u = font.underline()
+                    # Skip default "None" underline to avoid emitting invalid OOXML
+                    # that openpyxl rejects (empty/invalid u attribute values).
+                    if u is not None and u != getattr(XLUnderlineStyle, "None"):
+                        target_font.set_underline(u)
+                if hasattr(font, "strikethrough") and font.strikethrough():
+                    target_font.set_strikethrough(True)
                 if font.color():
                     target_font.set_color(font.color())
                 xf.set_font_index(idx)
@@ -377,6 +439,12 @@ class Workbook:
             if alignment.vertical():
                 target_align.set_vertical(alignment.vertical())
             target_align.set_wrap_text(alignment.wrap_text())
+            if hasattr(alignment, "indent"):
+                target_align.set_indent(alignment.indent())
+            if hasattr(alignment, "text_rotation"):
+                target_align.set_rotation(alignment.text_rotation())
+            if hasattr(alignment, "shrink_to_fit"):
+                target_align.set_shrink_to_fit(alignment.shrink_to_fit())
             xf.set_apply_alignment(True)
 
         if number_format:

@@ -81,12 +81,69 @@ void init_chart(py::module_& m) {
         .value("X", XLMarkerStyle::X)
         .value("Default", XLMarkerStyle::Default);
 
+    py::enum_<XLLineDashType>(m, "XLLineDashType")
+        .value("Unset", XLLineDashType::Unset)
+        .value("Solid", XLLineDashType::Solid)
+        .value("Dot", XLLineDashType::Dot)
+        .value("Dash", XLLineDashType::Dash)
+        .value("LgDash", XLLineDashType::LgDash)
+        .value("DashDot", XLLineDashType::DashDot)
+        .value("LgDashDot", XLLineDashType::LgDashDot)
+        .value("LgDashDotDot", XLLineDashType::LgDashDotDot)
+        .value("SysDash", XLLineDashType::SysDash)
+        .value("SysDot", XLLineDashType::SysDot)
+        .value("SysDashDot", XLLineDashType::SysDashDot);
+
+    py::enum_<XLAxisTickLabelPosition>(m, "XLAxisTickLabelPosition")
+        .value("NextToAxis", XLAxisTickLabelPosition::NextToAxis)
+        .value("High", XLAxisTickLabelPosition::High)
+        .value("Low", XLAxisTickLabelPosition::Low)
+        .value("None_", XLAxisTickLabelPosition::None);
+
+    py::enum_<XLErrorBarDirection>(m, "XLErrorBarDirection")
+        .value("X", XLErrorBarDirection::X)
+        .value("Y", XLErrorBarDirection::Y);
+
+    py::enum_<XLErrorBarType>(m, "XLErrorBarType")
+        .value("Both", XLErrorBarType::Both)
+        .value("Minus", XLErrorBarType::Minus)
+        .value("Plus", XLErrorBarType::Plus);
+
+    py::enum_<XLErrorBarValueType>(m, "XLErrorBarValueType")
+        .value("Custom", XLErrorBarValueType::Custom)
+        .value("FixedValue", XLErrorBarValueType::FixedValue)
+        .value("Percentage", XLErrorBarValueType::Percentage)
+        .value("StandardDeviation", XLErrorBarValueType::StandardDeviation)
+        .value("StandardError", XLErrorBarValueType::StandardError);
+
+    py::enum_<XLTrendlineType>(m, "XLTrendlineType")
+        .value("Linear", XLTrendlineType::Linear)
+        .value("Exponential", XLTrendlineType::Exponential)
+        .value("Logarithmic", XLTrendlineType::Logarithmic)
+        .value("Polynomial", XLTrendlineType::Polynomial)
+        .value("Power", XLTrendlineType::Power)
+        .value("MovingAverage", XLTrendlineType::MovingAverage);
+
     py::class_<XLChartSeries>(m, "XLChartSeries")
-        .def("set_title", &XLChartSeries::setTitle)
-        .def("set_smooth", &XLChartSeries::setSmooth)
-        .def("set_marker_style", &XLChartSeries::setMarkerStyle)
+        .def("set_title", &XLChartSeries::setTitle, py::rv_policy::reference_internal)
+        .def("set_smooth", &XLChartSeries::setSmooth, py::rv_policy::reference_internal)
+        .def("set_marker_style", &XLChartSeries::setMarkerStyle, py::rv_policy::reference_internal)
+        .def("set_color", &XLChartSeries::setColor, "hex_rgb"_a, py::rv_policy::reference_internal)
+        .def("set_data_point_color", &XLChartSeries::setDataPointColor, "point_idx"_a, "hex_rgb"_a,
+             py::rv_policy::reference_internal)
         .def("set_data_labels", &XLChartSeries::setDataLabels, "show_value"_a,
-             "show_category_name"_a = false, "show_percent"_a = false);
+             "show_category_name"_a = false, "show_percent"_a = false,
+             py::rv_policy::reference_internal)
+        .def("set_data_labels_from_range", &XLChartSeries::setDataLabelsFromRange, "wks"_a,
+             "range"_a, py::rv_policy::reference_internal)
+        .def("add_trendline", &XLChartSeries::addTrendline, "type"_a, "name"_a = "", "order"_a = 2,
+             "period"_a = 2, py::rv_policy::reference_internal)
+        .def("add_error_bars", &XLChartSeries::addErrorBars, "direction"_a, "type"_a, "val_type"_a,
+             "value"_a = 0.0, py::rv_policy::reference_internal)
+        .def("set_line_width", &XLChartSeries::setLineWidth, "points"_a,
+             py::rv_policy::reference_internal)
+        .def("set_line_dash", &XLChartSeries::setLineDash, "dash_type"_a,
+             py::rv_policy::reference_internal);
 
     py::class_<XLAxis>(m, "XLAxis")
         .def("set_title", &XLAxis::setTitle)
@@ -103,7 +160,8 @@ void init_chart(py::module_& m) {
         .def("set_crosses_at", &XLAxis::setCrossesAt)
         .def("set_number_format", &XLAxis::setNumberFormat, "format_code"_a, "source_linked"_a = false)
         .def("set_major_gridlines", &XLAxis::setMajorGridlines)
-        .def("set_minor_gridlines", &XLAxis::setMinorGridlines);
+        .def("set_minor_gridlines", &XLAxis::setMinorGridlines)
+        .def("set_tick_label_position", &XLAxis::setTickLabelPosition, "position"_a);
 
     py::class_<XLChartAnchor>(m, "XLChartAnchor")
         .def(py::init<std::string_view, uint32_t, uint32_t, XLDistance, XLDistance>())
@@ -146,8 +204,12 @@ void init_chart(py::module_& m) {
              "show_category"_a = false, "show_percent"_a = false)
         .def("set_series_smooth", &XLChart::setSeriesSmooth)
         .def("set_series_marker", &XLChart::setSeriesMarker)
+        .def("set_gap_width", &XLChart::setGapWidth, "percent"_a)
         .def("set_overlap", &XLChart::setOverlap)
         .def("set_hole_size", &XLChart::setHoleSize)
         .def("set_rotation", &XLChart::setRotation, "x"_a, "y"_a, "perspective"_a = 30)
-        .def("set_plot_area_color", &XLChart::setPlotAreaColor);
+        .def("set_plot_area_color", &XLChart::setPlotAreaColor)
+        .def("set_chart_area_color", &XLChart::setChartAreaColor, "hex_rgb"_a)
+        .def("set_show_data_table", &XLChart::setShowDataTable, "show_table"_a,
+             "show_keys"_a = false);
 }

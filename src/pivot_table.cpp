@@ -38,12 +38,33 @@ void init_pivot_table(py::module_& m) {
         .def_prop_ro("data", &XLPivotTableOptions::data)
         .def_prop_ro("filters", &XLPivotTableOptions::filters)
         .def_prop_ro("pivot_table_style_name", &XLPivotTableOptions::pivotTableStyleName)
-        .def("add_row_field", &XLPivotTableOptions::addRowField, py::rv_policy::reference)
-        .def("add_column_field", &XLPivotTableOptions::addColumnField, py::rv_policy::reference)
+        .def(
+            "add_row_field",
+            [](XLPivotTableOptions& self, std::string field_name,
+               std::vector<std::string> selected_items) -> XLPivotTableOptions& {
+                return self.addRowField(std::move(field_name), std::move(selected_items));
+            },
+            "field_name"_a, "selected_items"_a = std::vector<std::string>{},
+            py::rv_policy::reference)
+        .def(
+            "add_column_field",
+            [](XLPivotTableOptions& self, std::string field_name,
+               std::vector<std::string> selected_items) -> XLPivotTableOptions& {
+                return self.addColumnField(std::move(field_name), std::move(selected_items));
+            },
+            "field_name"_a, "selected_items"_a = std::vector<std::string>{},
+            py::rv_policy::reference)
         .def("add_data_field", &XLPivotTableOptions::addDataField, 
              "field_name"_a, "custom_name"_a = "", 
              "subtotal"_a = XLPivotSubtotal::Sum, "num_fmt_id"_a = 0, py::rv_policy::reference)
-        .def("add_filter_field", &XLPivotTableOptions::addFilterField, py::rv_policy::reference)
+        .def(
+            "add_filter_field",
+            [](XLPivotTableOptions& self, std::string field_name,
+               std::vector<std::string> selected_items) -> XLPivotTableOptions& {
+                return self.addFilterField(std::move(field_name), std::move(selected_items));
+            },
+            "field_name"_a, "selected_items"_a = std::vector<std::string>{},
+            py::rv_policy::reference)
         .def("set_pivot_table_style", &XLPivotTableOptions::setPivotTableStyle, py::rv_policy::reference)
         .def("set_data_on_rows", &XLPivotTableOptions::setDataOnRows, py::rv_policy::reference)
         .def("set_row_grand_totals", &XLPivotTableOptions::setRowGrandTotals, py::rv_policy::reference)

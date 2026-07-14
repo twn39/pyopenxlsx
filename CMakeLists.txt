@@ -42,15 +42,19 @@ add_subdirectory(third_party/nanobind)
 # Define the python module
 nanobind_add_module(_openxlsx 
     src/bindings.cpp
+    src/exceptions.cpp
     src/constants.cpp
     src/types.cpp
     src/styles.cpp
+    src/relationships.cpp
+    src/sheet.cpp
     src/document.cpp
     src/workbook.cpp
     src/worksheet.cpp
     src/tables.cpp
     src/page_setup.cpp
     src/cell.cpp
+    src/row.cpp
     src/data_validation.cpp
     src/rich_text.cpp
     src/defined_names.cpp

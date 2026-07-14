@@ -17,7 +17,7 @@ def test_charts(tmp_path):
         ws.write_rows(2, [["A", 10, 20, 5], ["B", 15, 25, 10], ["C", 20, 30, 15]])
 
         # Test Bar chart with advanced properties
-        chart = ws._sheet.add_chart(XLChartType.Bar, "Chart1", 5, 5, 400, 300)
+        chart = ws.add_chart(XLChartType.Bar, "Chart1", 5, 5, 400, 300)
         assert chart is not None
 
         chart.set_title("My Chart")
@@ -37,18 +37,14 @@ def test_charts(tmp_path):
         x_axis.set_number_format("0.00", False)
 
         # Test 3D and Doughnut chart methods
-        doughnut_chart = ws._sheet.add_chart(
-            XLChartType.Doughnut, "Chart2", 5, 15, 400, 300
-        )
+        doughnut_chart = ws.add_chart(XLChartType.Doughnut, "Chart2", 5, 15, 400, 300)
         doughnut_chart.set_hole_size(50)
 
-        chart3d = ws._sheet.add_chart(XLChartType.Bar3D, "Chart3", 20, 5, 400, 300)
+        chart3d = ws.add_chart(XLChartType.Bar3D, "Chart3", 20, 5, 400, 300)
         chart3d.set_rotation(45, 120, 30)
 
         # Test Bubble series
-        bubble_chart = ws._sheet.add_chart(
-            XLChartType.Bubble, "Chart4", 20, 15, 400, 300
-        )
+        bubble_chart = ws.add_chart(XLChartType.Bubble, "Chart4", 20, 15, 400, 300)
         bubble_chart.add_bubble_series(
             "Sheet1!$B$2:$B$4", "Sheet1!$C$2:$C$4", "Sheet1!$D$2:$D$4", "Bubble Series"
         )
@@ -83,7 +79,7 @@ def test_pivot_tables(tmp_path):
         options.set_pivot_table_style("PivotStyleMedium9")
         options.set_compact_data(False)
 
-        ws._sheet.add_pivot_table(options)
+        ws.add_pivot_table(options)
 
         wb.save(file_path)
 
@@ -110,7 +106,7 @@ def test_stock_and_surface_charts(tmp_path):
             ],
         )
 
-        stock_chart = ws._sheet.add_chart(
+        stock_chart = ws.add_chart(
             XLChartType.StockOHLC, "Stock Performance", 2, 7, 500, 350
         )
         stock_chart.add_series_ref("Sheet1!$B$2:$B$4", "Open", "Sheet1!$A$2:$A$4")
@@ -122,9 +118,7 @@ def test_stock_and_surface_charts(tmp_path):
         ws.write_row(10, ["", "Col1", "Col2", "Col3"])
         ws.write_rows(11, [["Row1", 1, 2, 3], ["Row2", 4, 5, 6], ["Row3", 7, 8, 9]])
 
-        surf_chart = ws._sheet.add_chart(
-            XLChartType.Surface3D, "Surface 3D", 10, 7, 500, 350
-        )
+        surf_chart = ws.add_chart(XLChartType.Surface3D, "Surface 3D", 10, 7, 500, 350)
         surf_chart.add_series_ref(
             "Sheet1!$B$11:$B$13", "Sheet1!$B$10", "Sheet1!$A$11:$A$13"
         )

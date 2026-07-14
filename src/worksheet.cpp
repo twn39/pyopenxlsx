@@ -1,5 +1,6 @@
 #include <nanobind/ndarray.h>
 
+#include <headers/XLSlicerCollection.hpp>
 #include <variant>
 #include <vector>
 
@@ -843,8 +844,23 @@ void init_worksheet(py::module_& m) {
         .def("set_cells_batch", &set_cells_batch, "cells"_a,
              "Batch set multiple cell values: [(row, col, value), ...]. "
              "Efficient for non-contiguous cell updates")
-        .def("stream_writer", &XLWorksheet::streamWriter)
-        .def("stream_reader", &XLWorksheet::streamReader)
+        .def(
+            "stream_writer",
+            [](XLWorksheet& self, bool use_shared_strings, size_t max_unique_strings) {
+                return self.streamWriter(use_shared_strings, max_unique_strings);
+            },
+            "use_shared_strings"_a = false, "max_unique_strings"_a = size_t{100000},
+            "Start a stream writer. Optionally enable shared-string caching.")
+        .def(
+            "stream_reader",
+            [](const XLWorksheet& self, py::object options) {
+                if (options.is_none()) {
+                    return self.streamReader();
+                }
+                return self.streamReader(py::cast<XLStreamReadOptions&>(options));
+            },
+            "options"_a = py::none(),
+            "Create a stream reader. Pass XLStreamReadOptions for empty-row / number-format policy.")
         .def("peek_cell", py::overload_cast<const std::string&>(&XLWorksheet::peekCell, py::const_),
              "ref"_a)
         .def("peek_cell", py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::peekCell, py::const_),
@@ -899,27 +915,111 @@ void init_worksheet(py::module_& m) {
              "table"_a, "column_name"_a, "options"_a = XLSlicerOptions())
         .def("add_pivot_slicer", &XLWorksheet::addPivotSlicer, "cell_reference"_a,
              "pivot_table"_a, "column_name"_a, "options"_a = XLSlicerOptions())
-        .def("add_comment", &XLWorksheet::addComment, "cell_ref"_a, "text"_a,
-             "author"_a = "")
-        // FIX (P12): XLWorksheet::addComment is overloaded — void (legacy) vs XLThreadedComment
-        // (threaded).  Both overloads share identical parameter types, so py::overload_cast cannot
-        // disambiguate on argument types alone.  Explicit lambdas with declared return types force
-        // the compiler to pick the correct overload.
         .def(
-            "add_threaded_comment",
-            [](XLWorksheet& self, std::string_view cellRef,
-               std::string_view text, std::string_view author) -> XLThreadedComment {
+            "slicers", [](XLWorksheet& self) -> XLSlicerCollection& { return self.slicers(); },
+            py::rv_policy::reference_internal, "Slicer collection for this worksheet.")
+        .def("delete_slicer", &XLWorksheet::deleteSlicer, "name"_a,
+             "Delete a slicer by name and clean up orphan caches.")
+        .def(
+            "insert_image_bytes",
+            [](XLWorksheet& self, const std::string& cell_reference, py::bytes data,
+               py::object options) {
+                const auto* ptr = static_cast<const uint8_t*>(data.data());
+                gsl::span<const uint8_t> span(ptr, data.size());
+                if (options.is_none()) {
+                    self.insertImage(cell_reference, span);
+                } else {
+                    self.insertImage(cell_reference, span, py::cast<XLImageOptions&>(options));
+                }
+            },
+            "cell_reference"_a, "image_data"_a, "options"_a = py::none(),
+            "Insert an image from raw bytes at the given cell.")
+        .def(
+            "add_comment",
+            [](XLWorksheet& self, std::string_view cellRef, std::string_view text,
+               std::string_view author) -> XLThreadedComment {
                 return self.addComment(cellRef, text, author);
             },
             "cell_ref"_a, "text"_a, "author"_a = "",
-            "Add a modern threaded comment to a cell. Returns the XLThreadedComment object.")
+            "Add a modern threaded comment; returns XLThreadedComment.")
+        .def("add_note", &XLWorksheet::addNote, "cell_ref"_a, "text"_a, "author"_a = "")
+        .def("delete_comment", &XLWorksheet::deleteComment, "cell_ref"_a)
+        .def("delete_note", &XLWorksheet::deleteNote, "cell_ref"_a)
         .def(
-            "add_threaded_reply",
-            [](XLWorksheet& self, const std::string& parentId,
-               const std::string& text, const std::string& author) -> XLThreadedComment {
+            "add_reply",
+            [](XLWorksheet& self, const std::string& parentId, const std::string& text,
+               const std::string& author) -> XLThreadedComment {
                 return self.addReply(parentId, text, author);
             },
-            "parent_id"_a, "text"_a, "author"_a = "",
-            "Add a reply to an existing threaded comment. Returns the XLThreadedComment object.")
+            "parent_id"_a, "text"_a, "author"_a = "")
+        // Compatibility aliases used by higher-level Python wrappers
+        .def(
+            "add_threaded_comment",
+            [](XLWorksheet& self, std::string_view cellRef, std::string_view text,
+               std::string_view author) -> XLThreadedComment {
+                return self.addComment(cellRef, text, author);
+            },
+            "cell_ref"_a, "text"_a, "author"_a = "")
+        .def(
+            "add_threaded_reply",
+            [](XLWorksheet& self, const std::string& parentId, const std::string& text,
+               const std::string& author) -> XLThreadedComment {
+                return self.addReply(parentId, text, author);
+            },
+            "parent_id"_a, "text"_a, "author"_a = "")
+        .def("find_cell", py::overload_cast<const std::string&>(&XLWorksheet::findCell, py::const_),
+             "ref"_a)
+        .def("find_cell",
+             py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::findCell, py::const_), "row"_a,
+             "col"_a)
+        .def("last_cell", &XLWorksheet::lastCell)
+        .def("row", &XLWorksheet::row, "row_number"_a, py::keep_alive<0, 1>())
+        .def("rows", py::overload_cast<>(&XLWorksheet::rows, py::const_), py::keep_alive<0, 1>())
+        .def("rows", py::overload_cast<uint32_t>(&XLWorksheet::rows, py::const_), "row_count"_a,
+             py::keep_alive<0, 1>())
+        .def("rows", py::overload_cast<uint32_t, uint32_t>(&XLWorksheet::rows, py::const_),
+             "first_row"_a, "last_row"_a, py::keep_alive<0, 1>())
+        .def(
+            "append_row",
+            [](XLWorksheet& self, py::sequence values) {
+                std::vector<XLCellValue> vals;
+                vals.reserve(py::len(values));
+                for (auto v : values) vals.push_back(CellData::from_python(v).to_xlcellvalue());
+                py::gil_scoped_release release;
+                self.appendRow(vals);
+            },
+            "values"_a)
+        .def("group_rows", &XLWorksheet::groupRows, "row_first"_a, "row_last"_a,
+             "outline_level"_a = 1, "collapsed"_a = false)
+        .def("group_columns", &XLWorksheet::groupColumns, "col_first"_a, "col_last"_a,
+             "outline_level"_a = 1, "collapsed"_a = false)
+        .def("update_sheet_name", &XLWorksheet::updateSheetName, "old_name"_a, "new_name"_a)
+        .def("update_dimension", &XLWorksheet::updateDimension)
+        .def("is_streamed_sheet", &XLWorksheet::isStreamedSheet)
+        .def("conditional_formats", &XLWorksheet::conditionalFormats)
+        .def("clear_sheet_protection", &XLWorksheet::clearSheetProtection)
+        .def("sheet_protection_summary", &XLWorksheet::sheetProtectionSummary)
+        .def("images", &XLWorksheet::images)
+        .def("pivot_tables", &XLWorksheet::pivotTables)
+        .def("delete_pivot_table", &XLWorksheet::deletePivotTable, "name"_a)
+        .def("has_relationships", &XLWorksheet::hasRelationships)
+        .def("has_comments", &XLWorksheet::hasComments)
+        .def("has_threaded_comments", &XLWorksheet::hasThreadedComments)
+        .def("insert_row_break", &XLWorksheet::insertRowBreak, "row"_a)
+        .def("insert_col_break", &XLWorksheet::insertColBreak, "col"_a)
+        .def("remove_row_break", &XLWorksheet::removeRowBreak, "row"_a)
+        .def("remove_col_break", &XLWorksheet::removeColBreak, "col"_a)
+        .def("set_sheet_view_mode", &XLWorksheet::setSheetViewMode, "mode"_a)
+        .def("sheet_view_mode", &XLWorksheet::sheetViewMode)
+        .def("set_show_grid_lines", &XLWorksheet::setShowGridLines, "show"_a)
+        .def("show_grid_lines", &XLWorksheet::showGridLines)
+        .def("set_show_row_col_headers", &XLWorksheet::setShowRowColHeaders, "show"_a)
+        .def("show_row_col_headers", &XLWorksheet::showRowColHeaders)
+        .def("fit_to_pages", &XLWorksheet::fitToPages, "fit_to_width"_a, "fit_to_height"_a)
+        .def("add_shape", &XLWorksheet::addShape, "cell_reference"_a, "options"_a)
+        .def("add_scaled_image", &XLWorksheet::addScaledImage, "name"_a, "data"_a, "row"_a, "col"_a,
+             "scaling_factor"_a = 1.0)
+        .def("range_used", py::overload_cast<>(&XLWorksheet::range, py::const_),
+             py::keep_alive<0, 1>(), "Used range of the worksheet.")
         ;
 }

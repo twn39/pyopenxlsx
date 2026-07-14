@@ -63,5 +63,9 @@ void init_pivot_table(py::module_& m);
 void init_streams(py::module_& m);
 void init_conditional_formatting(py::module_& m);
 void init_formula_engine(py::module_& m);
+void init_exceptions(py::module_& m);
+void init_row(py::module_& m);
+void init_sheet(py::module_& m);
+void init_relationships(py::module_& m);
 
 #endif  // PYOPENXLSX_BINDINGS_HPP

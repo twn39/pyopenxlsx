@@ -184,7 +184,7 @@ class TestAsyncMethodsCoverage:
         wb = Workbook()
 
         with pytest.raises(TypeError):
-            wb.active = "not a worksheet"  # type: ignore
+            wb.active = "not a worksheet"  # ty: ignore[invalid-assignment]
 
     @pytest.mark.asyncio
     async def test_copy_worksheet_async(self):
@@ -310,7 +310,7 @@ class TestRangeCoverage:
         ws = wb.active
 
         with pytest.raises(TypeError):
-            ws.range("A1", "B2", "C3")  # type: ignore
+            ws.range("A1", "B2", "C3")  # ty: ignore[no-matching-overload]
 
 
 class TestCellCommentCoverage:
@@ -362,7 +362,7 @@ class TestGetitemCoverage:
         ws = wb.active
 
         with pytest.raises(TypeError):
-            ws[123]  # type: ignore
+            ws[123]  # ty: ignore[invalid-argument-type]
 
 
 class TestFormulaSetter:

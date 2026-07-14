@@ -29,8 +29,8 @@ def test_fill_properties():
     """Test Fill class property accessors and enum mapping."""
     fill = Fill(pattern_type="solid", color="00FF00", background_color="000000")
     assert fill.pattern_type() == XLPatternType.Solid
-    assert fill.color().hex().lower() == "ff00ff00"  # type: ignore
-
+    color = fill.color()
+    assert color is not None and color.hex().lower() == "ff00ff00"
     fill.set_pattern_type(XLPatternType.MediumGray)
     assert fill.pattern_type() == XLPatternType.MediumGray
 
@@ -44,6 +44,75 @@ def test_alignment_properties():
 
     align.set_horizontal(XLAlignmentStyle.Left)
     assert align.horizontal() == XLAlignmentStyle.Left
+
+
+def test_font_underline_strikethrough():
+    from pyopenxlsx import XLUnderlineStyle
+
+    f = Font(underline=True, strikethrough=True)
+    assert f.underline() == XLUnderlineStyle.Single
+    assert f.strikethrough() is True
+    f.set_underline("double")
+    assert f.underline() == XLUnderlineStyle.Double
+    f.set_underline(None)
+    assert f.underline() == getattr(XLUnderlineStyle, "None")
+
+
+def test_alignment_indent_rotation_shrink():
+    align = Alignment(
+        horizontal="left",
+        indent=2,
+        text_rotation=45,
+        shrink_to_fit=True,
+    )
+    assert align.indent() == 2
+    assert align.text_rotation() == 45
+    assert align.shrink_to_fit() is True
+    align.set_indent(3)
+    align.set_text_rotation(90)
+    align.set_shrink_to_fit(False)
+    assert align.indent() == 3
+    assert align.text_rotation() == 90
+    assert align.shrink_to_fit() is False
+
+
+def test_workbook_add_style_font_extras(tmp_path):
+    """Underline/strikethrough and alignment extras land in styles.xml."""
+    from pyopenxlsx import XLUnderlineStyle
+
+    wb = Workbook()
+    ws = wb.active
+    ws["A1"].value = "Styled"
+
+    font = Font(
+        name="Arial",
+        size=12,
+        bold=True,
+        underline=XLUnderlineStyle.Single,
+        strikethrough=True,
+    )
+    align = Alignment(indent=1, text_rotation=15, shrink_to_fit=True, wrap_text=True)
+    style_idx = wb.add_style(font=font, alignment=align)
+    ws["A1"].style_index = style_idx
+
+    output = tmp_path / "test_font_extras.xlsx"
+    wb.save(output)
+    wb.close()
+
+    with zipfile.ZipFile(output, "r") as z:
+        styles_xml = z.read("xl/styles.xml").decode("utf-8")
+        assert (
+            "strike" in styles_xml
+            or 'strike="' in styles_xml
+            or "<strike" in styles_xml
+        )
+        # underline single is typically u="single" or <u val="single"/>
+        assert "underline" in styles_xml or "u=" in styles_xml or "<u" in styles_xml
+        assert (
+            "indent" in styles_xml
+            or "textRotation" in styles_xml
+            or "shrinkToFit" in styles_xml
+        )
 
 
 def test_border_properties():

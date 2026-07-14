@@ -49,6 +49,7 @@ class CustomProperties:
     def __contains__(self, name: str) -> bool: ...
 
 class Workbook:
+    auto_date_formats: bool
     _doc: XLDocument
     _sheets: Dict[str, Worksheet]
 

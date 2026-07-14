@@ -3,15 +3,49 @@ from ._openxlsx import (
     XLPatternType,
     XLLineStyle,
     XLAlignmentStyle,
+    XLUnderlineStyle,
 )
 
 
+def _coerce_underline(style):
+    """Map bool/str/enum to XLUnderlineStyle; False/None => None underline."""
+    if style is None or style is False:
+        return getattr(XLUnderlineStyle, "None")
+    if style is True:
+        return XLUnderlineStyle.Single
+    if isinstance(style, str):
+        key = style.strip().lower()
+        mapping = {
+            "none": getattr(XLUnderlineStyle, "None"),
+            "single": XLUnderlineStyle.Single,
+            "double": XLUnderlineStyle.Double,
+        }
+        if key in mapping:
+            return mapping[key]
+        for name, member in XLUnderlineStyle.__members__.items():
+            if name.lower() == key:
+                return member
+        raise ValueError(f"Unknown underline style: {style!r}")
+    return style
+
+
 class Font:
-    def __init__(self, name="Arial", size=11, bold=False, italic=False, color=None):
+    def __init__(
+        self,
+        name="Arial",
+        size=11,
+        bold=False,
+        italic=False,
+        color=None,
+        underline=None,
+        strikethrough=False,
+    ):
         self._name = name
         self._size = size
         self._bold = bold
         self._italic = italic
+        self._underline = _coerce_underline(underline)
+        self._strikethrough = bool(strikethrough)
         if color:
             if isinstance(color, str):
                 self._color = XLColor(color)
@@ -52,6 +86,18 @@ class Font:
             self._color = XLColor(value)
         else:
             self._color = value
+
+    def underline(self):
+        return self._underline
+
+    def set_underline(self, value):
+        self._underline = _coerce_underline(value)
+
+    def strikethrough(self):
+        return self._strikethrough
+
+    def set_strikethrough(self, value):
+        self._strikethrough = bool(value)
 
 
 class Fill:
@@ -106,10 +152,21 @@ class Fill:
 
 
 class Alignment:
-    def __init__(self, horizontal=None, vertical=None, wrap_text=False):
+    def __init__(
+        self,
+        horizontal=None,
+        vertical=None,
+        wrap_text=False,
+        indent=0,
+        text_rotation=0,
+        shrink_to_fit=False,
+    ):
         self._horizontal = None
         self._vertical = None
         self._wrap_text = wrap_text
+        self._indent = int(indent)
+        self._text_rotation = int(text_rotation)
+        self._shrink_to_fit = bool(shrink_to_fit)
 
         if horizontal:
             if isinstance(horizontal, str):
@@ -148,6 +205,24 @@ class Alignment:
 
     def set_wrap_text(self, value):
         self._wrap_text = value
+
+    def indent(self):
+        return self._indent
+
+    def set_indent(self, value):
+        self._indent = int(value)
+
+    def text_rotation(self):
+        return self._text_rotation
+
+    def set_text_rotation(self, value):
+        self._text_rotation = int(value)
+
+    def shrink_to_fit(self):
+        return self._shrink_to_fit
+
+    def set_shrink_to_fit(self, value):
+        self._shrink_to_fit = bool(value)
 
 
 def is_date_format(c_format):

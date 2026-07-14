@@ -1,3 +1,6 @@
+#include <headers/XLStyle.hpp>
+#include <nanobind/stl/optional.h>
+
 #include "bindings.hpp"
 #include "internal_access.hpp"
 
@@ -96,6 +99,49 @@ void init_styles(py::module_& m) {
         .def("green", &XLColor::green)
         .def("blue", &XLColor::blue)
         .def("hex", &XLColor::hex);
+
+    // High-level XLStyle builder (requires XLColor / pattern / line / alignment enums above)
+    py::class_<XLStyle> xl_style(m, "XLStyle");
+    py::class_<XLStyle::Font>(xl_style, "Font")
+        .def(py::init<>())
+        .def_rw("name", &XLStyle::Font::name)
+        .def_rw("size", &XLStyle::Font::size)
+        .def_rw("color", &XLStyle::Font::color)
+        .def_rw("bold", &XLStyle::Font::bold)
+        .def_rw("italic", &XLStyle::Font::italic)
+        .def_rw("underline", &XLStyle::Font::underline)
+        .def_rw("strikethrough", &XLStyle::Font::strikethrough);
+    py::class_<XLStyle::Fill>(xl_style, "Fill")
+        .def(py::init<>())
+        .def_rw("pattern", &XLStyle::Fill::pattern)
+        .def_rw("fg_color", &XLStyle::Fill::fgColor)
+        .def_rw("bg_color", &XLStyle::Fill::bgColor);
+    py::class_<XLStyle::BorderElement>(xl_style, "BorderElement")
+        .def(py::init<>())
+        .def_rw("style", &XLStyle::BorderElement::style)
+        .def_rw("color", &XLStyle::BorderElement::color);
+    py::class_<XLStyle::Border>(xl_style, "Border")
+        .def(py::init<>())
+        .def_rw("left", &XLStyle::Border::left)
+        .def_rw("right", &XLStyle::Border::right)
+        .def_rw("top", &XLStyle::Border::top)
+        .def_rw("bottom", &XLStyle::Border::bottom)
+        .def_rw("diagonal", &XLStyle::Border::diagonal)
+        .def_rw("diagonal_up", &XLStyle::Border::diagonalUp)
+        .def_rw("diagonal_down", &XLStyle::Border::diagonalDown);
+    py::class_<XLStyle::Alignment>(xl_style, "Alignment")
+        .def(py::init<>())
+        .def_rw("horizontal", &XLStyle::Alignment::horizontal)
+        .def_rw("vertical", &XLStyle::Alignment::vertical)
+        .def_rw("wrap_text", &XLStyle::Alignment::wrapText)
+        .def_rw("text_rotation", &XLStyle::Alignment::textRotation)
+        .def_rw("indent", &XLStyle::Alignment::indent);
+    xl_style.def(py::init<>())
+        .def_rw("font", &XLStyle::font)
+        .def_rw("fill", &XLStyle::fill)
+        .def_rw("border", &XLStyle::border)
+        .def_rw("alignment", &XLStyle::alignment)
+        .def_rw("number_format", &XLStyle::numberFormat);
 
     // Bind XLFont
     py::class_<XLFont>(m, "XLFont")

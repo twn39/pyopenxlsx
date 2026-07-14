@@ -43,8 +43,20 @@ def test_table_totals_row_and_ooxml(tmp_path):
         # Find the table XML
         table_xml_content = z.read("xl/tables/table1.xml")
 
+        # OpenXLSX may emit Excel revision attrs (xr:/xr3:uid) without local xmlns
+        # declarations. ElementTree rejects unbound prefixes — inject namespaces.
+        xml_text = table_xml_content.decode("utf-8")
+        if "xmlns:xr=" not in xml_text or "xmlns:xr3=" not in xml_text:
+            xml_text = xml_text.replace(
+                'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"',
+                'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+                'xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" '
+                'xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3"',
+                1,
+            )
+
         # Parse XML
-        root = ET.fromstring(table_xml_content)
+        root = ET.fromstring(xml_text)
         # Namespace for OpenXML spreadsheetml
         ns = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 

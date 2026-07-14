@@ -124,7 +124,17 @@ class Cell:
         if self._closed is True:
             raise ValueError("I/O operation on closed Workbook/Worksheet.")
         if isinstance(val, (date, datetime)):
-            val = datetime_to_serial(val)
+            is_datetime = isinstance(val, datetime)
+            serial = datetime_to_serial(val)
+            self._cell.value = serial
+            wb = self._workbook
+            if (
+                wb is not None
+                and getattr(wb, "auto_date_formats", False)
+                and not self.is_date
+            ):
+                self.style_index = wb._get_auto_date_style(is_datetime=is_datetime)
+            return
         self._cell.value = val
 
     @property

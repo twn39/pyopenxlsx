@@ -18,8 +18,8 @@ def test_list_validation(tmp_path):
     # Method 2: Manual configuration
     dv2 = ws.data_validations.append()
     dv2.sqref = "B1:B10"
-    dv2.type = XLDataValidationType.Whole  # type: ignore
-    dv2.operator = XLDataValidationOperator.Between  # type: ignore
+    dv2.type = XLDataValidationType.Whole
+    dv2.operator = XLDataValidationOperator.Between
     dv2.formula1 = "1"
     dv2.formula2 = "100"
     dv2.set_prompt("Enter Number", "Please enter a number between 1 and 100")
@@ -86,7 +86,7 @@ def test_reference_list(tmp_path):
 
     dv = ws.data_validations.append()
     dv.sqref = "A1"
-    dv.type = XLDataValidationType.List  # type: ignore
+    dv.type = XLDataValidationType.List
     dv.set_reference_drop_list("Source", "A1:A3")
 
     wb.save(path)
