@@ -21,6 +21,8 @@ class WorksheetBulkMixin:
         max_row: int
         max_column: int
 
+        def _check_closed(self) -> None: ...
+
         def stream_writer(
             self, use_shared_strings: bool = False, max_unique_strings: int = 100000
         ) -> StreamWriter: ...
@@ -43,6 +45,7 @@ class WorksheetBulkMixin:
 
         :return: list[list[Any]] - All cell values, with None for empty cells
         """
+        self._check_closed()
         return self._sheet.get_rows_data()
 
     async def get_rows_data_async(self):
@@ -56,6 +59,7 @@ class WorksheetBulkMixin:
         :param row: Row number (1-indexed)
         :return: list[Any] - Cell values for the specified row
         """
+        self._check_closed()
         return self._sheet.get_row_values(row)
 
     async def get_row_values_async(self, row: int):
@@ -72,6 +76,7 @@ class WorksheetBulkMixin:
 
         :yields: list[Any] - Cell values for each row
         """
+        self._check_closed()
         for row_idx in range(1, self.max_row + 1):
             yield self._sheet.get_row_values(row_idx)
 
@@ -90,6 +95,7 @@ class WorksheetBulkMixin:
         :param end_col: Ending column number (1-indexed, inclusive)
         :return: list[list[Any]] - Cell values in the range
         """
+        self._check_closed()
         return self._sheet.get_range_data(start_row, start_col, end_row, end_col)
 
     async def get_range_data_async(
@@ -111,6 +117,7 @@ class WorksheetBulkMixin:
         :param column: Column number (1-indexed)
         :return: The cell's value (str, int, float, bool, or None)
         """
+        self._check_closed()
         return self._sheet.get_cell_value(row, column)
 
     async def get_cell_value_async(self, row: int, column: int):
@@ -132,6 +139,7 @@ class WorksheetBulkMixin:
             column_styles (dict): Optional dictionary mapping column names or 0-based indices to style IDs.
                                   e.g. {"Date": date_style_id}
         """
+        self._check_closed()
         import numpy as np
 
         if index:
@@ -232,6 +240,7 @@ class WorksheetBulkMixin:
         Returns:
             A pandas DataFrame.
         """
+        self._check_closed()
         import pandas as pd
 
         if end_row is None:
@@ -301,6 +310,7 @@ class WorksheetBulkMixin:
         :param start_col: Starting column number (1-indexed)
         :param data: 2D numpy array or buffer-compatible object
         """
+        self._check_closed()
         self._sheet.write_range_data(start_row, start_col, data)
 
     async def write_range_async(self, start_row: int, start_col: int, data):
@@ -321,6 +331,7 @@ class WorksheetBulkMixin:
         :param end_col: Ending column number (1-indexed, inclusive)
         :return: 2D numpy array (float64)
         """
+        self._check_closed()
         return self._sheet.get_range_values(start_row, start_col, end_row, end_col)
 
     async def get_range_values_async(
@@ -360,8 +371,7 @@ class WorksheetBulkMixin:
                 for c in range(1, 51):
                     ws.set_cell_value(r, c, f"R{r}C{c}")
         """
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         from . import _coercion
 
         storage, date_kind = _coercion.coerce_cell_value(value)
@@ -398,8 +408,7 @@ class WorksheetBulkMixin:
             ]
             ws.write_rows(1, data)
         """
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         from . import _coercion
 
         # Normalize to list-of-lists, then coerce dates once for all paths.
@@ -430,8 +439,7 @@ class WorksheetBulkMixin:
         Example:
             ws.write_row(1, ["Name", "Age", "City"])
         """
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         from . import _coercion
 
         if not isinstance(values, list):
@@ -473,8 +481,7 @@ class WorksheetBulkMixin:
                 (20, 1, "Footer"),
             ])
         """
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         from . import _coercion
 
         cell_list = []
@@ -498,8 +505,7 @@ class WorksheetBulkMixin:
 
     def append_row(self, values):
         """Append a row of values at the end of the used range."""
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         from . import _coercion
 
         if not isinstance(values, list):

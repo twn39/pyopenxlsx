@@ -70,6 +70,13 @@ class Worksheet(
         """Return True if the parent workbook has been closed."""
         return self._workbook._closed if self._workbook is not None else False
 
+    def _check_closed(self) -> None:
+        """Raise ValueError if the parent workbook or session has been closed."""
+        if self._workbook is not None:
+            self._workbook._check_closed()
+        elif getattr(self, "_closed", False):
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+
     @property
     def title(self):
         return self._sheet.name()
@@ -213,8 +220,7 @@ class Worksheet(
         return self.iter_rows()
 
     def __getitem__(self, key):
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         if isinstance(key, str):
             if ":" in key:
                 return self.range(key)
@@ -223,8 +229,7 @@ class Worksheet(
         raise TypeError("Only string references (e.g., 'A1') are supported")
 
     def cell(self, row, column, value=None):
-        if self._closed is True:
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._check_closed()
         key = (row, column)
         if key in self._cells:
             c = self._cells[key]
@@ -251,6 +256,7 @@ class Worksheet(
         return c
 
     def range(self, *args):
+        self._check_closed()
         if len(args) == 1:
             return Range(self._sheet.range(args[0]), self)
         elif len(args) == 2:
@@ -258,6 +264,7 @@ class Worksheet(
         raise TypeError("range() takes 1 or 2 arguments")
 
     def merge_cells(self, range_string):
+        self._check_closed()
         self._sheet.merge_cells(range_string)
 
     async def merge_cells_async(self, range_string):
@@ -361,6 +368,7 @@ class Worksheet(
             repeated text at the cost of a bounded local cache).
         :param max_unique_strings: Cap on unique strings cached when use_shared_strings is True.
         """
+        self._check_closed()
         from .streams import StreamWriter
 
         native = self._sheet.stream_writer(use_shared_strings, max_unique_strings)
@@ -377,6 +385,7 @@ class Worksheet(
         :param apply_number_formats: When True, format numeric cells as display strings where
             applicable (used by next_row_strings).
         """
+        self._check_closed()
         from .streams import StreamReader
 
         if options is None and (

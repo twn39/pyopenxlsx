@@ -10,6 +10,7 @@ class Workbook:
     _doc: XLDocument
     _sheets: Dict[str, Worksheet]
     _closed: bool
+    def _check_closed(self) -> None: ...
 
     @property
     def defined_names(self) -> DefinedNames: ...

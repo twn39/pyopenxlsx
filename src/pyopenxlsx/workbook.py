@@ -1,9 +1,8 @@
 import asyncio
-import tempfile
-import os
 from weakref import WeakValueDictionary
 
 from . import _openxlsx
+from ._session import _DocumentSession
 from .properties import CustomProperties, DocumentProperties
 from .worksheet import Worksheet
 
@@ -23,26 +22,13 @@ class Workbook:
 
     Uses WeakValueDictionary for worksheet caching to allow garbage collection
     of Worksheet objects when they are no longer referenced elsewhere.
+    Delegates physical file and temporary scratchpad management to an internal
+    _DocumentSession.
     """
 
     def __init__(self, filename=None, force_overwrite=True, password=None):
-        self._doc = _openxlsx.XLDocument()
-        self._temp_file = None  # Track temp file for cleanup
-        if filename:
-            if password is not None:
-                self._doc.open(str(filename), password)
-            else:
-                self._doc.open(str(filename))
-            self._filename = str(filename)
-        else:
-            # Use a temporary file to avoid polluting the current directory
-            # OpenXLSX's create() writes to disk immediately
-            fd, temp_path = tempfile.mkstemp(suffix=".xlsx", prefix="pyopenxlsx_")
-            os.close(fd)  # Close the file descriptor, XLDocument will manage the file
-            self._temp_file = temp_path
-            self._doc.create(temp_path, force_overwrite)
-            self._filename = None
-        self._wb = self._doc.workbook()
+        self._session = _DocumentSession(filename, force_overwrite, password)
+        self._wb = self._session.doc.workbook()
         # Use WeakValueDictionary to avoid keeping Worksheet objects alive indefinitely
         # Worksheets will be garbage collected when no external references remain
         self._sheets = WeakValueDictionary()
@@ -55,16 +41,35 @@ class Workbook:
         # write_row(s), set_cells, or append_row applies a default number format
         # if the cell is not already date-formatted.
         self.auto_date_formats = True
-        self._closed = False
+
+    @property
+    def _doc(self) -> _openxlsx.XLDocument:
+        """Compatibility property exposing the underlying XLDocument."""
+        return self._session.doc
+
+    @property
+    def _filename(self):
+        return self._session.filename
+
+    @_filename.setter
+    def _filename(self, value):
+        self._session.filename = value
+
+    @property
+    def _temp_file(self):
+        return self._session.temp_file
+
+    @property
+    def _closed(self) -> bool:
+        return self._session.is_closed
 
     def _check_closed(self) -> None:
-        if getattr(self, "_closed", False):
-            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+        self._session.check_closed()
 
     @property
     def has_macro(self):
         """Check if the loaded document contains a VBA macro project."""
-        return self._doc.has_macro()
+        return self._session.has_macro()
 
     def _get_auto_date_style(self, is_datetime: bool = True) -> int:
         """Return (and cache) a style index for automatic date/datetime formats."""
@@ -85,31 +90,13 @@ class Workbook:
         password=None,
         compact: bool = False,
     ):
-        self._check_closed()
         if compact:
             self.compact_styles()
-        target = str(filename) if filename is not None else self._filename
-        if not target:
-            raise ValueError("No filename specified")
-
-        if filename is not None:
-            if password is not None:
-                self._doc.save_as(target, force_overwrite, password)
-            else:
-                self._doc.save_as(target, force_overwrite)
-            self._filename = target
-        elif self._filename:
-            # OpenXLSX's save() doesn't take a password, but save_as does
-            if password is not None:
-                self._doc.save_as(self._filename, force_overwrite, password)
-            else:
-                self._doc.save()
-        else:
-            raise ValueError("No filename specified")
+        self._session.save(filename, force_overwrite, password)
 
     def validate_package_invariants(self):
         """Validate package-level OOXML invariants (also run automatically on save)."""
-        self._doc.validate_package_invariants()
+        self._session.validate_package_invariants()
 
     def sheet_names(self):
         return self._wb.sheet_names()
@@ -140,7 +127,7 @@ class Workbook:
         self._wb.set_full_calculation_on_load()
 
     def cleanup_shared_strings(self):
-        self._doc.cleanup_shared_strings()
+        self._session.cleanup_shared_strings()
 
     def compact_styles(self) -> None:
         """Deduplicate and compact unused cell formats across all worksheets.
@@ -150,7 +137,7 @@ class Workbook:
         invariants (e.g. cellXfs 0).
         """
         self._check_closed()
-        self._doc.compact_styles()
+        self._session.compact_styles()
         # Invalidate cached style indices after compaction
         self._auto_date_style_idx = None
         self._auto_datetime_style_idx = None
@@ -166,17 +153,7 @@ class Workbook:
         await asyncio.to_thread(self.save, filename, force_overwrite, password, compact)
 
     def close(self):
-        if getattr(self, "_closed", False):
-            return
-        self._doc.close()
-        # Clean up temporary file if it was created
-        if self._temp_file and os.path.exists(self._temp_file):
-            try:
-                os.unlink(self._temp_file)
-            except OSError:
-                pass  # Ignore errors during cleanup
-            self._temp_file = None
-        self._closed = True
+        self._session.close()
 
     async def close_async(self):
         await asyncio.to_thread(self.close)
@@ -361,7 +338,7 @@ class Workbook:
         Returns:
             list[str]: List of entry paths.
         """
-        return self._doc.get_archive_entries()
+        return self._session.get_archive_entries()
 
     def has_archive_entry(self, path):
         """
@@ -373,7 +350,7 @@ class Workbook:
         Returns:
             bool: True if the entry exists.
         """
-        return self._doc.has_archive_entry(path)
+        return self._session.has_archive_entry(path)
 
     def get_archive_entry(self, path):
         """
@@ -388,7 +365,7 @@ class Workbook:
         Raises:
             RuntimeError: If the entry is not found in the archive.
         """
-        return self._doc.get_archive_entry(path)
+        return self._session.get_archive_entry(path)
 
     def get_embedded_images(self):
         """
@@ -403,7 +380,7 @@ class Workbook:
             >>> for img in images:
             ...     print(f"Found image: {img.name}")
         """
-        return self._doc.get_embedded_images()
+        return self._session.get_embedded_images()
 
     def get_image_data(self, image_path_or_name):
         """
@@ -427,7 +404,7 @@ class Workbook:
             ...     with open("extracted_image.png", "wb") as f:
             ...         f.write(data)
         """
-        return self._doc.get_image_data(image_path_or_name)
+        return self._session.get_image_data(image_path_or_name)
 
     def extract_images(self, output_dir):
         """
@@ -445,33 +422,11 @@ class Workbook:
             >>> extracted = wb.extract_images("./images/")
             >>> print(f"Extracted {len(extracted)} images")
         """
-        import os
-
-        os.makedirs(output_dir, exist_ok=True)
-
-        images = self.get_embedded_images()
-        extracted_paths = []
-
-        for img in images:
-            data = self.get_image_data(img.path)
-            output_path = os.path.join(output_dir, img.name)
-            with open(output_path, "wb") as f:
-                f.write(data)
-            extracted_paths.append(output_path)
-
-        return extracted_paths
+        return self._session.extract_images(output_dir)
 
     async def extract_images_async(self, output_dir):
         """Async version of extract_images."""
         return await asyncio.to_thread(self.extract_images, output_dir)
-
-    def __del__(self):
-        # Ensure temporary file is cleaned up even if close() was not called
-        if hasattr(self, "_temp_file") and self._temp_file:
-            try:
-                os.unlink(self._temp_file)
-            except (OSError, FileNotFoundError):
-                pass
 
 
 def load_workbook(filename, password=None):
