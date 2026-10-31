@@ -268,7 +268,9 @@ void init_document(py::module_& m) {
                 self.customProperties().deleteProperty(name);
             },
             "name"_a, "Delete a custom document property by name")
-        .def("styles", &XLDocument::styles, py::rv_policy::reference_internal)
+        .def(
+            "styles", [](XLDocument& self) -> XLStyles& { return self.styles(); },
+            py::rv_policy::reference_internal)
         .def("persons", &XLDocument::persons, py::rv_policy::reference_internal)
         .def(
             "validate_package_invariants",

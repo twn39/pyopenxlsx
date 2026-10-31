@@ -72,9 +72,7 @@ class StreamWriter:
         self._writer.set_col_visible(min_col, max_col, visible)
         return self
 
-    def set_column_outline_level(
-        self, col: int, level: int
-    ) -> "StreamWriter":
+    def set_column_outline_level(self, col: int, level: int) -> "StreamWriter":
         """Set outline level for column (1-7)."""
         self._check_phase0("set_column_outline_level")
         self._writer.set_col_outline_level(col, level)

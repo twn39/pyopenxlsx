@@ -57,6 +57,10 @@ class Workbook:
         self.auto_date_formats = True
         self._closed = False
 
+    def _check_closed(self) -> None:
+        if getattr(self, "_closed", False):
+            raise ValueError("I/O operation on closed Workbook/Worksheet.")
+
     @property
     def has_macro(self):
         """Check if the loaded document contains a VBA macro project."""
