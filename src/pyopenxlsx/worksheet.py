@@ -14,6 +14,26 @@ from ._ws_page import WorksheetPageMixin
 from ._ws_protection import WorksheetProtectionMixin
 
 
+def _coord_to_row_col(coord: str) -> tuple[int, int]:
+    """Fast ASCII coordinate decoder: 'A1' -> (1, 1), 'BC42' -> (42, 55)."""
+    if not coord:
+        raise ValueError("Empty cell coordinate")
+    col = 0
+    idx = 0
+    length = len(coord)
+    while idx < length and (coord[idx].isalpha() or (coord[idx] == "$" and col == 0)):
+        ch = coord[idx]
+        if "A" <= ch <= "Z":
+            col = col * 26 + (ord(ch) - 64)
+        elif "a" <= ch <= "z":
+            col = col * 26 + (ord(ch) - 96)
+        idx += 1
+    row_str = coord[idx:].replace("$", "")
+    if col == 0 or not row_str:
+        raise ValueError(f"Invalid cell coordinate: {coord}")
+    return int(row_str), col
+
+
 class Worksheet(
     WorksheetBulkMixin,
     WorksheetDrawingMixin,
@@ -196,14 +216,10 @@ class Worksheet(
         if self._closed is True:
             raise ValueError("I/O operation on closed Workbook/Worksheet.")
         if isinstance(key, str):
-            if key in self._cells:
-                c = self._cells[key]
-                self._cells_mru.append(c)
-                return c
-            c = Cell(self._sheet.cell(key), self)
-            self._cells[key] = c
-            self._cells_mru.append(c)
-            return c
+            if ":" in key:
+                return self.range(key)
+            row, col = _coord_to_row_col(key)
+            return self.cell(row, col)
         raise TypeError("Only string references (e.g., 'A1') are supported")
 
     def cell(self, row, column, value=None):

@@ -1,25 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Optional,
-)
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
     from collections import deque
@@ -154,6 +136,25 @@ class WorksheetBulkMixin:
 
         if index:
             df = df.reset_index()
+
+        if not column_styles and len(df) > 0 and len(df.columns) > 0:
+            import pandas as pd
+
+            # Fast-path: homogeneous numeric DataFrame (floats/ints, no datetime/bool)
+            is_numeric = all(
+                pd.api.types.is_numeric_dtype(dtype)
+                and not pd.api.types.is_bool_dtype(dtype)
+                and not pd.api.types.is_datetime64_any_dtype(dtype)
+                for dtype in df.dtypes
+            )
+            if is_numeric:
+                arr = df.to_numpy()
+                if np.issubdtype(arr.dtype, np.floating) or np.issubdtype(arr.dtype, np.integer):
+                    if header:
+                        self.write_row(start_row, df.columns.tolist(), start_col=start_col)
+                        start_row += 1
+                    self.write_range(start_row, start_col, np.ascontiguousarray(arr))
+                    return
 
         # Replace NaT/NaN with None for C++
         df = df.replace({np.nan: None})

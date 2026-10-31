@@ -1,6 +1,8 @@
 #include <nanobind/ndarray.h>
 
 #include <headers/XLSlicerCollection.hpp>
+#include <cmath>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -211,30 +213,37 @@ py::list get_row_values(XLWorksheet& ws, uint32_t rowNumber) {
     return result;
 }
 
-// Write a numpy array to a worksheet range cleanly using nanobind's ndarray
+// Write a numpy array to a worksheet range cleanly using nanobind's ndarray (zero-copy)
 template <typename T>
 void write_range_typed(XLWorksheet& ws, uint32_t startRow, uint16_t startCol,
-                       py::ndarray<T, py::c_contig, py::device::cpu> b) {
+                       const py::ndarray<T, py::c_contig, py::device::cpu>& b) {
     if (b.ndim() != 2) {
         throw std::runtime_error("Incompatible buffer dimension! Expected 2D array.");
     }
 
-    auto numRows = gsl::narrow<uint32_t>(b.shape(0));
-    auto numCols = gsl::narrow<uint16_t>(b.shape(1));
+    const auto numRows = gsl::narrow<uint32_t>(b.shape(0));
+    const auto numCols = gsl::narrow<uint16_t>(b.shape(1));
 
     Expects(startRow >= 1 && startRow + numRows - 1 <= kExcelMaxRows);
     Expects(startCol >= 1 && startCol + numCols - 1 <= kExcelMaxCols);
 
-    const T* ptr = static_cast<const T*>(b.data());
-    std::vector<T> data(ptr, ptr + static_cast<size_t>(numRows) * numCols);
+    // Direct pointer to contiguous memory buffer — zero copy, zero heap allocation
+    const T* const data_ptr = static_cast<const T*>(b.data());
 
-    // Now release GIL and write to worksheet using our copied data
+    // Release GIL for native DOM writes
     {
         py::gil_scoped_release release;
         for (uint32_t r = 0; r < numRows; ++r) {
+            const T* const row_ptr = data_ptr + static_cast<size_t>(r) * numCols;
+            const uint32_t curRow = startRow + r;
             for (uint16_t c = 0; c < numCols; ++c) {
-                T val = data[static_cast<size_t>(r) * numCols + c];
-                ws.cell(startRow + r, startCol + c).value() = val;
+                const T val = row_ptr[c];
+                if constexpr (std::is_floating_point_v<T>) {
+                    if (std::isnan(val)) {
+                        continue;
+                    }
+                }
+                ws.cell(curRow, startCol + c).value() = val;
             }
         }
     }
@@ -823,7 +832,11 @@ void init_worksheet(py::module_& m) {
         .def("write_range_data", &write_range_typed<double>, "start_row"_a,
              "start_col"_a, "data"_a,
              "Write a 2D numpy array or buffer to a worksheet range")
+        .def("write_range_data", &write_range_typed<float>, "start_row"_a,
+             "start_col"_a, "data"_a)
         .def("write_range_data", &write_range_typed<int64_t>, "start_row"_a,
+             "start_col"_a, "data"_a)
+        .def("write_range_data", &write_range_typed<int32_t>, "start_row"_a,
              "start_col"_a, "data"_a)
         .def("write_range_data", &write_range_typed<bool>, "start_row"_a,
              "start_col"_a, "data"_a)

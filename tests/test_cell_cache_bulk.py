@@ -14,9 +14,9 @@ class TestCellCacheContract:
         b = ws.cell(1, 1)
         c = ws["A1"]
         assert a is b
-        # getitem uses string key; cell uses (row, col) — both should resolve
-        # to the same cached Cell when keys alias the same address.
-        assert a is c or (a._cell.cell_reference().address() == "A1" and c is ws["A1"])
+        # getitem and cell both resolve to the same cached Cell instance for the same address
+        assert a is c
+        assert ws["A1"] is ws.cell(1, 1)
         wb.close()
 
     def test_mru_caps_at_64(self):
