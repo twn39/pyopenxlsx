@@ -203,8 +203,18 @@ class StreamWriter:
                 out.append(storage)
         return out
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._writer, name)
+    @property
+    def raw(self) -> Any:
+        """Access the underlying native XLStreamWriter handle."""
+        return self._writer
+
+    def is_stream_active(self) -> bool:
+        """Return True if the native row stream is currently active."""
+        return self._writer.is_stream_active()
+
+    def set_auto_filter(self, range_str: str) -> "StreamWriter":
+        """Alias for auto_filter()."""
+        return self.auto_filter(range_str)
 
 
 class StreamReader:
@@ -215,15 +225,28 @@ class StreamReader:
     def __init__(self, native_reader: Any):
         self._reader = native_reader
 
+    @property
+    def raw(self) -> Any:
+        """Access the underlying native XLStreamReader handle."""
+        return self._reader
+
     def __iter__(self):
         return self
 
     def __next__(self):
         return next(self._reader)
 
+    def has_next(self) -> bool:
+        """Check if there are more rows to read."""
+        return self._reader.has_next()
+
     def next_row(self) -> List[Any]:
         """Read the next row of cell values."""
         return self._reader.next_row()
+
+    def next_row_detailed(self) -> List[dict]:
+        """Read the next row with detailed cell attributes (formula, style_index, etc.)."""
+        return self._reader.next_row_detailed()
 
     def next_row_sparse(self) -> List[dict]:
         """Read the next row with only non-empty cells (as dicts with column, value, etc.)."""
@@ -232,6 +255,33 @@ class StreamReader:
     def next_row_strings(self) -> List[str]:
         """Read the next row as display strings (formatting applied if configured)."""
         return self._reader.next_row_strings()
+
+    def current_row(self) -> int:
+        """Get 1-based index of the last returned row."""
+        return self._reader.current_row()
+
+    @property
+    def current_row_index(self) -> int:
+        """Property alias for current_row()."""
+        return self._reader.current_row_index
+
+    def current_row_opts(self) -> dict:
+        """Row attributes (height, hidden, outline_level, etc.) for the last returned row."""
+        return self._reader.current_row_opts()
+
+    @property
+    def last_error(self) -> Optional[str]:
+        """Last parse error or None."""
+        return self._reader.last_error
+
+    @property
+    def options(self) -> Any:
+        """Read options configured on this stream reader."""
+        return self._reader.options
+
+    def close(self) -> None:
+        """Close the stream reader."""
+        self._reader.close()
 
     def iter_sparse(self):
         """Iterate yielding non-empty cells as (col_index, value) tuples for zero-overhead ETL."""
@@ -248,6 +298,3 @@ class StreamReader:
         if hasattr(self._reader, "__exit__"):
             return self._reader.__exit__(*args)
         return None
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._reader, name)

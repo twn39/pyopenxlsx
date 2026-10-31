@@ -9,6 +9,7 @@ class Workbook:
     auto_date_formats: bool
     _doc: XLDocument
     _sheets: Dict[str, Worksheet]
+    _closed: bool
 
     @property
     def defined_names(self) -> DefinedNames: ...

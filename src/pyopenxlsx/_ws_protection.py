@@ -1,15 +1,20 @@
-from typing import Any
+from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from ._openxlsx import XLWorksheet
+    from .workbook import Workbook
 
 
 class WorksheetProtectionMixin:
-    # Provided by Worksheet via mixin composition (for type checkers).
-    _sheet: Any
-    _workbook: Any
-    _closed: bool
-    max_row: int
-    max_column: int
+    if TYPE_CHECKING:
+        _sheet: XLWorksheet
+        _workbook: Optional[Workbook]
+        _closed: bool
+        max_row: int
+        max_column: int
 
     def protect(
         self,

@@ -109,7 +109,7 @@ dev = [
 [tool.ruff]
 # Generated nanobind stubs use enum members named `None` (valid at runtime via
 # getattr, invalid as a Python annotated assignment target for the parser).
-extend-exclude = ["src/pyopenxlsx/_openxlsx.pyi"]
+extend-exclude = ["src/pyopenxlsx/_openxlsx.pyi", "third_party", "docs"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=pyopenxlsx --cov-report=term-missing --cov-report=html"

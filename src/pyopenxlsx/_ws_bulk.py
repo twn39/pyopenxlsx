@@ -1,30 +1,55 @@
-from typing import Any
+from __future__ import annotations
 
 import asyncio
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Optional,
+)
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
+
+if TYPE_CHECKING:
+    from collections import deque
+    from weakref import WeakValueDictionary
+    from ._openxlsx import XLWorksheet
+    from .workbook import Workbook
+    from .streams import StreamReader, StreamWriter
 
 
 class WorksheetBulkMixin:
-    # Provided by Worksheet via mixin composition (for type checkers).
-    _sheet: Any
-    _workbook: Any
-    _closed: bool
-    max_row: int
-    max_column: int
+    if TYPE_CHECKING:
+        _sheet: XLWorksheet
+        _workbook: Optional[Workbook]
+        _closed: bool
+        _cells: WeakValueDictionary
+        _cells_mru: deque
+        max_row: int
+        max_column: int
 
-    # Declared for type checking; runtime implementations live on Worksheet.
-    def stream_writer(
-        self, use_shared_strings: bool = False, max_unique_strings: int = 100000
-    ) -> Any:  # type: ignore[empty-body]
-        ...
+        def stream_writer(
+            self, use_shared_strings: bool = False, max_unique_strings: int = 100000
+        ) -> StreamWriter: ...
 
-    def stream_reader(
-        self,
-        options: Any = None,
-        *,
-        empty_rows: Any = None,
-        apply_number_formats: Any = None,
-    ) -> Any:  # type: ignore[empty-body]
-        ...
+        def stream_reader(
+            self,
+            options: Any = None,
+            *,
+            empty_rows: Any = None,
+            apply_number_formats: Any = None,
+        ) -> StreamReader: ...
 
     def get_rows_data(self):
         """

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union, cast
 
 from pyopenxlsx._openxlsx import (
     XLCalculationEngine,
@@ -140,14 +140,14 @@ class CalculationEngine:
     def __init__(
         self,
         target,
-        options: Optional[Union[XLCalculationOptions, dict]] = None,
+        options: Optional[Union[XLCalculationOptions, Dict[str, Any]]] = None,
     ):
         """
         :param target: A Worksheet or Workbook instance (or raw XL types).
         :param options: ``XLCalculationOptions``, a dict of flags, or ``None``.
         """
         if isinstance(options, dict):
-            options = calculation_options(**options)
+            options = calculation_options(**cast(Dict[str, Any], options))
 
         if hasattr(target, "_sheet"):
             self._engine = XLCalculationEngine(target._sheet, options)

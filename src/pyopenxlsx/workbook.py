@@ -85,13 +85,19 @@ class Workbook:
         password=None,
         compact: bool = False,
     ):
+        self._check_closed()
         if compact:
             self.compact_styles()
-        if filename:
+        target = str(filename) if filename is not None else self._filename
+        if not target:
+            raise ValueError("No filename specified")
+
+        if filename is not None:
             if password is not None:
-                self._doc.save_as(str(filename), force_overwrite, password)
+                self._doc.save_as(target, force_overwrite, password)
             else:
-                self._doc.save_as(str(filename), force_overwrite)
+                self._doc.save_as(target, force_overwrite)
+            self._filename = target
         elif self._filename:
             # OpenXLSX's save() doesn't take a password, but save_as does
             if password is not None:
