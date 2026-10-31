@@ -72,7 +72,7 @@ XLAlignTop = _ox.XLAlignmentStyle.Top
 XLAlignBottom = _ox.XLAlignmentStyle.Bottom
 XLAlignVCenter = _ox.XLAlignmentStyle.Center
 
-__version__ = getattr(_ox, "__version__", "1.4.2")
+__version__ = getattr(_ox, "__version__", "1.5.0")
 
 __all__ = [name for name in dir(_ox) if not name.startswith("_")]
 __all__ += [
