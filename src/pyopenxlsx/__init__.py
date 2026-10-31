@@ -50,7 +50,12 @@ from .workbook import Workbook, load_workbook, load_workbook_async
 from .merge import MergeCells as PythonMergeCells
 from .data_validation import DataValidation, DataValidations
 from .chart import Chart, add_chart, chart_type
-from .pivot import PivotTableBuilder, pivot_subtotal, pivot_table
+from .pivot import (
+    PivotTableBuilder,
+    pivot_show_values_as,
+    pivot_subtotal,
+    pivot_table,
+)
 from .streams import StreamReader, StreamWriter
 from .defined_names import DefinedName, DefinedNames
 from .hyperlink import link as link_cell
@@ -103,6 +108,7 @@ __all__ += [
     "PivotTableBuilder",
     "pivot_table",
     "pivot_subtotal",
+    "pivot_show_values_as",
     "StreamWriter",
     "StreamReader",
     "DefinedName",

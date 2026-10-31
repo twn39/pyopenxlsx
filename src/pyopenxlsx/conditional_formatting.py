@@ -63,7 +63,9 @@ def data_bar(color: ColorLike = (0, 0, 255), *, show_value: bool = True) -> Any:
     return XLDataBarRule(_to_xl_color(color), show_value)
 
 
-def cell_is(operator: Union[str, XLCfOperator], formula: str, formula2: Optional[str] = None) -> Any:
+def cell_is(
+    operator: Union[str, XLCfOperator], formula: str, formula2: Optional[str] = None
+) -> Any:
     """Cell value comparison rule.
 
     ``operator`` may be an ``XLCfOperator`` or a short name such as

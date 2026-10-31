@@ -249,3 +249,47 @@ def test_complex_style_object(tmp_path):
         assert "<b" in styles_xml
         assert 'patternType="solid"' in styles_xml
         assert 'horizontal="right"' in styles_xml
+
+
+def test_compact_styles(tmp_path):
+    """Test deduplicating and compacting cell formats."""
+    wb = Workbook()
+    ws = wb.active
+
+    # Create a shared font and two identical cell formats referencing it
+    f_idx = wb.styles.fonts().create()
+    font = wb.styles.fonts().font_by_index(f_idx)
+    font.set_bold(True)
+    font.set_size(14)
+
+    s1 = wb.add_style(font=f_idx)
+    s2 = wb.add_style(font=f_idx)
+    # Add an unused orphan style
+    _ = wb.add_style(font=Font(italic=True, size=20))
+
+    ws["A1"].value = "Header 1"
+    ws["A1"].style_index = s1
+
+    ws["B1"].value = "Header 2"
+    ws["B1"].style_index = s2
+
+    # Before compaction: 4 formats (0, s1, s2, orphan)
+    assert wb.styles.cell_formats().count() == 4
+
+    # Verify compaction cleans up orphans and remaps duplicate XFs
+    wb.compact_styles()
+
+    # After compaction: 2 formats (0, unified s1/s2)
+    assert wb.styles.cell_formats().count() == 2
+
+    output = tmp_path / "test_compact.xlsx"
+    wb.save(output, compact=True)
+    wb.close()
+
+    with Workbook(output) as loaded_wb:
+        loaded_ws = loaded_wb.active
+        assert loaded_ws["A1"].value == "Header 1"
+        assert loaded_ws["B1"].value == "Header 2"
+        # Style indices should be valid, deduplicated, and identical
+        assert loaded_ws["A1"].style_index == loaded_ws["B1"].style_index == 1
+        assert loaded_wb.styles.cell_formats().count() == 2

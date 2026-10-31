@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import Any, List, Optional, Sequence, Union
 
-from ._openxlsx import XLPivotSubtotal, XLPivotTableOptions
+from ._openxlsx import (
+    XLPivotShowValuesAs,
+    XLPivotShowValuesAsOptions,
+    XLPivotSubtotal,
+    XLPivotTableOptions,
+)
 
 
 def pivot_subtotal(name: Union[str, XLPivotSubtotal]) -> XLPivotSubtotal:
@@ -18,6 +23,75 @@ def pivot_subtotal(name: Union[str, XLPivotSubtotal]) -> XLPivotSubtotal:
         if attr.replace("_", "").lower() == key:
             return getattr(XLPivotSubtotal, attr)
     raise ValueError(f"Unknown pivot subtotal: {name!r}")
+
+
+_SHOW_VALUES_AS_ALIASES = {
+    "percentoftotal": "PercentOfGrandTotal",
+    "percentofgrandtotal": "PercentOfGrandTotal",
+    "percentofcol": "PercentOfColumnTotal",
+    "percentofcolumntotal": "PercentOfColumnTotal",
+    "percentofrow": "PercentOfRowTotal",
+    "percentofrowtotal": "PercentOfRowTotal",
+    "percentdiff": "PercentDifferenceFrom",
+    "percentdifferencefrom": "PercentDifferenceFrom",
+    "difference": "DifferenceFrom",
+    "differencefrom": "DifferenceFrom",
+    "runtotal": "RunningTotalIn",
+    "runningtotal": "RunningTotalIn",
+    "runningtotalin": "RunningTotalIn",
+    "rankasc": "RankSmallestToLargest",
+    "ranksmallesttolargest": "RankSmallestToLargest",
+    "rankdesc": "RankLargestToSmallest",
+    "ranklargesttosmallest": "RankLargestToSmallest",
+    "percentrunningtotal": "PercentRunningTotal",
+    "percentofparentrowtotal": "PercentOfParentRowTotal",
+    "percentofparentcolumntotal": "PercentOfParentColumnTotal",
+    "percentofparenttotal": "PercentOfParentTotal",
+}
+
+
+def _resolve_show_values_as_enum(
+    name: Union[str, XLPivotShowValuesAs],
+) -> XLPivotShowValuesAs:
+    if isinstance(name, XLPivotShowValuesAs):
+        return name
+    key = name.strip().replace("-", "").replace("_", "").lower()
+    if key in _SHOW_VALUES_AS_ALIASES:
+        key = _SHOW_VALUES_AS_ALIASES[key].lower()
+    for attr in dir(XLPivotShowValuesAs):
+        if attr.startswith("_"):
+            continue
+        if attr.replace("_", "").lower() == key:
+            return getattr(XLPivotShowValuesAs, attr)
+    raise ValueError(f"Unknown show_values_as calculation: {name!r}")
+
+
+def pivot_show_values_as(
+    val: Union[
+        str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict, None
+    ] = None,
+) -> XLPivotShowValuesAsOptions:
+    """Resolve ShowValuesAs configuration from enum, string, tuple, or dict."""
+    if val is None:
+        return XLPivotShowValuesAsOptions()
+    if isinstance(val, XLPivotShowValuesAsOptions):
+        return val
+    if isinstance(val, XLPivotShowValuesAs):
+        return XLPivotShowValuesAsOptions(type=val)
+    if isinstance(val, tuple):
+        t = _resolve_show_values_as_enum(val[0])
+        bf = str(val[1]) if len(val) > 1 else ""
+        bi = str(val[2]) if len(val) > 2 else ""
+        return XLPivotShowValuesAsOptions(type=t, base_field=bf, base_item=bi)
+    if isinstance(val, dict):
+        t = _resolve_show_values_as_enum(val.get("type", "normal"))
+        bf = str(val.get("base_field", val.get("baseField", "")))
+        bi = str(val.get("base_item", val.get("baseItem", "")))
+        return XLPivotShowValuesAsOptions(type=t, base_field=bf, base_item=bi)
+    if isinstance(val, str):
+        t = _resolve_show_values_as_enum(val)
+        return XLPivotShowValuesAsOptions(type=t)
+    raise TypeError(f"Invalid show_values_as type: {type(val)}")
 
 
 class PivotTableBuilder:
@@ -50,20 +124,46 @@ class PivotTableBuilder:
         self,
         *fields: str,
         selected_items: Optional[Sequence[str]] = None,
+        compact: bool = False,
+        outline: bool = False,
+        show_all: bool = False,
+        insert_blank_row: bool = False,
+        default_subtotal: bool = True,
     ) -> "PivotTableBuilder":
         items = list(selected_items) if selected_items is not None else []
         for field in fields:
-            self._opts.add_row_field(field, items)
+            self._opts.add_row_field(
+                field,
+                items,
+                compact,
+                outline,
+                show_all,
+                insert_blank_row,
+                default_subtotal,
+            )
         return self
 
     def columns(
         self,
         *fields: str,
         selected_items: Optional[Sequence[str]] = None,
+        compact: bool = False,
+        outline: bool = False,
+        show_all: bool = False,
+        insert_blank_row: bool = False,
+        default_subtotal: bool = True,
     ) -> "PivotTableBuilder":
         items = list(selected_items) if selected_items is not None else []
         for field in fields:
-            self._opts.add_column_field(field, items)
+            self._opts.add_column_field(
+                field,
+                items,
+                compact,
+                outline,
+                show_all,
+                insert_blank_row,
+                default_subtotal,
+            )
         return self
 
     def filters(
@@ -83,9 +183,13 @@ class PivotTableBuilder:
         name: str = "",
         subtotal: Union[str, XLPivotSubtotal] = "sum",
         num_fmt_id: int = 0,
+        show_values_as: Optional[
+            Union[str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict]
+        ] = None,
     ) -> "PivotTableBuilder":
+        show_opts = pivot_show_values_as(show_values_as)
         self._opts.add_data_field(
-            field, name, pivot_subtotal(subtotal), num_fmt_id
+            field, name, pivot_subtotal(subtotal), num_fmt_id, show_opts
         )
         return self
 
@@ -157,6 +261,9 @@ def pivot_table(
     filters: Optional[Union[str, Sequence[str]]] = None,
     style: Optional[str] = None,
     subtotal: Union[str, XLPivotSubtotal] = "sum",
+    show_values_as: Optional[
+        Union[str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict]
+    ] = None,
 ) -> PivotTableBuilder:
     """Convenience constructor with common fields pre-filled."""
 
@@ -175,7 +282,7 @@ def pivot_table(
     if filters:
         b.filters(*_as_list(filters))
     for field in _as_list(data):
-        b.data(field, subtotal=subtotal)
+        b.data(field, subtotal=subtotal, show_values_as=show_values_as)
     if style:
         b.style(style)
     return b

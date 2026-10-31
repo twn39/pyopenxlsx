@@ -491,4 +491,3 @@ class WorksheetBulkMixin:
                 start_row=next_row,
                 start_col=1,
             )
-

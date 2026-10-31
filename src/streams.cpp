@@ -1,7 +1,7 @@
+#include <optional>
+
 #include "bindings.hpp"
 #include "internal_access.hpp"
-
-#include <optional>
 
 using namespace OpenXLSX;
 using namespace nanobind::literals;
@@ -116,8 +116,10 @@ void init_streams(py::module_& m) {
                 return py::none();
             },
             [](XLStreamRowOpts& self, py::object val) {
-                if (val.is_none()) self.height = std::nullopt;
-                else self.height = py::cast<double>(val);
+                if (val.is_none())
+                    self.height = std::nullopt;
+                else
+                    self.height = py::cast<double>(val);
             })
         .def_prop_rw(
             "hidden",
@@ -126,8 +128,10 @@ void init_streams(py::module_& m) {
                 return py::none();
             },
             [](XLStreamRowOpts& self, py::object val) {
-                if (val.is_none()) self.hidden = std::nullopt;
-                else self.hidden = py::cast<bool>(val);
+                if (val.is_none())
+                    self.hidden = std::nullopt;
+                else
+                    self.hidden = py::cast<bool>(val);
             })
         .def_prop_rw(
             "outline_level",
@@ -136,8 +140,10 @@ void init_streams(py::module_& m) {
                 return py::none();
             },
             [](XLStreamRowOpts& self, py::object val) {
-                if (val.is_none()) self.outlineLevel = std::nullopt;
-                else self.outlineLevel = py::cast<uint8_t>(val);
+                if (val.is_none())
+                    self.outlineLevel = std::nullopt;
+                else
+                    self.outlineLevel = py::cast<uint8_t>(val);
             })
         .def_prop_rw(
             "style_index",
@@ -146,8 +152,10 @@ void init_streams(py::module_& m) {
                 return py::none();
             },
             [](XLStreamRowOpts& self, py::object val) {
-                if (val.is_none()) self.styleIndex = std::nullopt;
-                else self.styleIndex = py::cast<XLStyleIndex>(val);
+                if (val.is_none())
+                    self.styleIndex = std::nullopt;
+                else
+                    self.styleIndex = py::cast<XLStyleIndex>(val);
             });
 
     py::class_<XLStreamWriter>(m, "XLStreamWriter")
@@ -225,6 +233,30 @@ void init_streams(py::module_& m) {
             },
             "cell_ref"_a, "values"_a, "opts"_a = py::none(),
             "Write a row starting at a cell reference such as 'C10'.")
+        // Phase 0: Column and pane configuration (before first row)
+        .def("set_col_width", &XLStreamWriter::setColWidth, "min_col"_a, "max_col"_a, "width"_a,
+             "Set column width for [min_col, max_col] (1-based, inclusive).")
+        .def("set_col_visible", &XLStreamWriter::setColVisible, "min_col"_a, "max_col"_a,
+             "visible"_a, "Show or hide columns [min_col, max_col].")
+        .def("set_col_outline_level", &XLStreamWriter::setColOutlineLevel, "col"_a, "level"_a,
+             "Set column outline level (1-7).")
+        .def("set_col_style", &XLStreamWriter::setColStyle, "min_col"_a, "max_col"_a, "style"_a,
+             "Apply style index to columns [min_col, max_col].")
+        .def("freeze_panes", py::overload_cast<const std::string&>(&XLStreamWriter::freezePanes),
+             "top_left_cell"_a, "Freeze panes with top_left_cell as first unfrozen cell.")
+        .def("freeze_panes", py::overload_cast<uint16_t, uint32_t>(&XLStreamWriter::freezePanes),
+             "cols"_a, "rows"_a, "Freeze first cols columns and rows rows.")
+        // Phase 2: Post-row decoration (before close)
+        .def("merge_cells", &XLStreamWriter::mergeCell, "top_left"_a, "bottom_right"_a,
+             "Merge a cell range (written on close).")
+        .def("set_auto_filter", &XLStreamWriter::setAutoFilter, "range"_a,
+             "Set AutoFilter range (written on close).")
+        .def("add_hyperlink", &XLStreamWriter::addHyperlink, "cell_ref"_a, "url"_a,
+             "tooltip"_a = "", "Add external hyperlink (written on close).")
+        .def("add_internal_hyperlink", &XLStreamWriter::addInternalHyperlink, "cell_ref"_a,
+             "location"_a, "tooltip"_a = "", "Add internal workbook hyperlink.")
+        .def("insert_page_break", &XLStreamWriter::insertPageBreak, "cell_ref"_a,
+             "Insert page break at cell reference.")
         .def("flush", &XLStreamWriter::flush, "Alias for close().")
         .def("close", &XLStreamWriter::close)
         .def("__enter__", [](py::handle self) -> py::object { return py::borrow(self); })
@@ -235,20 +267,19 @@ void init_streams(py::module_& m) {
 
     py::class_<XLStreamReader>(m, "XLStreamReader")
         .def("has_next", &XLStreamReader::hasNext)
-        .def(
-            "next_row",
-            [](XLStreamReader& self) {
-                std::vector<XLCellValue> row;
-                {
-                    py::gil_scoped_release release;
-                    row = self.nextRow();
-                }
-                py::list result;
-                for (auto& cell : row) {
-                    result.append(CellData::from(cell).to_python());
-                }
-                return result;
-            })
+        .def("next_row",
+             [](XLStreamReader& self) {
+                 std::vector<XLCellValue> row;
+                 {
+                     py::gil_scoped_release release;
+                     row = self.nextRow();
+                 }
+                 py::list result;
+                 for (auto& cell : row) {
+                     result.append(CellData::from(cell).to_python());
+                 }
+                 return result;
+             })
         .def(
             "next_row_detailed",
             [](XLStreamReader& self) {
@@ -264,6 +295,21 @@ void init_streams(py::module_& m) {
                 return result;
             },
             "Next row as list of dicts: value, column, optional formula/style_index.")
+        .def(
+            "next_row_sparse",
+            [](XLStreamReader& self) {
+                std::vector<XLStreamCellView> row;
+                {
+                    py::gil_scoped_release release;
+                    row = self.nextRowSparse();
+                }
+                py::list result;
+                for (const auto& cell : row) {
+                    result.append(cell_view_to_dict(cell));
+                }
+                return result;
+            },
+            "Next row containing only non-empty cells as list of dicts.")
         .def(
             "next_row_strings",
             [](XLStreamReader& self) {
@@ -283,16 +329,13 @@ void init_streams(py::module_& m) {
             "current_row_opts",
             [](const XLStreamReader& self) { return row_opts_to_dict(self.currentRowOpts()); },
             "Row attributes for the last returned row.")
-        .def_prop_ro(
-            "last_error",
-            [](const XLStreamReader& self) -> py::object {
-                const auto& err = self.lastError();
-                if (err.empty()) return py::none();
-                return py::cast(err);
-            })
-        .def_prop_ro(
-            "options",
-            [](const XLStreamReader& self) { return self.options(); })
+        .def_prop_ro("last_error",
+                     [](const XLStreamReader& self) -> py::object {
+                         const auto& err = self.lastError();
+                         if (err.empty()) return py::none();
+                         return py::cast(err);
+                     })
+        .def_prop_ro("options", [](const XLStreamReader& self) { return self.options(); })
         .def("close", &XLStreamReader::close)
         .def("__enter__", [](py::handle self) -> py::object { return py::borrow(self); })
         .def(

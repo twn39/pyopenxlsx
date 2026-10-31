@@ -4,7 +4,6 @@
 using namespace OpenXLSX;
 using namespace nanobind::literals;
 
-
 // Structure to hold image info
 struct ImageInfo {
     std::string name;       // e.g., "image1.png"
@@ -292,20 +291,23 @@ void init_document(py::module_& m) {
                  py::gil_scoped_release release;
                  self.cleanupSharedStrings();
              })
+        .def(
+            "compact_styles",
+            [](XLDocument& self) {
+                py::gil_scoped_release release;
+                self.compactStyles();
+            },
+            "Compact and deduplicate cell formats across all worksheets.")
         .def("set_formula_needs_recalculation", &XLDocument::setFormulaNeedsRecalculation,
              "status"_a = true)
         .def(
             "create_chart",
             [](XLDocument& self, XLChartType type) { return self.createChart(type); },
-            "type"_a = XLChartType::Bar,
-            "Create a chart part (not yet anchored on a worksheet).")
+            "type"_a = XLChartType::Bar, "Create a chart part (not yet anchored on a worksheet).")
         .def(
-            "create_pivot_table",
-            [](XLDocument& self) { return self.createPivotTable(); },
+            "create_pivot_table", [](XLDocument& self) { return self.createPivotTable(); },
             "Create a pivot table package part.")
-        .def(
-            "string_count",
-            [](const XLDocument& self) { return self.stringCount(); })
+        .def("string_count", [](const XLDocument& self) { return self.stringCount(); })
         .def(
             "get_string_index",
             [](const XLDocument& self, std::string_view s) { return self.getStringIndex(s); },
@@ -377,8 +379,7 @@ void init_document(py::module_& m) {
                 auto& archive = get_archive(self);
                 return archive.hasEntry(path);
             },
-            "path"_a,
-            "Check if the underlying zip archive contains an entry with the given path.")
+            "path"_a, "Check if the underlying zip archive contains an entry with the given path.")
         .def(
             "get_archive_entry",
             [](XLDocument& self, const std::string& path) {

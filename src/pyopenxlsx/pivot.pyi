@@ -1,7 +1,17 @@
 from typing import Any, Optional, Sequence, Union
-from ._openxlsx import XLPivotSubtotal, XLPivotTableOptions
+from ._openxlsx import (
+    XLPivotShowValuesAs,
+    XLPivotShowValuesAsOptions,
+    XLPivotSubtotal,
+    XLPivotTableOptions,
+)
 
 def pivot_subtotal(name: Union[str, XLPivotSubtotal]) -> XLPivotSubtotal: ...
+def pivot_show_values_as(
+    val: Union[
+        str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict, None
+    ] = None,
+) -> XLPivotShowValuesAsOptions: ...
 
 class PivotTableBuilder:
     def __init__(
@@ -10,10 +20,24 @@ class PivotTableBuilder:
     @property
     def options(self) -> XLPivotTableOptions: ...
     def rows(
-        self, *fields: str, selected_items: Optional[Sequence[str]] = ...
+        self,
+        *fields: str,
+        selected_items: Optional[Sequence[str]] = ...,
+        compact: bool = ...,
+        outline: bool = ...,
+        show_all: bool = ...,
+        insert_blank_row: bool = ...,
+        default_subtotal: bool = ...,
     ) -> PivotTableBuilder: ...
     def columns(
-        self, *fields: str, selected_items: Optional[Sequence[str]] = ...
+        self,
+        *fields: str,
+        selected_items: Optional[Sequence[str]] = ...,
+        compact: bool = ...,
+        outline: bool = ...,
+        show_all: bool = ...,
+        insert_blank_row: bool = ...,
+        default_subtotal: bool = ...,
     ) -> PivotTableBuilder: ...
     def filters(
         self, *fields: str, selected_items: Optional[Sequence[str]] = ...
@@ -25,6 +49,9 @@ class PivotTableBuilder:
         name: str = ...,
         subtotal: Union[str, XLPivotSubtotal] = ...,
         num_fmt_id: int = ...,
+        show_values_as: Optional[
+            Union[str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict]
+        ] = ...,
     ) -> PivotTableBuilder: ...
     def style(self, style_name: str) -> PivotTableBuilder: ...
     def data_on_rows(self, value: bool = ...) -> PivotTableBuilder: ...
@@ -52,4 +79,7 @@ def pivot_table(
     filters: Optional[Union[str, Sequence[str]]] = ...,
     style: Optional[str] = ...,
     subtotal: Union[str, XLPivotSubtotal] = ...,
+    show_values_as: Optional[
+        Union[str, XLPivotShowValuesAs, XLPivotShowValuesAsOptions, tuple, dict]
+    ] = ...,
 ) -> PivotTableBuilder: ...

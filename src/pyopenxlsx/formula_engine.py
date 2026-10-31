@@ -76,7 +76,11 @@ class FormulaEngine:
         if text.startswith("="):
             text = text[1:]
 
-        wks_binding = worksheet._sheet if worksheet is not None and hasattr(worksheet, "_sheet") else worksheet
+        wks_binding = (
+            worksheet._sheet
+            if worksheet is not None and hasattr(worksheet, "_sheet")
+            else worksheet
+        )
         owned_session = None
         if session is None and (
             current_row is not None

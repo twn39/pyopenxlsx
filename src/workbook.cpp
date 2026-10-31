@@ -17,44 +17,47 @@ void init_workbook(py::module_& m) {
             [](XLWorkbook& self, const std::string& name) { return self.worksheet(name); },
             "sheet_name"_a, py::keep_alive<0, 1>())
         .def(
-            "worksheet",
-            [](XLWorkbook& self, uint16_t index) { return self.worksheet(index); },
+            "worksheet", [](XLWorkbook& self, uint16_t index) { return self.worksheet(index); },
             "index"_a, py::keep_alive<0, 1>())
         .def("chartsheet", py::overload_cast<std::string_view>(&XLWorkbook::chartsheet),
              "sheet_name"_a, py::keep_alive<0, 1>())
         .def("chartsheet", py::overload_cast<uint16_t>(&XLWorkbook::chartsheet), "index"_a,
              py::keep_alive<0, 1>())
-        .def("add_worksheet",
-             [](XLWorkbook& self, const std::string& name) {
-                 py::gil_scoped_release release;
-                 self.addWorksheet(name);
-             },
-             "sheet_name"_a)
-        .def("add_chartsheet",
-             [](XLWorkbook& self, const std::string& name) {
-                 py::gil_scoped_release release;
-                 self.addChartsheet(name);
-             },
-             "sheet_name"_a)
-        .def("delete_sheet",
-             [](XLWorkbook& self, const std::string& name) {
-                 py::gil_scoped_release release;
-                 self.deleteSheet(name);
-             },
-             "sheet_name"_a)
-        .def("clone_sheet",
-             [](XLWorkbook& self, const std::string& existingName, const std::string& newName) {
-                 py::gil_scoped_release release;
-                 self.cloneSheet(existingName, newName);
-             },
-             "existing_name"_a, "new_name"_a)
+        .def(
+            "add_worksheet",
+            [](XLWorkbook& self, const std::string& name) {
+                py::gil_scoped_release release;
+                self.addWorksheet(name);
+            },
+            "sheet_name"_a)
+        .def(
+            "add_chartsheet",
+            [](XLWorkbook& self, const std::string& name) {
+                py::gil_scoped_release release;
+                self.addChartsheet(name);
+            },
+            "sheet_name"_a)
+        .def(
+            "delete_sheet",
+            [](XLWorkbook& self, const std::string& name) {
+                py::gil_scoped_release release;
+                self.deleteSheet(name);
+            },
+            "sheet_name"_a)
+        .def(
+            "clone_sheet",
+            [](XLWorkbook& self, const std::string& existingName, const std::string& newName) {
+                py::gil_scoped_release release;
+                self.cloneSheet(existingName, newName);
+            },
+            "existing_name"_a, "new_name"_a)
         .def("set_sheet_index", &XLWorkbook::setSheetIndex, "sheet_name"_a, "index"_a)
         .def("index_of_sheet", &XLWorkbook::indexOfSheet, "sheet_name"_a)
         .def("type_of_sheet",
              py::overload_cast<std::string_view>(&XLWorkbook::typeOfSheet, py::const_),
              "sheet_name"_a)
-        .def("type_of_sheet",
-             py::overload_cast<unsigned int>(&XLWorkbook::typeOfSheet, py::const_), "index"_a)
+        .def("type_of_sheet", py::overload_cast<unsigned int>(&XLWorkbook::typeOfSheet, py::const_),
+             "index"_a)
         .def("sheet_count", &XLWorkbook::sheetCount)
         .def("worksheet_count", &XLWorkbook::worksheetCount)
         .def("chartsheet_count", &XLWorkbook::chartsheetCount)
@@ -71,10 +74,16 @@ void init_workbook(py::module_& m) {
         .def("update_worksheet_dimensions", &XLWorkbook::updateWorksheetDimensions)
         .def("set_full_calculation_on_load", &XLWorkbook::setFullCalculationOnLoad)
         .def(
-            "protect",
-            [](XLWorkbook& self, bool lock_structure, bool lock_windows, std::string_view password) {
-                self.protect(lock_structure, lock_windows, password);
+            "compact_styles",
+            [](XLWorkbook& self) {
+                py::gil_scoped_release release;
+                self.compactStyles();
             },
+            "Compact and deduplicate cell formats across all worksheets.")
+        .def(
+            "protect",
+            [](XLWorkbook& self, bool lock_structure, bool lock_windows,
+               std::string_view password) { self.protect(lock_structure, lock_windows, password); },
             "lock_structure"_a = true, "lock_windows"_a = false, "password"_a = "")
         .def("unprotect", &XLWorkbook::unprotect)
         .def("is_protected", &XLWorkbook::isProtected)

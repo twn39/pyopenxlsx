@@ -3,7 +3,6 @@
 using namespace OpenXLSX;
 using namespace nanobind::literals;
 
-
 void init_cell(py::module_& m) {
     // Bind XLMergeCells
     py::class_<XLMergeCells>(m, "XLMergeCells")
@@ -12,10 +11,12 @@ void init_cell(py::module_& m) {
         .def("merge_exists", &XLMergeCells::mergeExists)
         .def("append_merge", &XLMergeCells::appendMerge)
         .def("delete_merge", &XLMergeCells::deleteMerge)
-        .def("__getitem__", [](const XLMergeCells& self, int index) {
-            if (index < 0 || index >= self.count()) throw py::index_error();
-            return self.merge(index);
-        });
+        .def("__getitem__",
+             [](const XLMergeCells& self, int index) {
+                 if (index < 0 || index >= self.count()) throw py::index_error();
+                 return self.merge(index);
+             })
+        .freeze();
 
     // Bind XLCellReference
     py::class_<XLCellReference>(m, "XLCellReference")
@@ -32,7 +33,8 @@ void init_cell(py::module_& m) {
         .def("set_row_and_column", &XLCellReference::setRowAndColumn, "row"_a, "column"_a)
         .def("__str__", &XLCellReference::address)
         .def("__eq__", [](const XLCellReference& a, const XLCellReference& b) { return a == b; })
-        .def("__lt__", [](const XLCellReference& a, const XLCellReference& b) { return a < b; });
+        .def("__lt__", [](const XLCellReference& a, const XLCellReference& b) { return a < b; })
+        .freeze();
 
     // Bind XLCellRange
     py::class_<XLCellRange>(m, "XLCellRange")
@@ -53,7 +55,8 @@ void init_cell(py::module_& m) {
             [m = py::module_(m)](const XLCellRange& self) {
                 return py::make_iterator(m, "XLCellRangeIterator", self.begin(), self.end());
             },
-            py::keep_alive<0, 1>());
+            py::keep_alive<0, 1>())
+        .freeze();
 
     // Bind XLFormula
     py::class_<XLFormula>(m, "XLFormula")
@@ -64,7 +67,8 @@ void init_cell(py::module_& m) {
         .def("__str__", [](const XLFormula& self) { return self.get(); })
         .def("__eq__", [](const XLFormula& self, const XLFormula& other) { return self == other; })
         .def("__eq__",
-             [](const XLFormula& self, const std::string& other) { return self.get() == other; });
+             [](const XLFormula& self, const std::string& other) { return self.get() == other; })
+        .freeze();
 
     // Bind XLCell
     py::class_<XLCell>(m, "XLCell")
@@ -111,5 +115,6 @@ void init_cell(py::module_& m) {
             [](XLCell& self, std::string_view text, std::string_view author) -> XLCell& {
                 return self.addNote(text, author);
             },
-            "text"_a, "author"_a = "", py::rv_policy::reference_internal);
+            "text"_a, "author"_a = "", py::rv_policy::reference_internal)
+        .freeze();
 }

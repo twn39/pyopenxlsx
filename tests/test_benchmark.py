@@ -122,9 +122,7 @@ def large_str_data() -> List[List[str]]:
 @pytest.fixture(scope="session")
 def large_float_list() -> List[List[float]]:
     """1000×50 floats as Python lists (same logical grid as numpy)."""
-    return [
-        [float(r * 50 + c) for c in range(50)] for r in range(1000)
-    ]
+    return [[float(r * 50 + c) for c in range(50)] for r in range(1000)]
 
 
 @pytest.fixture(scope="session")
@@ -141,9 +139,7 @@ def extreme_str_data() -> List[List[str]]:
 
 @pytest.fixture(scope="session")
 def extreme_float_list() -> List[List[float]]:
-    return [
-        [float(r * 100 + c) for c in range(100)] for r in range(10000)
-    ]
+    return [[float(r * 100 + c) for c in range(100)] for r in range(10000)]
 
 
 @pytest.fixture(scope="session")
@@ -160,7 +156,11 @@ def large_date_data() -> List[List[Any]]:
         row: List[Any] = []
         for c in range(20):
             d = base + timedelta(days=r, hours=c % 24)
-            row.append(d if c % 2 == 0 else datetime.combine(d, datetime.min.time()) + timedelta(hours=c))
+            row.append(
+                d
+                if c % 2 == 0
+                else datetime.combine(d, datetime.min.time()) + timedelta(hours=c)
+            )
         rows.append(row)
     return rows
 
@@ -284,9 +284,7 @@ def write_py_set_cells(data: Sequence[Sequence[Any]], filepath: str) -> None:
     try:
         ws = wb.active
         cells = [
-            (r, c, val)
-            for r, row in enumerate(data, 1)
-            for c, val in enumerate(row, 1)
+            (r, c, val) for r, row in enumerate(data, 1) for c, val in enumerate(row, 1)
         ]
         ws.set_cells(cells)
         wb.save(filepath)
@@ -644,7 +642,11 @@ def test_extreme_float_py_numpy(benchmark, temp_xlsx_file, extreme_np_data):
 @pytest.mark.benchmark(group="write_extreme_float")
 def test_extreme_float_py_rows(benchmark, temp_xlsx_file, extreme_float_list):
     benchmark(
-        _monitored, "py_rows_float_1M", write_py_rows, extreme_float_list, temp_xlsx_file
+        _monitored,
+        "py_rows_float_1M",
+        write_py_rows,
+        extreme_float_list,
+        temp_xlsx_file,
     )
 
 
@@ -660,7 +662,11 @@ def test_extreme_str_py_rows(benchmark, temp_xlsx_file, extreme_str_data):
 @pytest.mark.benchmark(group="write_extreme_str")
 def test_extreme_str_py_stream(benchmark, temp_xlsx_file, extreme_str_data):
     benchmark(
-        _monitored, "py_stream_str_1M", write_py_stream, extreme_str_data, temp_xlsx_file
+        _monitored,
+        "py_stream_str_1M",
+        write_py_stream,
+        extreme_str_data,
+        temp_xlsx_file,
     )
 
 

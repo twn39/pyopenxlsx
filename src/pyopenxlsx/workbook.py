@@ -74,7 +74,15 @@ class Workbook:
             self._auto_date_style_idx = self.add_style(number_format="yyyy-mm-dd")
         return self._auto_date_style_idx
 
-    def save(self, filename=None, force_overwrite=True, password=None):
+    def save(
+        self,
+        filename=None,
+        force_overwrite=True,
+        password=None,
+        compact: bool = False,
+    ):
+        if compact:
+            self.compact_styles()
         if filename:
             if password is not None:
                 self._doc.save_as(str(filename), force_overwrite, password)
@@ -124,8 +132,28 @@ class Workbook:
     def cleanup_shared_strings(self):
         self._doc.cleanup_shared_strings()
 
-    async def save_async(self, filename=None, force_overwrite=True, password=None):
-        await asyncio.to_thread(self.save, filename, force_overwrite, password)
+    def compact_styles(self) -> None:
+        """Deduplicate and compact unused cell formats across all worksheets.
+
+        Scans all cell, row, and column style references, merges duplicate
+        cellXfs, and cleans up unreachable styles while preserving ECMA-376
+        invariants (e.g. cellXfs 0).
+        """
+        self._check_closed()
+        self._doc.compact_styles()
+        # Invalidate cached style indices after compaction
+        self._auto_date_style_idx = None
+        self._auto_datetime_style_idx = None
+        self._styles = None
+
+    async def save_async(
+        self,
+        filename=None,
+        force_overwrite=True,
+        password=None,
+        compact: bool = False,
+    ):
+        await asyncio.to_thread(self.save, filename, force_overwrite, password, compact)
 
     def close(self):
         if getattr(self, "_closed", False):

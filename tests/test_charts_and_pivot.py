@@ -88,6 +88,17 @@ def test_pivot_tables(tmp_path):
         assert ws.cell(1, 1).value == "Region"
 
 
+def test_pivot_subtotals_enum():
+    assert hasattr(XLPivotSubtotal, "Sum")
+    assert hasattr(XLPivotSubtotal, "Average")
+    assert hasattr(XLPivotSubtotal, "Count")
+    assert hasattr(XLPivotSubtotal, "CountNums")
+    assert hasattr(XLPivotSubtotal, "StdDev")
+    assert hasattr(XLPivotSubtotal, "StdDevP")
+    assert hasattr(XLPivotSubtotal, "Var")
+    assert hasattr(XLPivotSubtotal, "VarP")
+
+
 def test_stock_and_surface_charts(tmp_path):
     """Test newly fixed StockOHLC and Surface3D charts in OpenXLSX."""
     file_path = tmp_path / "test_stock_surface.xlsx"
@@ -135,3 +146,49 @@ def test_stock_and_surface_charts(tmp_path):
         ws = wb.active
         assert ws.cell(1, 1).value == "Date"
         assert ws.cell(11, 2).value == 1
+
+
+def test_pivot_show_values_as_and_layout(tmp_path):
+    from pyopenxlsx._openxlsx import XLPivotShowValuesAs
+    from pyopenxlsx.pivot import pivot_table, pivot_show_values_as
+
+    # Test helper parsing
+    opt1 = pivot_show_values_as("percent_of_grand_total")
+    assert opt1.type == XLPivotShowValuesAs.PercentOfGrandTotal
+
+    opt2 = pivot_show_values_as(("difference_from", "Region", "North"))
+    assert opt2.type == XLPivotShowValuesAs.DifferenceFrom
+    assert opt2.base_field == "Region"
+    assert opt2.base_item == "North"
+
+    opt3 = pivot_show_values_as({"type": "index"})
+    assert opt3.type == XLPivotShowValuesAs.Index
+
+    # Test creating and saving pivot table with advanced options
+    file_path = tmp_path / "test_pivot_advanced.xlsx"
+    with Workbook() as wb:
+        ws = wb.active
+        ws.write_row(1, ["Region", "Year", "Sales"])
+        ws.write_rows(
+            2,
+            [
+                ["North", 2024, 100],
+                ["South", 2024, 200],
+                ["North", 2025, 150],
+                ["South", 2025, 250],
+            ],
+        )
+
+        builder = (
+            pivot_table("SalesPivot", "Sheet1!A1:C5", "E1")
+            .rows("Region", compact=True, outline=True)
+            .columns("Year")
+            .data("Sales", subtotal="sum", show_values_as="percent_of_total")
+            .style("PivotStyleMedium9")
+        )
+        builder.add_to(ws)
+        wb.save(file_path)
+
+    with Workbook(file_path) as wb:
+        ws = wb.active
+        assert ws.cell(1, 1).value == "Region"

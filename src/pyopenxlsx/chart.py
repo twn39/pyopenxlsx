@@ -81,9 +81,7 @@ class Chart:
     ) -> "Chart":
         """Add a series from A1-style references."""
         ct = None if series_type is None else chart_type(series_type)
-        self._chart.add_series_ref(
-            values_ref, name, categories_ref, ct, secondary_axis
-        )
+        self._chart.add_series_ref(values_ref, name, categories_ref, ct, secondary_axis)
         return self
 
     def series_many(

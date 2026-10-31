@@ -47,7 +47,8 @@ void init_row(py::module_& m) {
             "values"_a)
         .def("find_cell", &XLRow::findCell, "column_number"_a)
         .def("format", &XLRow::format)
-        .def("set_format", &XLRow::setFormat, "cell_format_index"_a);
+        .def("set_format", &XLRow::setFormat, "cell_format_index"_a)
+        .freeze();
 
     py::class_<XLRowRange>(m, "XLRowRange")
         .def("row_count", &XLRowRange::rowCount)
@@ -57,5 +58,6 @@ void init_row(py::module_& m) {
             [m = py::module_(m)](XLRowRange& self) {
                 return py::make_iterator(m, "XLRowRangeIterator", self.begin(), self.end());
             },
-            py::keep_alive<0, 1>());
+            py::keep_alive<0, 1>())
+        .freeze();
 }

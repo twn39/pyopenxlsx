@@ -9,7 +9,7 @@ def test_evaluate_strips_equals_and_helpers():
     assert engine.evaluate("1+2*3") == 7
     assert engine.sum("10, 20, 30") == 60
     assert engine.average("10, 20") == 15
-    assert engine.count("10, 20, \"x\"") == 2
+    assert engine.count('10, 20, "x"') == 2
     assert engine.if_("1>0", "1", "0") == 1
     assert engine.evaluate_many(["SUM(1,2)", "AVERAGE(2,4)"]) == [3, 3]
 

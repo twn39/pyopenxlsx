@@ -27,11 +27,9 @@ def test_pivot_builder_chain(tmp_path):
         ws.write_rows(
             2, [["North", 100], ["South", 200], ["North", 150], ["South", 250]]
         )
-        PivotTableBuilder("PivotTable1", "Sheet1!A1:B5", "D1").rows(
-            "Region"
-        ).data("Sales", subtotal="sum", num_fmt_id=4).style(
-            "PivotStyleMedium9"
-        ).data_on_rows(True).show_headers(rows=True).stripes(
+        PivotTableBuilder("PivotTable1", "Sheet1!A1:B5", "D1").rows("Region").data(
+            "Sales", subtotal="sum", num_fmt_id=4
+        ).style("PivotStyleMedium9").data_on_rows(True).show_headers(rows=True).stripes(
             columns=True
         ).compact(False).add_to(ws)
         wb.save(path)

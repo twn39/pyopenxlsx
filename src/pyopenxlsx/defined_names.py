@@ -102,9 +102,7 @@ class DefinedNames:
             return self._names.append(name, formula)
         return self._names.append(name, formula, local_sheet_id)
 
-    def get(
-        self, name: str, local_sheet_id: Optional[int] = None
-    ) -> DefinedName:
+    def get(self, name: str, local_sheet_id: Optional[int] = None) -> DefinedName:
         if local_sheet_id is None:
             return DefinedName(self._names.get(name))
         return DefinedName(self._names.get(name, local_sheet_id=local_sheet_id))
